@@ -142,7 +142,7 @@ export default function ResultsPage() {
           </p>
           <Link
             href="/pricing"
-            className="inline-block px-6 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-br from-indigo-500 to-violet-600 text-white"
+            className="inline-block px-6 py-2.5 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
           >
             View Pricing
           </Link>
