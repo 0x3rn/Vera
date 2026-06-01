@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentStatus {
+  free
+  unpaid
+  paid
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  free_scans_used Int      @default(0)
+  created_at     DateTime @default(now())
+
+  scans Scan[]
+}
+
+model Scan {
+  id                String        @id @default(uuid())
+  user_id           String
+  document_name     String
+  ai_result         Json?
+  payment_status    PaymentStatus @default(free)
+  stripe_session_id String?
+  created_at        DateTime      @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+}

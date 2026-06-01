@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function PricingPage() {
-  const [selectedPlan, setSelectedPlan] = useState<"onetime" | "subscription">("subscription");
+  const [hoveredPlan, setHoveredPlan] = useState<string | null>(null);
 
   const handleCheckout = async (plan: "onetime" | "subscription") => {
     try {
@@ -25,147 +25,153 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-full bg-white dark:bg-zinc-950">
-      {/* Header */}
-      <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-              V
-            </div>
-            <span className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">Vera</span>
+    <div className="flex flex-col min-h-full">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
+        <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold tracking-tight">
+            Vera<span className="text-indigo-500">.</span>
           </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/pricing" className="text-sm font-medium text-zinc-900 dark:text-white">Pricing</Link>
-            <Link href="/" className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">Scan a contract</Link>
+          <div className="hidden md:flex items-center gap-8">
+            <Link href="/#how-it-works" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+              How it Works
+            </Link>
+            <Link href="/#features" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+              Red Flags
+            </Link>
+            <Link href="/pricing" className="text-sm font-medium text-white transition-colors">
+              Pricing
+            </Link>
+          </div>
+          <div>
+            <Link
+              href="/"
+              className="inline-block px-6 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all"
+            >
+              Scan a Contract
+            </Link>
           </div>
         </div>
-      </header>
+      </nav>
 
-      <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-20">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl sm:text-5xl font-bold text-zinc-900 dark:text-white mb-4 tracking-tight">
-            Simple, transparent pricing
+      {/* Hero */}
+      <section className="pt-[180px] pb-[100px] text-center relative">
+        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500 rounded-full blur-[150px] opacity-15 -z-10" />
+        <div className="max-w-6xl mx-auto px-8">
+          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
+            Simple,{" "}
+            <span className="bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">
+              transparent pricing.
+            </span>
           </h1>
-          <p className="text-lg text-zinc-500 dark:text-zinc-400 max-w-lg mx-auto">
-            Scan as many or as few contracts as you need. No hidden fees, no surprises.
+          <p className="text-lg md:text-xl text-zinc-400 max-w-[650px] mx-auto leading-relaxed">
+            Pay a fraction of a lawyer's hourly rate. No hidden fees, no surprises.
           </p>
         </div>
+      </section>
 
-        <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
-          {/* Pay-per-scan */}
-          <div
-            className={`relative rounded-2xl border-2 p-8 transition-all ${
-              selectedPlan === "onetime"
-                ? "border-red-600 bg-red-50/30 dark:bg-red-950/10"
-                : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
-            }`}
-            onClick={() => setSelectedPlan("onetime")}
-          >
-            <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-4">Per Scan</p>
-            <div className="mb-6">
-              <span className="text-5xl font-bold text-zinc-900 dark:text-white">$10</span>
-              <span className="text-zinc-400 ml-1">/scan</span>
-            </div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Full contract analysis
-              </li>
-              <li className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                PDF or text input
-              </li>
-              <li className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Plain-English red flag report
-              </li>
-            </ul>
-            <button
-              onClick={() => handleCheckout("onetime")}
-              className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors ${
-                selectedPlan === "onetime"
-                  ? "bg-red-600 text-white hover:bg-red-700"
-                  : "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+      {/* Pricing cards */}
+      <section className="pb-[100px]">
+        <div className="max-w-[900px] mx-auto px-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Pay As You Go */}
+            <div
+              className={`relative bg-[#121216] border rounded-2xl p-12 transition-all duration-300 ${
+                hoveredPlan === "onetime"
+                  ? "border-zinc-600 -translate-y-1 shadow-2xl shadow-black/50"
+                  : "border-[#22222a]"
               }`}
+              onMouseEnter={() => setHoveredPlan("onetime")}
+              onMouseLeave={() => setHoveredPlan(null)}
             >
-              Pay $10 per scan
-            </button>
-          </div>
+              <h3 className="text-xl text-zinc-400 font-medium mb-2">Pay As You Go</h3>
+              <div className="text-6xl font-bold mb-8">
+                $5
+                <span className="text-lg font-normal text-zinc-600 ml-1">/ document</span>
+              </div>
+              <ul className="space-y-4 mb-10">
+                <li className="flex items-center gap-3 text-zinc-300">
+                  <svg className="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  1 Full PDF Scan (up to 30 pages)
+                </li>
+                <li className="flex items-center gap-3 text-zinc-300">
+                  <svg className="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}> <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> </svg>
+                  1-Page Plain English Summary
+                </li>
+                <li className="flex items-center gap-3 text-zinc-300">
+                  <svg className="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}> <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> </svg>
+                  Highlights Red Flags & Toxic Clauses
+                </li>
+                <li className="flex items-center gap-3 text-zinc-300">
+                  <svg className="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}> <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> </svg>
+                  Secure Stripe Checkout
+                </li>
+              </ul>
+              <button
+                onClick={() => handleCheckout("onetime")}
+                className="w-full py-4 rounded-lg border text-sm font-semibold transition-all hover:-translate-y-0.5 border-zinc-700 hover:border-zinc-500 hover:bg-white/5"
+              >
+                Scan a Document
+              </button>
+            </div>
 
-          {/* Subscription */}
-          <div
-            className={`relative rounded-2xl border-2 p-8 transition-all ${
-              selectedPlan === "subscription"
-                ? "border-red-600 bg-red-50/30 dark:bg-red-950/10"
-                : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
-            }`}
-            onClick={() => setSelectedPlan("subscription")}
-          >
-            <div className="absolute -top-3 left-6 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
-              Best value
-            </div>
-            <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-4">Unlimited</p>
-            <div className="mb-6">
-              <span className="text-5xl font-bold text-zinc-900 dark:text-white">$20</span>
-              <span className="text-zinc-400 ml-1">/month</span>
-            </div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Everything in Per Scan
-              </li>
-              <li className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Unlimited scans
-              </li>
-              <li className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Priority processing
-              </li>
-              <li className="flex items-start gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <svg className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Cancel anytime
-              </li>
-            </ul>
-            <button
-              onClick={() => handleCheckout("subscription")}
-              className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors ${
-                selectedPlan === "subscription"
-                  ? "bg-red-600 text-white hover:bg-red-700"
-                  : "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+            {/* Pro */}
+            <div
+              className={`relative bg-gradient-to-b from-[#141419] to-[#0c0c0f] border rounded-2xl p-12 transition-all duration-300 ${
+                hoveredPlan === "subscription"
+                  ? "border-indigo-500 -translate-y-1 shadow-2xl shadow-indigo-500/10"
+                  : "border-indigo-500/50"
               }`}
+              onMouseEnter={() => setHoveredPlan("subscription")}
+              onMouseLeave={() => setHoveredPlan(null)}
             >
-              Start $20/month
-            </button>
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-violet-600 px-5 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                Most Popular
+              </div>
+              <h3 className="text-xl text-zinc-400 font-medium mb-2">Pro</h3>
+              <div className="text-6xl font-bold mb-8">
+                $10
+                <span className="text-lg font-normal text-zinc-600 ml-1">/ month</span>
+              </div>
+              <ul className="space-y-4 mb-10">
+                <li className="flex items-center gap-3 text-zinc-300">
+                  <svg className="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}> <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> </svg>
+                  Unlimited Document Scans
+                </li>
+                <li className="flex items-center gap-3 text-zinc-300">
+                  <svg className="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}> <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> </svg>
+                  Export Summaries to PDF
+                </li>
+                <li className="flex items-center gap-3 text-zinc-300">
+                  <svg className="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}> <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> </svg>
+                  Upload Multi-Document Portfolios
+                </li>
+                <li className="flex items-center gap-3 text-zinc-300">
+                  <svg className="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}> <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> </svg>
+                  Priority Email Support
+                </li>
+              </ul>
+              <button
+                onClick={() => handleCheckout("subscription")}
+                className="w-full py-4 rounded-lg text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all"
+              >
+                Subscribe Now
+              </button>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div className="text-center mt-12">
-          <p className="text-xs text-zinc-400">
-            Secured by Stripe · Cancel anytime · No long-term contracts
-          </p>
-        </div>
-      </main>
-
-      <footer className="w-full border-t border-zinc-200 dark:border-zinc-800 py-8">
-        <div className="max-w-5xl mx-auto px-6 text-center">
-          <p className="text-xs text-zinc-400">
-            Vera · Not legal advice · Built for professionals who sign contracts
+      {/* Footer */}
+      <footer className="border-t border-[#22222a] py-12 mt-auto">
+        <div className="max-w-6xl mx-auto px-8 text-center">
+          <p className="text-sm text-zinc-600">
+            &copy; {new Date().getFullYear()} Vera AI Contract Scanner. Not legal advice. Built for professionals who sign contracts.
           </p>
         </div>
       </footer>
