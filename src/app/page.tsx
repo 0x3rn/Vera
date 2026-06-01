@@ -261,16 +261,15 @@ export default function Home() {
       {showLanding && (
         <>
           <section className="pt-[180px] pb-[100px] text-center relative" id="hero">
-            <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500 rounded-full blur-[150px] opacity-15 -z-10" />
-            <div className="max-w-6xl mx-auto px-8">
-              <h1 className="text-5xl md:text-6xl font-bold leading-tight max-w-[900px] mx-auto mb-6">
+            <div className="max-w-6xl mx-auto px-4 sm:px-8">
+              <h1 className="text-5xl md:text-6xl font-bold leading-tight mx-auto mb-6">
                 Don't Sign Away Your Rights.{" "}
                 <br />
-                <span className="bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">
+                <span className="text-indigo-400">
                   Let AI Read the Fine Print.
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-zinc-400 max-w-[650px] mx-auto mb-12 leading-relaxed">
+              <p className="text-lg md:text-xl text-zinc-400 max-w-xl mx-auto mb-12 leading-relaxed">
                 Lawyers cost $400/hr. Vera scans contracts in seconds, outputting a plain-English summary of hidden traps, bad payment terms, and toxic clauses.
               </p>
               <p className="text-sm text-zinc-600">2 free scans. Sign in with Google to get started.</p>
