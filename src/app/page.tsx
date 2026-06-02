@@ -260,65 +260,65 @@ export default function Home() {
       {/* Hero Section */}
       {showLanding && (
         <>
-          <section className="pt-[180px] pb-[100px] text-center relative" id="hero">
+          <section className="pt-28 sm:pt-44 pb-16 sm:pb-24 text-center relative" id="hero">
             <div className="max-w-6xl mx-auto px-4 sm:px-8">
-              <h1 className="text-5xl md:text-6xl font-bold leading-tight mx-auto mb-6">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold leading-tight mx-auto mb-4 sm:mb-6">
                 Don't Sign Away Your Rights.{" "}
                 <br />
                 <span className="text-indigo-400">
                   Let AI Read the Fine Print.
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-zinc-400 max-w-xl mx-auto mb-12 leading-relaxed">
+              <p className="text-sm sm:text-base md:text-xl text-zinc-400 max-w-xl mx-auto mb-8 sm:mb-12 leading-relaxed">
                 Lawyers cost $400/hr. Vera scans contracts in seconds, outputting a plain-English summary of hidden traps, bad payment terms, and toxic clauses.
               </p>
               <p className="text-sm text-zinc-600">2 free scans. Sign in with Google to get started.</p>
             </div>
           </section>
 
-          <section id="features" className="py-[100px]">
-            <div className="max-w-6xl mx-auto px-8">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <section id="features" className="py-16 sm:py-24">
+            <div className="max-w-6xl mx-auto px-4 sm:px-8">
+              <div className="text-center mb-10 sm:mb-16">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
                   Professionals lose thousands to bad contracts.
                 </h2>
-                <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+                <p className="text-zinc-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
                   Vera's AI engine is strictly trained on legal contracts to catch what you missed.
                 </p>
               </div>
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="bg-[#121216] border border-[#22222a] p-10 rounded-2xl hover:border-[#33333d] hover:-translate-y-1 transition-all">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
+                <div className="bg-[#121216] border border-[#22222a] p-6 sm:p-10 rounded-2xl hover:border-[#33333d] transition-all">
+                  <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4 sm:mb-6">
+                    <svg className="w-5 sm:w-6 h-5 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold mb-4">Payment Timelines</h3>
-                  <p className="text-zinc-400 leading-relaxed">
+                  <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4">Payment Timelines</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">
                     Stop agreeing to{" "}
                     <span className="text-red-500 font-medium">Net-90 payment terms</span>{" "}
                     blindly. Vera highlights delayed payment clauses so you know exactly when you're getting paid.
                   </p>
                 </div>
-                <div className="bg-[#121216] border border-[#22222a] p-10 rounded-2xl hover:border-[#33333d] hover:-translate-y-1 transition-all">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <div className="bg-[#121216] border border-[#22222a] p-6 sm:p-10 rounded-2xl hover:border-[#33333d] transition-all">
+                  <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4 sm:mb-6">
+                    <svg className="w-5 sm:w-6 h-5 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold mb-4">Perpetual IP Rights</h3>
-                  <p className="text-zinc-400 leading-relaxed">
+                  <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4">Perpetual IP Rights</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">
                     Are they claiming your work forever? We catch clauses that force you to give away your intellectual property rights without proper compensation.
                   </p>
                 </div>
-                <div className="bg-[#121216] border border-[#22222a] p-10 rounded-2xl hover:border-[#33333d] hover:-translate-y-1 transition-all">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <div className="bg-[#121216] border border-[#22222a] p-6 sm:p-10 rounded-2xl hover:border-[#33333d] transition-all">
+                  <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4 sm:mb-6">
+                    <svg className="w-5 sm:w-6 h-5 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold mb-4">Kill Fees & Exclusivity</h3>
-                  <p className="text-zinc-400 leading-relaxed">
+                  <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4">Kill Fees & Exclusivity</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">
                     Avoid{" "}
                     <span className="text-red-500 font-medium">exclusivity traps</span>{" "}
                     that prevent you from working with other clients, and ensure your contract has a clear cancellation (kill) fee.
@@ -329,18 +329,18 @@ export default function Home() {
           </section>
 
           {/* Pricing — integrated on landing page */}
-          <section id="pricing" className="py-[80px]">
+          <section id="pricing" className="py-16 sm:py-24">
             <div className="max-w-4xl mx-auto px-4 sm:px-8">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold mb-3">Simple pricing</h2>
+              <div className="text-center mb-8 sm:mb-12">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3">Simple pricing</h2>
                 <p className="text-zinc-400">2 free scans. Then pick a plan.</p>
               </div>
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="bg-[#121216] border border-[#22222a] rounded-2xl p-8 text-center hover:border-zinc-600 transition-all">
-                  <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">Per Scan</p>
-                  <div className="text-5xl font-bold mb-4">$5</div>
+              <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="bg-[#121216] border border-[#22222a] rounded-2xl p-6 sm:p-8 text-center hover:border-zinc-600 transition-all">
+                  <p className="text-xs sm:text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-2 sm:mb-3">Per Scan</p>
+                  <div className="text-4xl sm:text-5xl font-bold mb-3 sm:mb-4">$5</div>
                   <p className="text-zinc-400 text-sm mb-6">One contract, one fee</p>
-                  <ul className="text-left space-y-2 mb-6">
+                  <ul className="text-left space-y-1.5 sm:space-y-2 mb-4 sm:mb-6">
                     <li className="flex items-center gap-2 text-sm text-zinc-400">
                       <svg className="w-4 h-4 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                       Full contract analysis
@@ -350,17 +350,17 @@ export default function Home() {
                       PDF or text input
                     </li>
                   </ul>
-                  <Link href="/pricing" className="inline-block w-full py-3 rounded-lg border border-zinc-700 text-sm font-medium hover:border-zinc-500 hover:bg-white/5 transition-all">
+                  <Link href="/pricing" className="inline-block w-full py-2.5 sm:py-3 rounded-lg border border-zinc-700 text-xs sm:text-sm font-medium hover:border-zinc-500 hover:bg-white/5 transition-all">
                     Get started
                   </Link>
                 </div>
-                <div className="bg-[#121216] border border-indigo-500/50 rounded-2xl p-8 text-center hover:border-indigo-500 transition-all relative">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                <div className="bg-[#121216] border border-indigo-500/50 rounded-2xl p-6 sm:p-8 text-center hover:border-indigo-500 transition-all relative">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 px-3 sm:px-4 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1 sm:gap-1.5">
+                    <svg className="w-2.5 sm:w-3 h-2.5 sm:h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                     Best Value
                   </div>
-                  <p className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3 mt-1">Pro</p>
-                  <div className="text-5xl font-bold mb-1">$10<span className="text-lg font-normal text-zinc-600">/mo</span></div>
+                  <p className="text-xs sm:text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-2 sm:mb-3 mt-1">Pro</p>
+                  <div className="text-4xl sm:text-5xl font-bold mb-0 sm:mb-1">$10<span className="text-base sm:text-lg font-normal text-zinc-600">/mo</span></div>
                   <p className="text-zinc-400 text-sm mb-6">Unlimited scans</p>
                   <ul className="text-left space-y-2 mb-6">
                     <li className="flex items-center gap-2 text-sm text-zinc-400">
@@ -376,14 +376,11 @@ export default function Home() {
                       Cancel anytime
                     </li>
                   </ul>
-                  <Link href="/pricing" className="inline-block w-full py-3 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 hover:-translate-y-0.5 transition-all">
+                  <Link href="/pricing" className="inline-block w-full py-2.5 sm:py-3 rounded-lg bg-indigo-600 text-white text-xs sm:text-sm font-semibold hover:bg-indigo-700 hover:-translate-y-0.5 transition-all">
                     Subscribe
                   </Link>
                 </div>
               </div>
-              <p className="text-xs text-zinc-600 text-center mt-6">
-                <Link href="/pricing" className="underline underline-offset-4 hover:text-zinc-400 transition-colors">View full pricing</Link>
-              </p>
             </div>
           </section>
         </>
