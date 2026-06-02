@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const inter = Inter({
@@ -21,7 +22,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-[#070709] text-white font-sans antialiased overflow-x-hidden">
-        {children}
+        <NextTopLoader
+          color="#2563eb"
+          height={2}
+          showSpinner={false}
+          shadow="0 0 6px rgba(37, 99, 235, 0.3)"
+        />
+        <div className="animate-page-in">{children}</div>
       </body>
     </html>
   );
