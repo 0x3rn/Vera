@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-client";
 import { useRouter } from "next/navigation";
@@ -25,6 +25,138 @@ const DISPOSABLE_DOMAINS = new Set([
   "guerrillamail.biz", "guerrillamail.org", "guerrillamail.net",
   "guerrillamail.de", "guerrillamailblock.com", "pokemail.net", "spam4.me",
 ]);
+
+function SuccessState({
+  email,
+  supabase,
+  onToggleForm,
+}: {
+  email: string;
+  supabase: ReturnType<typeof createClient>;
+  onToggleForm: () => void;
+}) {
+  const [cooldown, setCooldown] = useState(60);
+  const [resending, setResending] = useState(false);
+  const [resendError, setResendError] = useState("");
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const handleResend = async () => {
+    if (cooldown > 0 || resending) return;
+    setResending(true);
+    setResendError("");
+    setResendSuccess(false);
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: `${origin}/api/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setResendError(error.message);
+    } else {
+      setResendSuccess(true);
+      setCooldown(60);
+      // Re-start countdown
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current!);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      // Auto-hide success toast after 5s
+      setTimeout(() => setResendSuccess(false), 5000);
+    }
+
+    setResending(false);
+  };
+
+  return (
+    <div className="text-center">
+      <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
+        <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h1 className="text-2xl font-bold mb-2">Check your email</h1>
+      <p className="text-zinc-400 text-sm leading-relaxed">
+        We've sent a confirmation link to{" "}
+        <strong className="text-white">{email}</strong>. Click the link to verify
+        your account and get started.
+      </p>
+
+      <p className="text-zinc-500 text-xs mt-4">
+        Didn't receive it? Please check your Spam or Promotions folder.
+      </p>
+
+      {resendError && (
+        <p className="text-red-400 text-xs mt-3">{resendError}</p>
+      )}
+
+      {resendSuccess && (
+        <p className="text-emerald-400 text-xs mt-3 font-medium">Email resent!</p>
+      )}
+
+      <button
+        onClick={handleResend}
+        disabled={cooldown > 0 || resending}
+        className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-zinc-700 text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:border-zinc-500 hover:bg-white/5"
+      >
+        {cooldown > 0 ? (
+          <>Resend link in {cooldown}s</>
+        ) : resending ? (
+          <>Sending...</>
+        ) : (
+          <>Resend verification link</>
+        )}
+      </button>
+
+      <div className="mt-6 space-y-2">
+        <Link
+          href="/login"
+          className="inline-block text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
+        >
+          Back to sign in
+        </Link>
+      </div>
+
+      <p className="text-xs text-zinc-600 mt-8">
+        Encountering problems? Contact us at{" "}
+        <a
+          href="mailto:support@verahq.xyz"
+          className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
+        >
+          support@verahq.xyz
+        </a>
+      </p>
+    </div>
+  );
+}
 
 function RegisterForm() {
   const router = useRouter();
@@ -97,22 +229,7 @@ function RegisterForm() {
   }, [supabase]);
 
   if (success) {
-    return (
-      <div className="text-center">
-        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
-          <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <h1 className="text-2xl font-bold mb-2">Check your email</h1>
-        <p className="text-zinc-400 text-sm leading-relaxed">
-          We've sent a confirmation link to <strong className="text-white">{email}</strong>. Click the link to verify your account and get started.
-        </p>
-        <Link href="/login" className="mt-8 inline-block text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-4">
-          Back to sign in
-        </Link>
-      </div>
-    );
+    return <SuccessState email={email} supabase={supabase} onToggleForm={() => setSuccess(false)} />;
   }
 
   return (
