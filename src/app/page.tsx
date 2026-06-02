@@ -106,10 +106,7 @@ export default function Home() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setUser(null);
-    setRemainingScans(null);
-    setAnalysis(null);
-    setScanId(null);
+    window.location.href = "/";
   };
 
   const scanWithData = useCallback(async (formData: FormData) => {
@@ -212,29 +209,24 @@ export default function Home() {
           <Link href="/" className="text-2xl font-bold tracking-tight">
             Vera<span className="text-indigo-500">.</span>
           </Link>
-          <div className="hidden md:flex items-center gap-8">
+          <div className="flex items-center gap-6">
             <a href="#how-it-works" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
-              How it Works
+              Free Scan
             </a>
-            <a href="#features" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
-              Red Flags
-            </a>
-            <a href="/pricing" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+            <a href="#pricing" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
               Pricing
             </a>
-          </div>
-          <div className="flex items-center gap-4">
-            {user && remainingScans !== null && remainingScans > 0 && (
-              <TrialBadge remaining={remainingScans} total={maxFreeScans} />
-            )}
             {user ? (
               <div className="flex items-center gap-3">
-                <span className="text-xs text-zinc-400 hidden sm:inline">
-                  {user.email}
-                </span>
+                <Link
+                  href="/dashboard"
+                  className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                >
+                  Dashboard
+                </Link>
                 <button
                   onClick={signOut}
-                  className="text-xs font-medium text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="text-sm font-medium text-zinc-500 hover:text-zinc-300 transition-colors"
                 >
                   Sign out
                 </button>
@@ -242,7 +234,7 @@ export default function Home() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:bg-white/5 transition-all"
+                className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
               >
                 Sign in
               </Link>
@@ -352,7 +344,7 @@ export default function Home() {
                       Secure Checkout
                     </li>
                   </ul>
-                  <Link href="/pricing" className="inline-block w-full py-3 rounded-lg border border-zinc-700 text-sm font-medium hover:border-zinc-500 hover:bg-white/5 transition-all">
+                  <Link href="/login" className="inline-block w-full py-3 rounded-lg border border-zinc-700 text-sm font-medium hover:border-zinc-500 hover:bg-white/5 transition-all">
                     Get started
                   </Link>
                 </div>
@@ -382,9 +374,9 @@ export default function Home() {
                       Priority Email Support
                     </li>
                   </ul>
-                  <Link href="/pricing" className="inline-block w-full py-3 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 hover:-translate-y-0.5 transition-all">
-                    Subscribe
-                  </Link>
+                  <a href="#how-it-works" className="inline-block w-full py-3 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 hover:-translate-y-0.5 transition-all">
+                    Get started free
+                  </a>
                 </div>
               </div>
             </div>
