@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createAdminSupabase } from "@/lib/supabase-server";
+import { createAdminSupabase, createServerSupabase } from "@/lib/supabase-server";
 
 const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY || "";
 
@@ -61,15 +61,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Spam detected" }, { status: 403 });
     }
 
-    // Register user with Supabase Admin client (server-side)
-    const supabase = createAdminSupabase();
-    const origin = request.headers.get("origin") || "http://localhost:3000";
+    // Register user with Supabase signUp (sends confirmation email)
+    const supabase = await createServerSupabase();
+    const origin = process.env.NEXT_PUBLIC_SITE_URL ||
+      request.headers.get("origin") ||
+      "http://localhost:3000";
 
-    const { data, error: signUpError } = await supabase.auth.admin.createUser({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email: email.toLowerCase().trim(),
       password,
-      email_confirm: false,
-      user_metadata: {},
+      options: {
+        emailRedirectTo: `${origin}/api/auth/callback`,
+      },
     });
 
     if (signUpError) {
