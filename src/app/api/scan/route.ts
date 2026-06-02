@@ -3,11 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { createServerSupabase } from "@/lib/supabase-server";
 import { parsePdfBuffer } from "@/lib/pdf-parser";
 import { analyzeContract } from "@/lib/contract-analyzer";
-import { getStripe } from "@/lib/stripe";
+import { initLemonSqueezy, getStoreId, getVariantId } from "@/lib/lemonsqueezy";
+import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 
 const MAX_FREE_SCANS = 2;
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
-const SCAN_PRICE_ID = process.env.STRIPE_ONETIME_PRICE_ID || "";
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,52 +82,56 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const canUseFree = dbUser.free_scans_used < MAX_FREE_SCANS;
+    const canUseFree =
+      dbUser.subscription_status === "active" ||
+      dbUser.free_scans_used < MAX_FREE_SCANS;
 
-    // If free scans used up, generate Stripe checkout
+    // If free scans used up and no active subscription, generate Lemon Squeezy checkout
     if (!canUseFree) {
       const scan = await prisma.scan.create({
         data: {
-          user_id: user.id,
+          userId: user.id,
           document_name: documentName,
           payment_status: "unpaid",
+          risk_score: 0,
         },
       });
 
       try {
-        const stripe = getStripe();
+        initLemonSqueezy();
+        const storeId = getStoreId();
+        const variantId = getVariantId("onetime");
         const origin = request.headers.get("origin") || "http://localhost:3000";
-        const session = await stripe.checkout.sessions.create({
-          mode: "payment",
-          line_items: [
-            {
-              price: SCAN_PRICE_ID,
-              quantity: 1,
+
+        const checkout = await createCheckout(storeId, variantId, {
+          checkoutData: {
+            custom: {
+              scan_id: scan.id,
+              user_id: user.id,
             },
-          ],
-          metadata: {
-            scanId: scan.id,
-            userId: user.id,
           },
-          success_url: `${origin}/results/${scan.id}?paid=true`,
-          cancel_url: `${origin}/pricing`,
+          productOptions: {
+            redirectUrl: `${origin}/results/${scan.id}?paid=true`,
+          },
         });
 
-        await prisma.scan.update({
-          where: { id: scan.id },
-          data: { stripe_session_id: session.id },
-        });
+        const checkoutData = checkout as any;
+        const checkoutUrl = checkoutData?.data?.data?.attributes?.url || null;
+
+        if (!checkoutUrl) {
+          throw new Error("Failed to create checkout URL");
+        }
 
         return NextResponse.json({
           error: "Free scans exhausted",
           requires_payment: true,
-          stripe_url: session.url,
+          checkout_url: checkoutUrl,
           scan_id: scan.id,
           free_scans_remaining: 0,
         });
-      } catch (stripeError) {
+      } catch (checkoutError) {
         await prisma.scan.delete({ where: { id: scan.id } });
-        throw stripeError;
+        throw checkoutError;
       }
     }
 
@@ -135,22 +139,29 @@ export async function POST(request: NextRequest) {
     const truncatedText = contractText.slice(0, 25000);
     const aiResult = await analyzeContract(truncatedText);
 
-    // Increment free scans and save
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { free_scans_used: { increment: 1 } },
-    });
+    // Only increment free scans if not on active subscription
+    if (dbUser.subscription_status !== "active") {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { free_scans_used: { increment: 1 } },
+      });
+    }
+
+    const riskScore = aiResult.overallRiskScore ?? 0;
 
     const scan = await prisma.scan.create({
       data: {
-        user_id: user.id,
+        userId: user.id,
         document_name: documentName,
         ai_result: aiResult as any,
         payment_status: "free",
+        risk_score: Math.max(1, Math.min(10, Math.round(riskScore / 10))),
       },
     });
 
-    const remaining = MAX_FREE_SCANS - (dbUser.free_scans_used + 1);
+    const remaining = dbUser.subscription_status === "active"
+      ? Infinity
+      : MAX_FREE_SCANS - (dbUser.free_scans_used + 1);
 
     return NextResponse.json({
       scan_id: scan.id,

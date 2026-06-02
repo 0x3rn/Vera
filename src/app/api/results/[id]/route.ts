@@ -23,7 +23,7 @@ export async function GET(
     return NextResponse.json({ error: "Scan not found" }, { status: 404 });
   }
 
-  if (scan.user_id !== user.id) {
+  if (scan.userId !== user.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 

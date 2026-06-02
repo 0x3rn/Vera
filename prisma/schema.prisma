@@ -7,29 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum PaymentStatus {
-  free
-  unpaid
-  paid
+model ContactMessage {
+  id         String   @id @default(uuid())
+  name       String
+  email      String
+  message    String
+  created_at DateTime @default(now())
 }
 
 model User {
-  id             String   @id @default(uuid())
-  email          String   @unique
-  free_scans_used Int      @default(0)
-  created_at     DateTime @default(now())
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  free_scans_used     Int      @default(0)
+  subscription_status String?  @default("none")
+  subscription_id     String?
+  customer_id         String?
+  created_at          DateTime @default(now())
 
   scans Scan[]
 }
 
 model Scan {
-  id                String        @id @default(uuid())
-  user_id           String
-  document_name     String
-  ai_result         Json?
-  payment_status    PaymentStatus @default(free)
-  stripe_session_id String?
-  created_at        DateTime      @default(now())
+  id                  String   @id @default(uuid())
+  userId              String   @map("user_id")
+  document_name       String
+  risk_score          Int      @default(0)
+  ai_result           Json?
+  payment_status      String   @default("free")
+  checkout_session_id String?
+  created_at          DateTime @default(now())
 
-  user User @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }

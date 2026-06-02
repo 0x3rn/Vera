@@ -1,50 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStripe } from "@/lib/stripe";
+import { initLemonSqueezy, getStoreId, getVariantId } from "@/lib/lemonsqueezy";
+import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 
 export async function POST(request: NextRequest) {
   try {
-    const stripe = getStripe();
+    initLemonSqueezy();
+
     const { plan } = await request.json();
+    const storeId = getStoreId();
+    const variantId = getVariantId(plan === "subscription" ? "subscription" : "onetime");
 
-    let priceId: string;
-
-    if (plan === "subscription") {
-      // $20/month subscription for agencies
-      priceId = process.env.STRIPE_SUBSCRIPTION_PRICE_ID || "";
-    } else {
-      // $10 one-time pay-per-scan
-      priceId = process.env.STRIPE_ONETIME_PRICE_ID || "";
-    }
-
-    if (!priceId) {
+    if (!storeId || !variantId) {
       return NextResponse.json(
-        { error: "Price not configured. Set STRIPE_ONETIME_PRICE_ID or STRIPE_SUBSCRIPTION_PRICE_ID in environment variables." },
+        {
+          error:
+            "Payment not configured. Set LEMONSQUEEZY_STORE_ID and variant IDs in .env.",
+        },
         { status: 500 }
       );
     }
 
     const origin = request.headers.get("origin") || "http://localhost:3000";
+    const userData = request.cookies.get("sb-access-token")?.value || "";
 
-    const session = await stripe.checkout.sessions.create({
-      mode: plan === "subscription" ? "subscription" : "payment",
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
+    const checkout = await createCheckout(storeId, variantId, {
+      checkoutData: {
+        custom: {
+          user_id: userData, // will be replaced at scan time via scan metadata
         },
-      ],
-      success_url: `${origin}/?paid=true&session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
-      cancel_url: `${origin}/?cancelled=true`,
-      metadata: {
-        plan,
+      },
+      productOptions: {
+        redirectUrl: `${origin}/?checkout=success`,
       },
     });
 
-    return NextResponse.json({ url: session.url });
+    // The createCheckout response has shape: { statusCode, data, error }
+    const checkoutData = checkout as any;
+    const url = checkoutData?.data?.data?.attributes?.url || null;
+
+    if (!url) {
+      return NextResponse.json(
+        { error: "Failed to create checkout URL" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ url });
   } catch (error) {
     console.error("Checkout error:", error);
+    const message =
+      error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: `Checkout failed: ${message}` },
       { status: 500 }
     );
   }
