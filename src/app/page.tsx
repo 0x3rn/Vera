@@ -83,12 +83,21 @@ export default function Home() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      if (session?.user) {
+        // Logged-in users see the dashboard, not the homepage
+        window.location.href = "/dashboard";
+        return;
+      }
+      setUser(null);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        setUser(session?.user ?? null);
+        if (session?.user) {
+          window.location.href = "/dashboard";
+          return;
+        }
+        setUser(null);
       }
     );
 
