@@ -116,6 +116,14 @@ export default function DashboardPage() {
   const [cancelling, setCancelling] = useState(false);
   const [cancelMsg, setCancelMsg] = useState("");
   const [upgrading, setUpgrading] = useState(false);
+  
+  // Sign out state
+  const [signingOut, setSigningOut] = useState(false);
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    await supabase.auth.signOut();
+    router.push("/");
+  };
 
   // Account settings state
   const [newPassword, setNewPassword] = useState("");
@@ -261,7 +269,14 @@ export default function DashboardPage() {
             Vera<span className="text-indigo-500">.</span>
           </Link>
           <div className="flex items-center gap-6">
-            <button onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="text-sm text-zinc-400 hover:text-white transition-colors">Sign out</button>
+            <button 
+              type="button" 
+              onClick={handleSignOut} 
+              disabled={signingOut}
+              className="text-sm text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+            >
+              {signingOut ? "Signing out..." : "Sign out"}
+            </button>
             <span className="text-xs text-zinc-600 hidden sm:inline">{user?.email}</span>
           </div>
         </div>
@@ -279,18 +294,23 @@ export default function DashboardPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 p-1 bg-[#121216] border border-[#22222a] rounded-lg w-fit mb-8">
+          <div className="flex gap-2 p-1.5 bg-[#121216] border border-[#22222a] rounded-xl w-full sm:w-fit mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden">
             {(["scan", "overview", "subscription", "settings"] as Tab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors capitalize ${
+                className={`relative px-5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 capitalize whitespace-nowrap group ${
                   activeTab === tab
-                    ? "bg-indigo-600 text-white"
-                    : "text-zinc-400 hover:text-white"
+                    ? "text-white shadow-md"
+                    : "text-zinc-400 hover:text-white hover:bg-white/5"
                 }`}
               >
-                {tab === "overview" ? "History" : tab === "scan" ? "New Scan" : tab}
+                {activeTab === tab && (
+                  <span className="absolute inset-0 bg-indigo-600 rounded-lg shadow-sm" />
+                )}
+                <span className="relative z-10">
+                  {tab === "overview" ? "History" : tab === "scan" ? "New Scan" : tab}
+                </span>
               </button>
             ))}
           </div>
