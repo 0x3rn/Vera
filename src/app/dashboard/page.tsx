@@ -48,6 +48,7 @@ export default function DashboardPage() {
   const [inputMode, setInputMode] = useState<"pdf" | "text">("pdf");
   const [scanError, setScanError] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const scanWithData = useCallback(async (formData: FormData) => {
     setAppState("scanning");
@@ -57,7 +58,15 @@ export default function DashboardPage() {
         method: "POST",
         body: formData,
       });
-      const data = await res.json();
+      
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Server Error (${res.status}): ${text.slice(0, 60)}...`);
+      }
+
       if (res.status === 402 && data.requires_payment && data.checkout_url) {
         window.location.href = data.checkout_url;
         return;
@@ -268,16 +277,43 @@ export default function DashboardPage() {
           <Link href="/" className="text-2xl font-bold tracking-tight">
             Vera<span className="text-indigo-500">.</span>
           </Link>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 relative">
             <button 
-              type="button" 
-              onClick={handleSignOut} 
-              disabled={signingOut}
-              className="text-sm text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-10 h-10 rounded-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold uppercase hover:bg-indigo-600/30 transition-colors"
             >
-              {signingOut ? "Signing out..." : "Sign out"}
+              {user?.email?.charAt(0) || "U"}
             </button>
-            <span className="text-xs text-zinc-600 hidden sm:inline">{user?.email}</span>
+
+            {dropdownOpen && (
+              <div className="absolute top-12 right-0 w-48 bg-[#121216] border border-[#22222a] rounded-xl shadow-2xl overflow-hidden flex flex-col z-50">
+                <div className="px-4 py-3 border-b border-[#22222a]">
+                  <p className="text-xs text-zinc-500 truncate">{user?.email}</p>
+                </div>
+                <button 
+                  onClick={() => { setActiveTab("settings"); setDropdownOpen(false); }}
+                  className="px-4 py-2.5 text-sm text-left text-zinc-300 hover:bg-white/5 transition-colors"
+                >
+                  Profile Settings
+                </button>
+                <button 
+                  onClick={() => { setActiveTab("subscription"); setDropdownOpen(false); }}
+                  className="px-4 py-2.5 text-sm text-left text-zinc-300 hover:bg-white/5 transition-colors"
+                >
+                  Billing & Plan
+                </button>
+                <div className="border-t border-[#22222a] p-1">
+                  <button 
+                    type="button" 
+                    onClick={handleSignOut} 
+                    disabled={signingOut}
+                    className="w-full px-3 py-2 text-sm text-left text-red-400 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {signingOut ? "Signing out..." : "Sign out"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </nav>
@@ -295,7 +331,7 @@ export default function DashboardPage() {
 
           {/* Tabs */}
           <div className="flex gap-2 p-1.5 bg-[#121216] border border-[#22222a] rounded-xl w-full sm:w-fit mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-            {(["scan", "overview", "subscription", "settings"] as Tab[]).map((tab) => (
+            {(["scan", "overview"] as Tab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -309,7 +345,7 @@ export default function DashboardPage() {
                   <span className="absolute inset-0 bg-indigo-600 rounded-lg shadow-sm" />
                 )}
                 <span className="relative z-10">
-                  {tab === "overview" ? "History" : tab === "scan" ? "New Scan" : tab}
+                  {tab === "overview" ? "History" : "New Scan"}
                 </span>
               </button>
             ))}
