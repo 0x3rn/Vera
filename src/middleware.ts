@@ -26,7 +26,12 @@ export async function middleware(request: NextRequest) {
   );
 
   // Refresh session cookies on every request (no getUser — avoids router race)
-  await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // If user is logged in and visits the homepage, redirect to dashboard
+  if (session && request.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   return supabaseResponse;
 }
