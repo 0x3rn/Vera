@@ -9,7 +9,7 @@ export async function GET(
   const supabase = await createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (!user || !user.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -23,7 +23,11 @@ export async function GET(
     return NextResponse.json({ error: "Scan not found" }, { status: 404 });
   }
 
-  if (scan.userId !== user.id) {
+  const dbUser = await prisma.user.findUnique({
+    where: { email: user.email },
+  });
+
+  if (!dbUser || scan.userId !== dbUser.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 

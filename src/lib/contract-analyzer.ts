@@ -1,4 +1,4 @@
-"use server";
+// Server-side contract analysis utility
 
 import { getDeepSeek } from "./openai";
 

@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     if (!canUseFree) {
       const scan = await prisma.scan.create({
         data: {
-          userId: user.id,
+          userId: dbUser.id,
           document_name: documentName,
           payment_status: "unpaid",
           risk_score: 0,
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
           checkoutData: {
             custom: {
               scan_id: scan.id,
-              user_id: user.id,
+              user_id: dbUser.id,
             },
           },
           productOptions: {
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
     // Only increment free scans if not on active subscription
     if (dbUser.subscription_status !== "active") {
       await prisma.user.update({
-        where: { id: user.id },
+        where: { id: dbUser.id },
         data: { free_scans_used: { increment: 1 } },
       });
     }
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
 
     const scan = await prisma.scan.create({
       data: {
-        userId: user.id,
+        userId: dbUser.id,
         document_name: documentName,
         ai_result: aiResult as any,
         payment_status: "free",
