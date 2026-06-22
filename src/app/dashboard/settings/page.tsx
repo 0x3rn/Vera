@@ -61,7 +61,7 @@ export default async function SettingsPage() {
         {/* Security Section (Forms handled by Client Component) */}
         <div className="bg-[#121216] border border-[#22222a] rounded-2xl p-6 sm:p-8">
           <h2 className="text-xl font-bold mb-6">Security</h2>
-          <SettingsClient userEmail={email || ""} />
+          <SettingsClient userEmail={email || ""} initialFirstName={dbUser.first_name || ""} initialLastName={dbUser.last_name || ""} />
         </div>
       </div>
     </div>

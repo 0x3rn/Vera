@@ -21,9 +21,11 @@ export async function getCurrentUser() {
       uid: decodedClaims.uid,
       email: userRecord.email,
       emailVerified: userRecord.emailVerified,
+      displayName: userRecord.displayName,
       dbUser
     };
   } catch (error) {
+    console.error("auth-server error:", error);
     return null;
   }
 }

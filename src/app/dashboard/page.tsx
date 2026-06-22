@@ -3,6 +3,7 @@ import { adminDb } from "@/lib/firebase/admin";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { AnalysisResult } from "@/lib/contract-analyzer";
+import ClientGreeting from "./ClientGreeting";
 
 export const dynamic = "force-dynamic";
 
@@ -78,7 +79,7 @@ export default async function DashboardOverview() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold">Good afternoon, {email}</h1>
+        <ClientGreeting firstName={dbUser.first_name || "User"} />
         <p className="text-zinc-400 text-sm mt-1">
           Don't sign your next contract blindly. Upload a PDF and get a plain-English risk report in seconds.
         </p>

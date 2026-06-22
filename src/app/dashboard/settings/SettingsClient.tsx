@@ -4,12 +4,51 @@ import { useState } from "react";
 import { auth } from "@/lib/firebase/client";
 import { updateEmail, updatePassword } from "firebase/auth";
 
-export default function SettingsClient({ userEmail }: { userEmail: string }) {
+import { useRouter } from "next/navigation";
+
+export default function SettingsClient({ 
+  userEmail,
+  initialFirstName,
+  initialLastName
+}: { 
+  userEmail: string,
+  initialFirstName: string,
+  initialLastName: string
+}) {
+  const router = useRouter();
+  const [firstName, setFirstName] = useState(initialFirstName);
+  const [lastName, setLastName] = useState(initialLastName);
+  const [profileStatus, setProfileStatus] = useState("");
+  
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [emailStatus, setEmailStatus] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!firstName || !lastName) return;
+    setIsUpdating(true);
+    setProfileStatus("");
+
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstName, lastName }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to update profile");
+      
+      setProfileStatus("Profile successfully updated.");
+      router.refresh(); // refresh to show updated name in dashboard greeting
+    } catch (error: any) {
+      setProfileStatus(`Error: ${error.message}`);
+    }
+    setIsUpdating(false);
+  };
 
   const handleUpdateEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +88,49 @@ export default function SettingsClient({ userEmail }: { userEmail: string }) {
 
   return (
     <div className="space-y-10">
+      {/* Profile Information */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Profile Information</h3>
+        <form onSubmit={handleUpdateProfile} className="space-y-4">
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5">First Name</label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+                className="w-full px-4 py-2.5 bg-[#0a0a0e] border border-[#22222a] rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Last Name</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+                className="w-full px-4 py-2.5 bg-[#0a0a0e] border border-[#22222a] rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={isUpdating || !firstName || !lastName}
+            className="px-6 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Save Changes
+          </button>
+          {profileStatus && (
+            <p className={`text-sm ${profileStatus.startsWith("Error") ? "text-red-400" : "text-emerald-400"}`}>
+              {profileStatus}
+            </p>
+          )}
+        </form>
+      </div>
+
+      <div className="h-px bg-[#22222a] w-full" />
+
       {/* Change Email */}
       <div>
         <h3 className="text-lg font-semibold mb-4">Change Email Address</h3>

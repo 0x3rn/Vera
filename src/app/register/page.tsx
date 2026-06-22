@@ -7,7 +7,7 @@ import {
   GoogleReCaptchaProvider,
   useGoogleReCaptcha,
 } from "react-google-recaptcha-v3";
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendEmailVerification } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendEmailVerification } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
@@ -30,6 +30,8 @@ const DISPOSABLE_DOMAINS = new Set([
 function RegisterForm() {
   const router = useRouter();
   const { executeRecaptcha } = useGoogleReCaptcha();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -96,8 +98,7 @@ function RegisterForm() {
       body: JSON.stringify({ idToken })
     });
     if (res.ok) {
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     } else {
       setError("Failed to create secure session.");
       setLoading(false);
@@ -107,6 +108,11 @@ function RegisterForm() {
   const handleEmailRegister = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!firstName.trim() || !lastName.trim()) {
+      setError("First and last name are required.");
+      return;
+    }
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
@@ -135,35 +141,35 @@ function RegisterForm() {
       }
     }
 
-    // Verify Recaptcha
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, recaptchaToken, skipAuth: true }),
-    });
-
-    const json = await res.json();
-    if (!res.ok) {
-      setError(json.error || "Registration failed");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // Immediately send verification email
+      // 1. Create user on backend
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstName, lastName, email, password, recaptchaToken }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || "Registration failed");
+      }
+
+      // 2. Sign in on the client to establish the Firebase Auth session
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // 3. Immediately send verification email
       await sendEmailVerification(userCredential.user, {
         url: window.location.origin + "/dashboard",
         handleCodeInApp: true,
       });
       
       setIsSuccess(true);
-      setLoading(false);
     } catch (err: any) {
       setError(err.message || "Failed to register.");
+    } finally {
       setLoading(false);
     }
-  }, [email, password, confirmPassword, executeRecaptcha]);
+  }, [firstName, lastName, email, password, confirmPassword, executeRecaptcha]);
 
   const handleGoogleSignUp = useCallback(async () => {
     setError("");
@@ -237,6 +243,32 @@ function RegisterForm() {
           )}
 
           <form onSubmit={handleEmailRegister} className="space-y-4">
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label htmlFor="firstName" className="block text-sm font-medium text-zinc-400 mb-1.5">First Name</label>
+                <input
+                  id="firstName"
+                  type="text"
+                  required
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                  placeholder="John"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="lastName" className="block text-sm font-medium text-zinc-400 mb-1.5">Last Name</label>
+                <input
+                  id="lastName"
+                  type="text"
+                  required
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                  placeholder="Doe"
+                />
+              </div>
+            </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-zinc-400 mb-1.5">Email</label>
               <input

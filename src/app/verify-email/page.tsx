@@ -58,8 +58,7 @@ export default function VerifyEmailPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ idToken })
           });
-          router.push("/dashboard");
-          router.refresh();
+          window.location.href = "/dashboard";
           return;
         }
       }

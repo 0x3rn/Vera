@@ -20,8 +20,7 @@ export default function LoginPage() {
       body: JSON.stringify({ idToken })
     });
     if (res.ok) {
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     } else {
       setError("Failed to create secure session.");
       setLoading(false);

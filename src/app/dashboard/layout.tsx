@@ -27,9 +27,15 @@ export default async function DashboardLayout({
 
   let userData = dbUser;
 
-  // If user doesn't exist in DB yet, create them
+  // If user doesn't exist in DB yet, create them (e.g. Google OAuth signups)
   if (!userData) {
+    const nameParts = (user.displayName || "").split(" ");
+    const firstName = nameParts[0] || "User";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
     const newUserData = {
+      first_name: firstName,
+      last_name: lastName,
       email: email,
       free_scans_used: 0,
       subscription_status: "inactive",
