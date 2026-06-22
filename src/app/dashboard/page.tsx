@@ -113,38 +113,38 @@ export default async function DashboardOverview() {
         <>
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Contracts Reviewed</p>
-              <p className="text-3xl font-bold">{totalScans}</p>
+            <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
+              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Reviewed</p>
+              <p className="text-2xl sm:text-3xl font-bold">{totalScans}</p>
             </div>
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Risks Detected</p>
-              <p className="text-3xl font-bold">{totalRisks}</p>
+            <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
+              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Risks Found</p>
+              <p className="text-2xl sm:text-3xl font-bold">{totalRisks}</p>
             </div>
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">High Risk Clauses</p>
-              <p className="text-3xl font-bold text-red-400">{totalHighRisks}</p>
+            <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
+              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">High Risk</p>
+              <p className="text-2xl sm:text-3xl font-bold text-red-400">{totalHighRisks}</p>
             </div>
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Plan Status</p>
-              <p className="text-3xl font-bold">{isPro ? "Pro Plan" : "Free Trial"}</p>
-              <p className="text-zinc-400 text-xs mt-2">
+            <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
+              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Plan</p>
+              <p className="text-lg sm:text-2xl font-bold">{isPro ? "Pro" : "Free"}</p>
+              <p className="text-zinc-400 text-[10px] sm:text-xs mt-1">
                 {isPro ? "Unlimited scans" : `${freeScansLeft} of 1 free left`}
               </p>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-w-0">
             {/* Last Scan Preview */}
             {lastScan && (
-              <div className="bg-[#121216] border border-white/5 rounded-2xl p-6">
+              <div className="bg-[#121216] border border-white/5 rounded-2xl p-6 min-w-0 overflow-hidden">
                 <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                   Last Scan Preview
                 </h3>
                 <div className="bg-[#0a0a0e] border border-white/5 rounded-xl p-5 mb-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <p className="font-semibold text-white truncate max-w-[200px] sm:max-w-xs">{lastScan.document_name}</p>
+                      <p className="font-semibold text-white truncate">{lastScan.document_name}</p>
                       <p className="text-xs text-zinc-500 mt-1">
                         {new Date(lastScan.created_at).toLocaleDateString()}
                       </p>
@@ -176,14 +176,14 @@ export default async function DashboardOverview() {
                     <p className="text-sm text-zinc-500 italic">Scan pending or failed.</p>
                   )}
                 </div>
-                <Link href={`/results/${lastScan.id}`} className="block w-full py-3 text-center rounded-lg bg-indigo-500/10 text-indigo-400 text-sm font-medium hover:bg-indigo-500/20 transition-colors">
+                <Link href="/dashboard/reports" className="block w-full py-3 text-center rounded-lg bg-indigo-500/10 text-indigo-400 text-sm font-medium hover:bg-indigo-500/20 transition-colors">
                   View Full Report
                 </Link>
               </div>
             )}
 
             {/* Recent Findings */}
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-6">
+            <div className="bg-[#121216] border border-white/5 rounded-2xl p-6 min-w-0 overflow-hidden">
               <h3 className="text-lg font-bold mb-6">Recent Findings</h3>
               {recentFindings.length > 0 ? (
                 <div className="space-y-4">
