@@ -83,12 +83,12 @@ function ContactForm() {
         <h2 className="text-xl font-bold text-emerald-400 mb-2">
           Message sent!
         </h2>
-        <p className="text-zinc-400 text-sm">
+        <p className="text-muted-foreground text-sm">
           We'll get back to you as soon as possible.
         </p>
         <button
           onClick={() => setStatus("idle")}
-          className="mt-6 text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
+          className="mt-6 text-sm text-primary hover:text-indigo-300 underline underline-offset-4"
         >
           Send another message
         </button>
@@ -101,7 +101,7 @@ function ContactForm() {
       <div>
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-zinc-400 mb-1.5"
+          className="block text-sm font-medium text-muted-foreground mb-1.5"
         >
           Full Name
         </label>
@@ -111,14 +111,14 @@ function ContactForm() {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+          className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
           placeholder="Jane Doe"
         />
       </div>
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-zinc-400 mb-1.5"
+          className="block text-sm font-medium text-muted-foreground mb-1.5"
         >
           Email Address
         </label>
@@ -128,14 +128,14 @@ function ContactForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+          className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
           placeholder="jane@example.com"
         />
       </div>
       <div>
         <label
           htmlFor="message"
-          className="block text-sm font-medium text-zinc-400 mb-1.5"
+          className="block text-sm font-medium text-muted-foreground mb-1.5"
         >
           Message
         </label>
@@ -145,7 +145,7 @@ function ContactForm() {
           rows={5}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all resize-y"
+          className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-y"
           placeholder="Tell us what's on your mind..."
         />
       </div>
@@ -157,17 +157,17 @@ function ContactForm() {
       <button
         type="submit"
         disabled={status === "loading"}
-        className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition-all disabled:opacity-50"
+        className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-50"
       >
         {status === "loading" ? "Sending..." : "Send message"}
       </button>
-      <p className="text-xs text-zinc-600 text-center">
+      <p className="text-xs text-muted-foreground text-center">
         This site is protected by reCAPTCHA and the Google{" "}
         <a
           href="https://policies.google.com/privacy"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-zinc-400"
+          className="underline underline-offset-2 hover:text-muted-foreground"
         >
           Privacy Policy
         </a>{" "}
@@ -176,7 +176,7 @@ function ContactForm() {
           href="https://policies.google.com/terms"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-zinc-400"
+          className="underline underline-offset-2 hover:text-muted-foreground"
         >
           Terms of Service
         </a>{" "}
@@ -189,17 +189,17 @@ function ContactForm() {
 export default function ContactPage() {
   return (
     <div className="flex flex-col min-h-full">
-      <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center">
           <Link href="/" className="text-2xl font-bold tracking-tight">
-            Vera<span className="text-indigo-500">.</span>
+            Vera<span className="text-primary">.</span>
           </Link>
         </div>
       </nav>
       <main className="flex-1 pt-36 pb-24">
         <div className="max-w-lg mx-auto px-4 sm:px-8">
           <h1 className="text-3xl sm:text-4xl font-bold mb-2">Contact Us</h1>
-          <p className="text-zinc-400 mb-10">
+          <p className="text-muted-foreground mb-10">
             Have a question or feedback? We'd love to hear from you.
           </p>
 
@@ -211,23 +211,23 @@ export default function ContactPage() {
           </GoogleReCaptchaProvider>
         </div>
       </main>
-      <footer className="border-t border-[#22222a] py-8">
-        <div className="max-w-6xl mx-auto px-8 flex flex-wrap justify-center gap-6 text-xs text-zinc-600">
+      <footer className="border-t border-border py-8">
+        <div className="max-w-6xl mx-auto px-8 flex flex-wrap justify-center gap-6 text-xs text-muted-foreground">
           <Link
             href="/privacy"
-            className="hover:text-zinc-400 transition-colors"
+            className="hover:text-muted-foreground transition-colors"
           >
             Privacy Policy
           </Link>
           <Link
             href="/terms"
-            className="hover:text-zinc-400 transition-colors"
+            className="hover:text-muted-foreground transition-colors"
           >
             Terms of Service
           </Link>
           <Link
             href="/contact"
-            className="hover:text-zinc-400 transition-colors"
+            className="hover:text-muted-foreground transition-colors"
           >
             Contact
           </Link>

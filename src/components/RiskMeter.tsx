@@ -16,7 +16,7 @@ export default function RiskMeter({ score }: { score: number }) {
         <span className={`text-sm font-semibold ${textColor}`}>{label}</span>
         <span className="text-4xl font-bold">
           {score}
-          <span className="text-lg font-normal text-zinc-600">/100</span>
+          <span className="text-lg font-normal text-muted-foreground">/100</span>
         </span>
       </div>
       <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">

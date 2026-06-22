@@ -53,7 +53,7 @@ export default async function ReportsPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold">Reports</h1>
-        <p className="text-zinc-400 text-sm mt-1">
+        <p className="text-muted-foreground text-sm mt-1">
           View your past contract scans and risk analyses.
         </p>
       </div>

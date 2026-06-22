@@ -48,7 +48,7 @@ export default async function DashboardLayout({
   const isPro = userData?.subscription_status === "active";
 
   return (
-    <div className="flex min-h-screen bg-[#070709] lg:flex-row flex-col">
+    <div className="flex min-h-screen bg-background lg:flex-row flex-col">
       <Sidebar userEmail={email || ""} isPro={isPro} />
       
       {/* Main Content Area */}

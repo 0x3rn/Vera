@@ -58,17 +58,17 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col min-h-full animate-in fade-in duration-500">
-      <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center">
           <Link href="/" className="text-2xl font-bold tracking-tight">
-            Vera<span className="text-indigo-500">.</span>
+            Vera<span className="text-primary">.</span>
           </Link>
         </div>
       </nav>
       <main className="flex-1 pt-44 pb-24">
         <div className="max-w-sm mx-auto px-4">
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-zinc-400 mb-8">Sign in to your account to continue.</p>
+          <p className="text-muted-foreground mb-8">Sign in to your account to continue.</p>
 
           {error && (
             <div className="p-4 rounded-lg border border-red-500/30 bg-red-500/5 mb-6">
@@ -78,7 +78,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-400 mb-1.5">
+              <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-1.5">
                 Email
               </label>
               <input
@@ -87,12 +87,12 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-zinc-400 mb-1.5">
+              <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-1.5">
                 Password
               </label>
               <input
@@ -101,14 +101,14 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                 placeholder="••••••••"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition-all disabled:opacity-50"
+              className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-50"
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
@@ -116,17 +116,17 @@ export default function LoginPage() {
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#22222a]"></div>
+              <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-[#070709] text-zinc-600">or</span>
+              <span className="px-2 bg-background text-muted-foreground">or</span>
             </div>
           </div>
 
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full py-3 rounded-lg border border-zinc-700 text-white font-medium text-sm hover:border-zinc-500 hover:bg-white/5 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-border hover:bg-muted/50 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -137,19 +137,19 @@ export default function LoginPage() {
             Sign in with Google
           </button>
 
-          <p className="text-center text-sm text-zinc-500 mt-6">
+          <p className="text-center text-sm text-muted-foreground mt-6">
             Don't have an account?{" "}
-            <Link href="/register" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4">
+            <Link href="/register" className="text-primary hover:text-indigo-300 underline underline-offset-4">
               Register here
             </Link>
           </p>
         </div>
       </main>
-      <footer className="border-t border-[#22222a] py-8">
-        <div className="max-w-6xl mx-auto px-8 flex flex-wrap justify-center gap-6 text-xs text-zinc-600">
-          <Link href="/privacy" className="hover:text-zinc-400 transition-colors">Privacy Policy</Link>
-          <Link href="/terms" className="hover:text-zinc-400 transition-colors">Terms of Service</Link>
-          <Link href="/contact" className="hover:text-zinc-400 transition-colors">Contact</Link>
+      <footer className="border-t border-border py-8">
+        <div className="max-w-6xl mx-auto px-8 flex flex-wrap justify-center gap-6 text-xs text-foreground">
+          <Link href="/privacy" className="hover:text-muted-foreground transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-muted-foreground transition-colors">Terms of Service</Link>
+          <Link href="/contact" className="hover:text-muted-foreground transition-colors">Contact</Link>
         </div>
       </footer>
     </div>

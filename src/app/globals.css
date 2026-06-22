@@ -2,11 +2,41 @@
 
 @theme inline {
   --font-sans: var(--font-inter);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #f8fafc;
+  --muted: #f1f5f9;
+  --border: #e2e8f0;
+  --muted-foreground: #334155;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+}
+
+.dark {
+  --background: #070709;
+  --foreground: #ffffff;
+  --card: #121216;
+  --muted: #0a0a0e;
+  --border: #22222a;
+  --muted-foreground: #a1a1aa;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
 }
 
 body {
-  background: #070709;
-  color: #ffffff;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 /* Page transition animation */

@@ -34,7 +34,7 @@ function RiskMeter({ score }: { score: number }) {
         <span className={`text-sm font-semibold ${textColor}`}>{label}</span>
         <span className="text-4xl font-bold">
           {score}
-          <span className="text-lg font-normal text-zinc-600">/100</span>
+          <span className="text-lg font-normal text-muted-foreground">/100</span>
         </span>
       </div>
       <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
@@ -85,15 +85,15 @@ export default function ResultsPage() {
   if (loading) {
     return (
       <div className="flex flex-col min-h-full">
-        <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
+        <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
           <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center">
             <Link href="/" className="text-2xl font-bold tracking-tight">
-              Vera<span className="text-indigo-500">.</span>
+              Vera<span className="text-primary">.</span>
             </Link>
           </div>
         </nav>
         <section className="pt-[180px] pb-[80px] text-center">
-          <div className="w-16 h-16 mx-auto mb-8 rounded-full border-4 border-zinc-800 border-t-indigo-500 animate-spin" />
+          <div className="w-16 h-16 mx-auto mb-8 rounded-full border-4 border-zinc-800 border-t-primary animate-spin" />
           <h2 className="text-2xl font-bold">Loading results...</h2>
         </section>
       </div>
@@ -103,10 +103,10 @@ export default function ResultsPage() {
   if (error || !scan) {
     return (
       <div className="flex flex-col min-h-full">
-        <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
+        <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
           <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center">
             <Link href="/" className="text-2xl font-bold tracking-tight">
-              Vera<span className="text-indigo-500">.</span>
+              Vera<span className="text-primary">.</span>
             </Link>
           </div>
         </nav>
@@ -114,7 +114,7 @@ export default function ResultsPage() {
           <p className="text-red-400 font-medium">{error || "Scan not found"}</p>
           <Link
             href="/"
-            className="mt-4 inline-block text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
+            className="mt-4 inline-block text-sm text-primary hover:text-indigo-300 underline underline-offset-4"
           >
             Back to scanner
           </Link>
@@ -128,21 +128,21 @@ export default function ResultsPage() {
   if (!analysis || scan.payment_status === "unpaid") {
     return (
       <div className="flex flex-col min-h-full">
-        <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
+        <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
           <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center">
             <Link href="/" className="text-2xl font-bold tracking-tight">
-              Vera<span className="text-indigo-500">.</span>
+              Vera<span className="text-primary">.</span>
             </Link>
           </div>
         </nav>
         <section className="pt-[180px] pb-[80px] text-center">
           <h2 className="text-2xl font-bold mb-3">Payment Required</h2>
-          <p className="text-zinc-400 mb-6">
+          <p className="text-muted-foreground mb-6">
             This scan hasn't been paid for yet. Complete your payment to view results.
           </p>
           <Link
             href="/pricing"
-            className="inline-block px-6 py-2.5 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+            className="inline-block px-6 py-2.5 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary-hover transition-colors"
           >
             View Pricing
           </Link>
@@ -153,13 +153,13 @@ export default function ResultsPage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold tracking-tight">
-            Vera<span className="text-indigo-500">.</span>
+            Vera<span className="text-primary">.</span>
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-xs text-zinc-500">{scan.document_name}</span>
+            <span className="text-xs text-muted-foreground">{scan.document_name}</span>
           </div>
         </div>
       </nav>
@@ -168,15 +168,15 @@ export default function ResultsPage() {
         <div className="max-w-3xl mx-auto px-8 space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
-              <span className="inline-block px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-[#121216] text-zinc-400 border border-[#22222a] mb-2">
+              <span className="inline-block px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-card text-muted-foreground border border-border mb-2">
                 {analysis.contractType}
               </span>
               <h2 className="text-3xl font-bold">Analysis Report</h2>
-              <p className="text-sm text-zinc-500 mt-1">{scan.document_name}</p>
+              <p className="text-sm text-muted-foreground mt-1">{scan.document_name}</p>
             </div>
             <Link
               href="/"
-              className="text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-4 self-start"
+              className="text-sm text-primary hover:text-indigo-300 underline underline-offset-4 self-start"
             >
               Scan another
             </Link>
@@ -186,21 +186,21 @@ export default function ResultsPage() {
             <RiskMeter score={analysis.overallRiskScore} />
           </div>
 
-          <div className="p-6 rounded-xl bg-[#121216] border border-[#22222a]">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Summary</h3>
-            <p className="text-zinc-300 leading-relaxed text-lg">{analysis.summary}</p>
+          <div className="p-6 rounded-xl bg-card border border-border">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Summary</h3>
+            <p className="text-muted-foreground leading-relaxed text-lg">{analysis.summary}</p>
           </div>
 
           {analysis.keyDates && analysis.keyDates.length > 0 && (
-            <div className="p-6 rounded-xl bg-[#121216] border border-[#22222a]">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-4">Key Dates & Deadlines</h3>
+            <div className="p-6 rounded-xl bg-card border border-border">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Key Dates & Deadlines</h3>
               <div className="grid sm:grid-cols-2 gap-3">
                 {analysis.keyDates.map((d, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-[#0a0a0e] border border-[#22222a] text-sm text-zinc-300"
+                    className="flex items-center gap-3 p-3 rounded-lg bg-muted border border-border text-sm text-muted-foreground"
                   >
-                    <svg className="w-4 h-4 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     {d}
@@ -228,7 +228,7 @@ export default function ResultsPage() {
                 {analysis.redFlags.map((flag: RedFlag) => (
                   <div
                     key={flag.id}
-                    className={`p-6 rounded-xl border bg-[#121216] ${
+                    className={`p-6 rounded-xl border bg-card ${
                       flag.severity === "high"
                         ? "border-red-500/50 bg-red-500/5"
                         : flag.severity === "medium"
@@ -238,7 +238,7 @@ export default function ResultsPage() {
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-4">
                       <div>
-                        <span className="inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-[#0a0a0e] text-zinc-400 border border-[#22222a] mb-2">
+                        <span className="inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-muted text-muted-foreground border border-border mb-2">
                           {CATEGORY_LABELS[flag.category]}
                         </span>
                         <h4 className="font-bold text-lg">{flag.title}</h4>
@@ -266,15 +266,15 @@ export default function ResultsPage() {
                     </div>
 
                     {flag.clauseExcerpt && (
-                      <div className="mb-4 p-4 rounded-lg bg-[#0a0a0e] border border-[#22222a]">
-                        <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">Original Language</p>
-                        <p className="text-sm text-zinc-400 italic">&ldquo;{flag.clauseExcerpt}&rdquo;</p>
+                      <div className="mb-4 p-4 rounded-lg bg-muted border border-border">
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Original Language</p>
+                        <p className="text-sm text-muted-foreground italic">&ldquo;{flag.clauseExcerpt}&rdquo;</p>
                       </div>
                     )}
 
                     <div className="mb-4">
-                      <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1">What This Means</p>
-                      <p className="text-sm text-zinc-300 leading-relaxed">{flag.plainEnglishExplanation}</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">What This Means</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{flag.plainEnglishExplanation}</p>
                     </div>
 
                     <div>
@@ -289,17 +289,17 @@ export default function ResultsPage() {
             )}
           </div>
 
-          <div className="p-4 rounded-lg bg-[#121216] border border-[#22222a]">
-            <p className="text-xs text-zinc-500 leading-relaxed">
-              <strong className="text-zinc-400">Disclaimer:</strong> Vera is an AI analysis tool, not legal counsel. This report does not constitute legal advice. Consult a qualified attorney before signing any legally binding documents.
+          <div className="p-4 rounded-lg bg-card border border-border">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              <strong className="text-muted-foreground">Disclaimer:</strong> Vera is an AI analysis tool, not legal counsel. This report does not constitute legal advice. Consult a qualified attorney before signing any legally binding documents.
             </p>
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-[#22222a] py-12 mt-auto">
+      <footer className="border-t border-border py-12 mt-auto">
         <div className="max-w-6xl mx-auto px-8 text-center">
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Vera AI Contract Scanner. Not legal advice.
           </p>
         </div>

@@ -94,30 +94,30 @@ export default function SettingsClient({
         <form onSubmit={handleUpdateProfile} className="space-y-4">
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-zinc-400 mb-1.5">First Name</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1.5">First Name</label>
               <input
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-[#0a0a0e] border border-[#22222a] rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
+                className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-medium text-zinc-400 mb-1.5">Last Name</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1.5">Last Name</label>
               <input
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-[#0a0a0e] border border-[#22222a] rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
+                className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
           </div>
           <button
             type="submit"
             disabled={isUpdating || !firstName || !lastName}
-            className="px-6 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 rounded-lg bg-primary border border-transparent text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Save Changes
           </button>
@@ -136,19 +136,19 @@ export default function SettingsClient({
         <h3 className="text-lg font-semibold mb-4">Change Email Address</h3>
         <form onSubmit={handleUpdateEmail} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-zinc-400 mb-1.5">New Email</label>
+            <label className="block text-sm font-medium text-muted-foreground mb-1.5">New Email</label>
             <input
               type="email"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
               placeholder="Enter new email"
-              className="w-full px-4 py-2.5 bg-[#0a0a0e] border border-[#22222a] rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
+              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
             />
           </div>
           <button
             type="submit"
             disabled={isUpdating || !newEmail}
-            className="px-6 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 rounded-lg bg-primary border border-transparent text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Update Email
           </button>
@@ -167,19 +167,19 @@ export default function SettingsClient({
         <h3 className="text-lg font-semibold mb-4">Change Password</h3>
         <form onSubmit={handleUpdatePassword} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-zinc-400 mb-1.5">New Password</label>
+            <label className="block text-sm font-medium text-muted-foreground mb-1.5">New Password</label>
             <input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Enter new password (min. 6 characters)"
-              className="w-full px-4 py-2.5 bg-[#0a0a0e] border border-[#22222a] rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors"
+              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
             />
           </div>
           <button
             type="submit"
             disabled={isUpdating || !newPassword}
-            className="px-6 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 rounded-lg bg-primary border border-transparent text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Update Password
           </button>
@@ -196,16 +196,16 @@ export default function SettingsClient({
       {/* 2FA Toggle (Mock) */}
       <div>
         <h3 className="text-lg font-semibold mb-4">Two-Factor Authentication</h3>
-        <div className="flex items-center justify-between p-4 bg-[#0a0a0e] border border-[#22222a] rounded-xl">
+        <div className="flex items-center justify-between p-4 bg-muted border border-border rounded-xl">
           <div>
-            <p className="text-white font-medium">Require 2FA for login</p>
-            <p className="text-sm text-zinc-500">Add an extra layer of security to your account.</p>
+            <p className="text-foreground font-medium">Require 2FA for login</p>
+            <p className="text-sm text-muted-foreground">Add an extra layer of security to your account.</p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded">
               Coming Soon
             </span>
-            <div className="w-11 h-6 bg-white/5 rounded-full border border-white/10 relative opacity-50 cursor-not-allowed">
+            <div className="w-11 h-6 bg-muted/50 rounded-full border border-border relative opacity-50 cursor-not-allowed">
               <div className="w-4 h-4 bg-zinc-500 rounded-full absolute top-1 left-1" />
             </div>
           </div>

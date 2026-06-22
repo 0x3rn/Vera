@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase/client";
+import { ThemeToggle } from "./ThemeToggle";
 
 export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro: boolean }) {
   const pathname = usePathname();
@@ -87,13 +88,13 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
   return (
     <>
       {/* Mobile Top Nav */}
-      <div className="lg:hidden flex items-center justify-between px-6 py-4 border-b border-[#22222a] bg-[#070709]">
+      <div className="lg:hidden flex items-center justify-between px-6 py-4 border-b border-border bg-background">
         <Link href="/dashboard" className="text-xl font-bold tracking-tight">
-          Vera<span className="text-indigo-500">.</span>
+          Vera<span className="text-primary">.</span>
         </Link>
         <button 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 -mr-2 text-zinc-400 hover:text-white"
+          className="p-2 -mr-2 text-foreground hover:text-muted-foreground"
         >
           {mobileMenuOpen ? (
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -109,14 +110,14 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
 
       {/* Sidebar (Desktop & Mobile Overlay) */}
       <div className={`
-        fixed inset-y-0 left-0 z-40 w-64 bg-[#0a0a0e] border-r border-[#22222a] transform transition-transform duration-300 ease-in-out flex flex-col
+        fixed inset-y-0 left-0 z-40 w-64 bg-muted border-r border-border transform transition-transform duration-300 ease-in-out flex flex-col
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 lg:static lg:h-screen
       `}>
         {/* Logo (Desktop) */}
         <div className="hidden lg:flex px-8 py-8">
           <Link href="/dashboard" className="text-2xl font-bold tracking-tight">
-            Vera<span className="text-indigo-500">.</span>
+            Vera<span className="text-primary">.</span>
           </Link>
         </div>
 
@@ -131,12 +132,12 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
                 className={`
                   flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
                   ${isActive 
-                    ? "bg-indigo-500/10 text-indigo-400" 
-                    : "text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
+                    ? "bg-primary/10 text-primary" 
+                    : "text-foreground hover:bg-muted/50 hover:text-primary"
                   }
                 `}
               >
-                <div className={isActive ? "text-indigo-400" : "text-zinc-500"}>
+                <div className={isActive ? "text-primary" : "text-foreground"}>
                   {link.icon}
                 </div>
                 {link.name}
@@ -146,14 +147,14 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
         </nav>
 
         {/* User Profile Area */}
-        <div className="p-4 border-t border-[#22222a]">
+        <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3 px-2 mb-4">
-            <div className="w-9 h-9 rounded-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold uppercase text-sm shrink-0">
+            <div className="w-9 h-9 rounded-full bg-primary/20 border border-primary/30 text-primary flex items-center justify-center font-bold uppercase text-sm shrink-0">
               {userEmail.charAt(0)}
             </div>
             <div className="overflow-hidden">
-              <p className="text-sm font-medium text-zinc-200 truncate">{userEmail}</p>
-              <p className="text-xs text-zinc-500">{isPro ? "Pro Plan" : "Free Trial"}</p>
+              <p className="text-sm font-medium text-foreground truncate">{userEmail}</p>
+              <p className="text-xs text-muted-foreground">{isPro ? "Pro Plan" : "Free Trial"}</p>
             </div>
           </div>
           
@@ -167,6 +168,11 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
             </svg>
             {signingOut ? "Signing out..." : "Sign out"}
           </button>
+          
+          <div className="mt-4 flex justify-between items-center px-2">
+            <span className="text-xs font-medium text-muted-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
 

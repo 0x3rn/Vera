@@ -189,14 +189,14 @@ function RegisterForm() {
     <>
       {isSuccess ? (
         <div className="text-center animate-in fade-in duration-500">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-            <svg className="w-8 h-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+            <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
             </svg>
           </div>
           
           <h1 className="text-3xl font-bold mb-4">Check your inbox</h1>
-          <p className="text-zinc-400 mb-8 leading-relaxed">
+          <p className="text-muted-foreground mb-8 leading-relaxed">
             We've sent a verification link to your email address. Please click the link to verify your account and access the dashboard.
           </p>
 
@@ -210,7 +210,7 @@ function RegisterForm() {
             <button
               onClick={handleCheckVerification}
               disabled={loading}
-              className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition-all disabled:opacity-50"
+              className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-50"
             >
               {loading ? "Checking..." : "I've verified my email"}
             </button>
@@ -218,15 +218,15 @@ function RegisterForm() {
             <button
               onClick={handleResend}
               disabled={cooldown > 0 || loading}
-              className="w-full py-3 rounded-lg border border-zinc-700 text-white font-medium text-sm hover:border-zinc-500 hover:bg-white/5 transition-all disabled:opacity-50"
+              className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-border hover:bg-muted/50 transition-all disabled:opacity-50"
             >
               {cooldown > 0 ? `Resend available in ${cooldown}s` : "Resend Verification Link"}
             </button>
           </div>
 
-          <p className="mt-8 text-sm text-zinc-500">
+          <p className="mt-8 text-sm text-muted-foreground">
             Can't find the email? Check your spam folder, or contact{" "}
-            <a href="mailto:support@verahq.xyz" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4">
+            <a href="mailto:support@verahq.xyz" className="text-primary hover:text-indigo-300 underline underline-offset-4">
               support@verahq.xyz
             </a>
           </p>
@@ -234,7 +234,7 @@ function RegisterForm() {
       ) : (
         <>
           <h1 className="text-3xl font-bold mb-2">Create an account</h1>
-          <p className="text-zinc-400 mb-8">Get 1 free contract scan.</p>
+          <p className="text-muted-foreground mb-8">Get 1 free contract scan.</p>
 
           {error && (
             <div className="p-4 rounded-lg border border-red-500/30 bg-red-500/5 mb-6">
@@ -245,44 +245,44 @@ function RegisterForm() {
           <form onSubmit={handleEmailRegister} className="space-y-4">
             <div className="flex gap-4">
               <div className="flex-1">
-                <label htmlFor="firstName" className="block text-sm font-medium text-zinc-400 mb-1.5">First Name</label>
+                <label htmlFor="firstName" className="block text-sm font-medium text-muted-foreground mb-1.5">First Name</label>
                 <input
                   id="firstName"
                   type="text"
                   required
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                  className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                   placeholder="John"
                 />
               </div>
               <div className="flex-1">
-                <label htmlFor="lastName" className="block text-sm font-medium text-zinc-400 mb-1.5">Last Name</label>
+                <label htmlFor="lastName" className="block text-sm font-medium text-muted-foreground mb-1.5">Last Name</label>
                 <input
                   id="lastName"
                   type="text"
                   required
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                  className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                   placeholder="Doe"
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-400 mb-1.5">Email</label>
+              <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-1.5">Email</label>
               <input
                 id="email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-zinc-400 mb-1.5">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-1.5">Password</label>
               <input
                 id="password"
                 type="password"
@@ -290,26 +290,26 @@ function RegisterForm() {
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                 placeholder="Min. 8 characters"
               />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-zinc-400 mb-1.5">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-muted-foreground mb-1.5">Confirm Password</label>
               <input
                 id="confirmPassword"
                 type="password"
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                 placeholder="Re-enter your password"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition-all disabled:opacity-50"
+              className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-50"
             >
               {loading ? "Creating account..." : "Create account"}
             </button>
@@ -317,17 +317,17 @@ function RegisterForm() {
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#22222a]" />
+              <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-[#070709] text-zinc-600">or</span>
+              <span className="px-2 bg-background text-muted-foreground">or</span>
             </div>
           </div>
 
           <button
             onClick={handleGoogleSignUp}
             disabled={loading}
-            className="w-full py-3 rounded-lg border border-zinc-700 text-white font-medium text-sm hover:border-zinc-500 hover:bg-white/5 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-border hover:bg-muted/50 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -338,9 +338,9 @@ function RegisterForm() {
             Sign up with Google
           </button>
 
-          <p className="text-center text-sm text-zinc-500 mt-6">
+          <p className="text-center text-sm text-muted-foreground mt-6">
             Already have an account?{" "}
-            <Link href="/login" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4">
+            <Link href="/login" className="text-primary hover:text-indigo-300 underline underline-offset-4">
               Sign in
             </Link>
           </p>
@@ -353,10 +353,10 @@ function RegisterForm() {
 export default function RegisterPage() {
   return (
     <div className="flex flex-col min-h-full animate-in fade-in duration-500">
-      <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center">
           <Link href="/" className="text-2xl font-bold tracking-tight">
-            Vera<span className="text-indigo-500">.</span>
+            Vera<span className="text-primary">.</span>
           </Link>
         </div>
       </nav>
@@ -370,11 +370,11 @@ export default function RegisterPage() {
           </GoogleReCaptchaProvider>
         </div>
       </main>
-      <footer className="border-t border-[#22222a] py-8">
-        <div className="max-w-6xl mx-auto px-8 flex flex-wrap justify-center gap-6 text-xs text-zinc-600">
-          <Link href="/privacy" className="hover:text-zinc-400 transition-colors">Privacy Policy</Link>
-          <Link href="/terms" className="hover:text-zinc-400 transition-colors">Terms of Service</Link>
-          <Link href="/contact" className="hover:text-zinc-400 transition-colors">Contact</Link>
+      <footer className="border-t border-border py-8">
+        <div className="max-w-6xl mx-auto px-8 flex flex-wrap justify-center gap-6 text-xs text-muted-foreground">
+          <Link href="/privacy" className="hover:text-muted-foreground transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-muted-foreground transition-colors">Terms of Service</Link>
+          <Link href="/contact" className="hover:text-muted-foreground transition-colors">Contact</Link>
         </div>
       </footer>
     </div>

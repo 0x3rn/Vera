@@ -80,32 +80,32 @@ export default async function DashboardOverview() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="mb-8">
         <ClientGreeting firstName={dbUser.first_name || "User"} />
-        <p className="text-zinc-400 text-sm mt-1">
+        <p className="text-muted-foreground text-sm mt-1">
           Don't sign your next contract blindly. Upload a PDF and get a plain-English risk report in seconds.
         </p>
       </div>
 
       <div className="mb-8">
-        <Link href="/dashboard/scan" className="inline-block px-6 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors">
+        <Link href="/dashboard/scan" className="inline-block px-6 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-hover transition-colors">
           New Scan
         </Link>
       </div>
 
       {totalScans === 0 ? (
-        <div className="bg-[#121216] border border-[#22222a] rounded-2xl p-12 text-center max-w-3xl mx-auto mt-12">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-            <svg className="w-8 h-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="bg-card border border-border rounded-2xl p-12 text-center max-w-3xl mx-auto mt-12">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+            <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
           </div>
           <h2 className="text-2xl font-bold mb-4">Welcome to Vera.</h2>
-          <p className="text-zinc-400 mb-8 max-w-lg mx-auto">
+          <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
             Upload your first contract and we'll scan it for:
             <span className="block mt-4 text-emerald-400 text-sm">
               ✓ Payment delays &nbsp; ✓ IP ownership issues &nbsp; ✓ Exclusivity clauses &nbsp; ✓ Kill fee risks
             </span>
           </p>
-          <Link href="/dashboard/scan" className="inline-block px-8 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/25">
+          <Link href="/dashboard/scan" className="inline-block px-8 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors shadow-lg shadow-indigo-500/25">
             Upload Contract
           </Link>
         </div>
@@ -113,22 +113,22 @@ export default async function DashboardOverview() {
         <>
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Reviewed</p>
+            <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Reviewed</p>
               <p className="text-3xl font-bold">{totalScans}</p>
             </div>
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Risks Found</p>
+            <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Risks Found</p>
               <p className="text-3xl font-bold">{totalRisks}</p>
             </div>
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">High Risk</p>
+            <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">High Risk</p>
               <p className="text-3xl font-bold text-red-400">{totalHighRisks}</p>
             </div>
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Plan</p>
+            <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Plan</p>
               <p className="text-xl sm:text-2xl font-bold">{isPro ? "Pro" : "Free"}</p>
-              <p className="text-zinc-400 text-xs mt-1">
+              <p className="text-muted-foreground text-xs mt-1">
                 {isPro ? "Unlimited scans" : `${freeScansLeft} of 1 free left`}
               </p>
             </div>
@@ -137,17 +137,17 @@ export default async function DashboardOverview() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-w-0">
             {/* Last Scan Preview */}
             {lastScan && (
-              <div className="bg-[#121216] border border-white/5 rounded-2xl p-6 min-w-0 overflow-hidden">
+              <div className="bg-card border border-border rounded-2xl p-6 min-w-0 overflow-hidden">
                 <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                   Last Scan Preview
                 </h3>
-                <div className="bg-[#0a0a0e] border border-white/5 rounded-xl p-5 mb-6">
+                <div className="bg-muted border border-border rounded-xl p-5 mb-6">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-white break-words" style={{ wordBreak: 'break-word', hyphens: 'auto' }}>
+                      <p className="font-semibold text-foreground break-words" style={{ wordBreak: 'break-word', hyphens: 'auto' }}>
                         {lastScan.document_name}
                       </p>
-                      <p className="text-xs text-zinc-500 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {new Date(lastScan.created_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -167,7 +167,7 @@ export default async function DashboardOverview() {
                       {lastScanAiResult.redFlags.slice(0, 3).map((flag, idx) => (
                         <div key={idx} className="flex gap-3 items-start">
                           <span className="text-red-400 shrink-0">⚠</span>
-                          <span className="text-sm text-zinc-300">{flag.title}</span>
+                          <span className="text-sm text-muted-foreground">{flag.title}</span>
                         </div>
                       ))}
                       {lastScanAiResult.redFlags.length === 0 && (
@@ -175,38 +175,38 @@ export default async function DashboardOverview() {
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-zinc-500 italic">Scan pending or failed.</p>
+                    <p className="text-sm text-muted-foreground italic">Scan pending or failed.</p>
                   )}
                 </div>
-                <Link href="/dashboard/reports" className="block w-full py-3 text-center rounded-lg bg-indigo-500/10 text-indigo-400 text-sm font-medium hover:bg-indigo-500/20 transition-colors">
+                <Link href="/dashboard/reports" className="block w-full py-3 text-center rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary-hover/20 transition-colors">
                   View Full Report
                 </Link>
               </div>
             )}
 
             {/* Recent Findings */}
-            <div className="bg-[#121216] border border-white/5 rounded-2xl p-6 min-w-0 overflow-hidden">
+            <div className="bg-card border border-border rounded-2xl p-6 min-w-0 overflow-hidden">
               <h3 className="text-lg font-bold mb-6">Recent Findings</h3>
               {recentFindings.length > 0 ? (
                 <div className="space-y-4">
                   {recentFindings.map((finding, idx) => (
                     <Link key={idx} href={`/dashboard/results/${finding.scanId}`} className="block group">
-                      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 hover:border-indigo-500/30 transition-colors">
+                      <div className="bg-muted border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
                         <div className="flex items-center gap-2 mb-2">
                           <span className={`w-2 h-2 rounded-full ${
                             finding.severity === "high" ? "bg-red-500" :
                             finding.severity === "medium" ? "bg-amber-500" :
                             "bg-blue-500"
                           }`} />
-                          <p className="text-sm font-medium text-white group-hover:text-indigo-400 transition-colors">{finding.title}</p>
+                          <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{finding.title}</p>
                         </div>
-                        <p className="text-xs text-zinc-500 pl-4 truncate">— Found in {finding.documentName}</p>
+                        <p className="text-xs text-muted-foreground pl-4 truncate">— Found in {finding.documentName}</p>
                       </div>
                     </Link>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-zinc-500 italic">No risks detected yet.</p>
+                <p className="text-sm text-muted-foreground italic">No risks detected yet.</p>
               )}
             </div>
           </div>

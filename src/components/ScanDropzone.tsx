@@ -86,21 +86,21 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
   });
 
   return (
-    <div className="max-w-3xl animate-in fade-in duration-500">
+    <div className="max-w-3xl md:animate-in md:fade-in md:duration-500">
       {appState === "error" && (
         <div className="mb-6 p-5 rounded-xl border border-red-500/30 bg-red-500/5">
           <p className="text-sm font-medium text-red-400">{scanError}</p>
-          <button onClick={resetScan} className="mt-2 text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-4">
+          <button onClick={resetScan} className="mt-2 text-sm text-primary hover:text-primary-hover underline underline-offset-4">
             Try again
           </button>
         </div>
       )}
 
       {appState === "scanning" ? (
-        <div className="py-16 text-center bg-[#121216] border border-[#22222a] rounded-2xl">
-          <div className="w-12 h-12 mx-auto mb-6 rounded-full border-4 border-zinc-800 border-t-indigo-500 animate-spin" />
+        <div className="py-16 text-center bg-card border border-border rounded-2xl">
+          <div className="w-12 h-12 mx-auto mb-6 rounded-full border-4 border-zinc-800 border-t-primary animate-spin" />
           <h3 className="text-xl font-bold mb-2">Analyzing your contract</h3>
-          <p className="text-zinc-400 text-sm max-w-sm mx-auto">
+          <p className="text-muted-foreground text-sm max-w-sm mx-auto">
             Scanning every clause for red flags. This usually takes 10–20 seconds.
           </p>
         </div>
@@ -108,9 +108,9 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
         <>
           {/* Free scans badge */}
           {!isPro && (
-            <div className="mb-6 p-4 rounded-xl bg-[#121216] border border-[#22222a] flex items-center gap-3">
+            <div className="mb-6 p-4 rounded-xl bg-card border border-border flex items-center gap-3">
               <span className={`w-2 h-2 rounded-full ${freeScansLeft > 0 ? "bg-emerald-500" : "bg-red-500"}`} />
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 {freeScansLeft > 0
                   ? `${freeScansLeft} of 1 free scan remaining`
                   : "Free scans used. Next scan requires payment."}
@@ -123,8 +123,8 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
               onClick={() => { setInputMode("pdf"); setTextInput(""); setScanError(""); setAppState("idle"); }}
               className={`px-4 sm:px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 inputMode === "pdf"
-                  ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/50"
-                  : "bg-[#121216] border border-[#22222a] text-zinc-500 hover:text-zinc-300"
+                  ? "bg-primary/20 text-primary border border-primary/50"
+                  : "bg-card border border-border text-muted-foreground hover:text-muted-foreground"
               }`}
             >
               Upload PDF
@@ -133,8 +133,8 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
               onClick={() => { setInputMode("text"); setFile(null); setScanError(""); setAppState("idle"); }}
               className={`px-4 sm:px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 inputMode === "text"
-                  ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/50"
-                  : "bg-[#121216] border border-[#22222a] text-zinc-500 hover:text-zinc-300"
+                  ? "bg-primary/20 text-primary border border-primary/50"
+                  : "bg-card border border-border text-muted-foreground hover:text-muted-foreground"
               }`}
             >
               Paste text
@@ -144,9 +144,9 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
           {inputMode === "pdf" ? (
             <div
               {...getRootProps()}
-              className={`bg-[#121216] border border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all cursor-pointer
+              className={`bg-card border border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all cursor-pointer
                 ${isDragActive
-                  ? "border-indigo-500 bg-indigo-500/5 shadow-2xl shadow-indigo-500/10 -translate-y-1"
+                  ? "border-primary bg-primary/5 shadow-2xl shadow-indigo-500/10 -translate-y-1"
                   : "border-[#33333d] hover:border-violet-500 hover:bg-[#16161c] hover:-translate-y-1"
                 }
               `}
@@ -154,32 +154,32 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
               <input {...getInputProps()} />
               {file ? (
                 <div className="space-y-3">
-                  <div className="w-12 h-12 mx-auto mb-4 bg-indigo-500/10 rounded-2xl flex items-center justify-center">
-                    <svg className="w-6 h-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">
+                    <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <h3 className="text-lg font-semibold">{file.name}</h3>
-                  <p className="text-zinc-500 text-sm">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
+                  <p className="text-muted-foreground text-sm">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
                   <button
                     onClick={(e) => { e.stopPropagation(); resetScan(); }}
-                    className="text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-4 mt-2"
+                    className="text-sm text-primary hover:text-primary-hover underline underline-offset-4 mt-2"
                   >
                     Remove &amp; choose another file
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="w-14 h-14 mx-auto mb-4 bg-indigo-500/10 rounded-2xl flex items-center justify-center">
-                    <svg className="w-7 h-7 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">
+                    <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <h3 className="text-lg sm:text-xl font-semibold">
                     {isDragActive ? "Drop your contract here" : "Drop your contract here"}
                   </h3>
-                  <p className="text-zinc-500 text-sm">Supports PDF (Max 15MB)</p>
-                  <label className="inline-block px-5 py-2.5 rounded-lg border border-[#33333d] text-sm font-medium cursor-pointer hover:border-zinc-500 hover:bg-white/5 transition-all mt-2">
+                  <p className="text-muted-foreground text-sm">Supports PDF (Max 15MB)</p>
+                  <label className="inline-block px-5 py-2.5 rounded-lg border border-[#33333d] text-sm font-medium cursor-pointer hover:border-border hover:bg-muted/50 transition-all mt-2">
                     Browse Files
                   </label>
                 </div>
@@ -193,12 +193,12 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
                 onChange={(e) => setTextInput(e.target.value)}
                 placeholder="Paste the full text of your contract here..."
                 rows={10}
-                className="w-full p-4 sm:p-5 rounded-xl bg-[#121216] border border-[#22222a] text-white placeholder-zinc-500 text-sm leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all"
+                className="w-full p-4 sm:p-5 rounded-xl bg-card border border-border text-foreground placeholder-zinc-500 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
               />
               <button
                 onClick={handleTextSubmit}
                 disabled={textInput.trim().length < 100}
-                className="w-full py-3.5 rounded-lg bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full py-3.5 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Analyze this contract
               </button>
