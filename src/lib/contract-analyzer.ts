@@ -55,22 +55,22 @@ You must scan for and flag issues in these categories:
 Return ONLY a valid JSON object with this structure (no markdown, no backticks, just raw JSON):
 
 {
-  "overallRiskScore": 45,
-  "summary": "A 2-3 sentence plain-English summary of the contract's overall risk level and what the freelancer should know before signing.",
-  "contractType": "Your best guess at the contract type (e.g., 'Independent Contractor Agreement', 'Consulting Agreement', 'NDA', 'MSA')",
-  "keyDates": ["Any important dates mentioned: payment deadlines, contract end dates, notice periods"],
-  "redFlags": [
-    {
-      "id": "flag-1",
-      "category": "payment",
-      "severity": "high",
-      "title": "Short, punchy title of the red flag (max 8 words)",
-      "clauseExcerpt": "Direct quote from the contract text that triggered this flag (keep under 200 chars)",
-      "plainEnglishExplanation": "Explain what this clause means in simple terms a non-lawyer can understand, and why it's dangerous for a freelancer. 2-3 sentences max.",
-      "suggestedFix": "Specific language to request instead. Be concrete, like 'Replace with: Payment shall be made within 15 calendar days of invoice receipt.'"
+      "overallRiskScore": 45,
+      "summary": "A 2-3 sentence plain-English summary of the contract's overall risk level and what they should know before signing. Speak directly to the freelancer (e.g., 'You should be careful about...', 'This contract looks fairly standard, but you need to watch out for...').",
+      "contractType": "Your best guess at the contract type (e.g., 'Independent Contractor Agreement', 'Consulting Agreement', 'NDA', 'MSA')",
+      "keyDates": ["Any important dates mentioned: payment deadlines, contract end dates, notice periods"],
+      "redFlags": [
+        {
+          "id": "flag-1",
+          "category": "payment",
+          "severity": "high",
+          "title": "Short, punchy title of the red flag (max 8 words)",
+          "clauseExcerpt": "Direct quote from the contract text that triggered this flag (keep under 200 chars)",
+          "plainEnglishExplanation": "Explain what this clause means in simple terms a non-lawyer can understand, and why it's dangerous for them. Speak directly to the freelancer (e.g., 'This means you won't get paid until...'). 2-3 sentences max.",
+          "suggestedFix": "Direct advice to the freelancer on how to negotiate or fix this. Phrase it directly to them (e.g., 'Ask the client to remove this clause...', 'Request that they change...', 'You should negotiate to add...'). Be concrete and provide specific replacement language when helpful."
+        }
+      ]
     }
-  ]
-}
 
 ## RULES
 - If the contract text is too short or not actually a legal contract, return an empty redFlags array and a summary explaining why.
