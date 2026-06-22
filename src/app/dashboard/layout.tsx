@@ -19,7 +19,11 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const { uid, email, dbUser } = user;
+  const { uid, email, emailVerified, dbUser } = user;
+
+  if (!emailVerified) {
+    redirect("/verify-email");
+  }
 
   let userData = dbUser;
 

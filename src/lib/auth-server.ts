@@ -20,6 +20,7 @@ export async function getCurrentUser() {
     return {
       uid: decodedClaims.uid,
       email: userRecord.email,
+      emailVerified: userRecord.emailVerified,
       dbUser
     };
   } catch (error) {
