@@ -21,6 +21,9 @@
     "react-dropzone": "^15.0.0",
     "react-google-recaptcha-v3": "^1.11.0"
   },
+  "overrides": {
+    "jose": "4.15.9"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
