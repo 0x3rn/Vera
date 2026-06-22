@@ -59,7 +59,7 @@ export default function BillingPlan({ isPro }: { isPro: boolean }) {
           <p className="text-zinc-400 text-sm mb-6">
             {isPro
               ? "$10/month — Unlimited scans, export summaries, priority support."
-              : "2 free scans. Upgrade for unlimited access."}
+              : "1 free scan. Upgrade for unlimited access."}
           </p>
 
           {isPro ? (

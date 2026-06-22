@@ -234,7 +234,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
                       <span className="inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest bg-white/5 text-zinc-400 mb-3 border border-white/10">
                         {CATEGORY_LABELS[flag.category as RedFlag["category"]] || flag.category}
                       </span>
-                      <h4 className="text-xl font-bold text-white">{flag.issue}</h4>
+                      <h4 className="text-xl font-bold text-white">{flag.title}</h4>
                     </div>
                     <span
                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider shrink-0 border ${
@@ -255,12 +255,12 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
                   </div>
                   <div className="bg-[#0a0a0e] p-5 rounded-xl border border-white/5 mb-6">
                     <p className="text-sm font-medium text-zinc-500 uppercase tracking-widest mb-2">Original Text</p>
-                    <p className="text-zinc-300 italic">"{flag.snippet}"</p>
+                    <p className="text-zinc-300 italic">"{flag.clauseExcerpt}"</p>
                   </div>
-                  <p className="text-zinc-400 mb-6 leading-relaxed">{flag.explanation}</p>
+                  <p className="text-zinc-400 mb-6 leading-relaxed">{flag.plainEnglishExplanation}</p>
                   <div className="bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-xl">
                     <p className="text-sm text-emerald-300">
-                      <span className="font-bold text-emerald-400">Recommendation:</span> {flag.recommendation}
+                      <span className="font-bold text-emerald-400">Recommendation:</span> {flag.suggestedFix}
                     </p>
                   </div>
                 </div>

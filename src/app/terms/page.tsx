@@ -36,7 +36,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">4. Free Trial & Payments</h2>
               <p>
-                Vera provides 2 free contract scans per user account. After exhausting your free scans, you must purchase a paid plan to continue using the service. All payments are processed by Lemon Squeezy and are subject to their terms.
+                Vera provides 1 free contract scan per user account. After exhausting your free scan, you must purchase a paid plan to continue using the service. All payments are processed by Lemon Squeezy and are subject to their terms.
               </p>
             </section>
             <section>

@@ -26,4 +26,4 @@ if (!getApps().length) {
 }
 
 export const adminAuth = getAuth();
-export const adminDb = getFirestore(getApps().length ? getApp() : undefined, "default");
+export const adminDb = getFirestore(getApp(), "default");

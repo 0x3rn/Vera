@@ -234,7 +234,7 @@ function RegisterForm() {
       ) : (
         <>
           <h1 className="text-3xl font-bold mb-2">Create an account</h1>
-          <p className="text-zinc-400 mb-8">Get 2 free contract scans.</p>
+          <p className="text-zinc-400 mb-8">Get 1 free contract scan.</p>
 
           {error && (
             <div className="p-4 rounded-lg border border-red-500/30 bg-red-500/5 mb-6">

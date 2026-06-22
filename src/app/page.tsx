@@ -93,7 +93,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <p className="text-sm font-medium text-zinc-500">2 Free Scans • No Credit Card Required</p>
+                  <p className="text-sm font-medium text-zinc-500">1 Free Scan • No Credit Card Required</p>
                 </div>
               )}
 
@@ -348,7 +348,7 @@ export default function Home() {
               <div className="max-w-4xl mx-auto px-4 sm:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">Start Free</h2>
-                  <p className="text-lg text-zinc-400">2 free scans included. No credit card required.</p>
+                  <p className="text-lg text-zinc-400">1 free scan included. No credit card required.</p>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="bg-[#121216] border border-[#22222a] rounded-3xl p-8 text-center hover:border-zinc-600 transition-all duration-500 ease-out">
@@ -389,7 +389,7 @@ export default function Home() {
                 <a href="#hero" className="inline-block px-10 py-5 rounded-xl bg-indigo-600 text-white font-bold text-lg hover:bg-indigo-700 hover:-translate-y-1 transition-all duration-500 ease-out mb-6">
                   Scan Contract Free
                 </a>
-                <p className="text-zinc-400 font-medium">Get your first two scans free. No Credit Card Required.</p>
+                <p className="text-zinc-400 font-medium">Get your first scan free. No Credit Card Required.</p>
               </div>
             </section>
 

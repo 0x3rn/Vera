@@ -112,7 +112,7 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
               <span className={`w-2 h-2 rounded-full ${freeScansLeft > 0 ? "bg-emerald-500" : "bg-red-500"}`} />
               <p className="text-sm text-zinc-400">
                 {freeScansLeft > 0
-                  ? `${freeScansLeft} of 2 free scans remaining`
+                  ? `${freeScansLeft} of 1 free scan remaining`
                   : "Free scans used. Next scan requires payment."}
               </p>
             </div>

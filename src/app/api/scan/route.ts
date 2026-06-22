@@ -7,7 +7,7 @@ import { initLemonSqueezy, getStoreId, getVariantId } from "@/lib/lemonsqueezy";
 import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 import { FieldValue } from "firebase-admin/firestore";
 
-const MAX_FREE_SCANS = 2;
+const MAX_FREE_SCANS = 1;
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 
 export async function POST(request: NextRequest) {
