@@ -67,8 +67,7 @@ export default function TermsOfService() {
                 <h3 className="text-xl font-semibold text-foreground mt-6">3.2. Evolution of the Service</h3>
                 <p>We are constantly innovating and changing our Service to provide the best possible experience for our users. You acknowledge and agree that the form and nature of the Service which Vera provides may change from time to time without prior notice to you. You may stop using the Service at any time.</p>
 
-                <div className="bg-card border border-amber-500/50 p-6 sm:p-8 rounded-2xl my-8 relative overflow-hidden shadow-lg">
-                  <div className="absolute top-0 left-0 w-2 h-full bg-amber-500"></div>
+                <div className="bg-card border border-amber-500/50 p-6 sm:p-8 rounded-2xl my-8 shadow-lg">
                   <h3 className="text-xl font-bold mb-4 text-foreground flex items-center gap-2">
                     <svg className="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                     Critical Disclaimer: No Legal Advice
@@ -146,8 +145,7 @@ export default function TermsOfService() {
             <section className="space-y-6">
               <h2 className="text-2xl font-bold text-foreground">8. Disclaimer of Warranties and Accuracy</h2>
               <div className="space-y-4">
-                <div className="bg-card border border-red-500/50 p-6 sm:p-8 rounded-2xl my-8 relative overflow-hidden shadow-lg">
-                  <div className="absolute top-0 left-0 w-2 h-full bg-red-500"></div>
+                <div className="bg-card border border-red-500/50 p-6 sm:p-8 rounded-2xl my-8 shadow-lg">
                   <h3 className="text-xl font-bold mb-4 text-foreground flex items-center gap-2">
                     <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                     Service Provided "As Is"

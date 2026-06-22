@@ -172,8 +172,7 @@ export default function PrivacyPolicy() {
                 <p className="leading-relaxed">Vera utilizes advanced machine-learning models and automated systems to analyze documents. By uploading a document, you acknowledge that it is being read and processed by an AI algorithm (the Vera Risk Engine™). We explicitly <strong>do not</strong> permit our AI infrastructure providers (such as OpenAI or DeepSeek) to use your confidential documents to train, fine-tune, or improve their foundational public models.</p>
               </section>
 
-              <section className="bg-card p-8 rounded-2xl border border-primary/30 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+              <section className="bg-card p-8 rounded-2xl border border-primary/30">
                 <h3 className="text-xl font-bold mb-4 text-foreground flex items-center gap-2">
                   <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                   Legal Disclaimer
