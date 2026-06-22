@@ -1,19 +1,23 @@
 // Server-side PDF parsing utility
 
+import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
+
+// Disable workers for Next.js server compatibility
+pdfjs.GlobalWorkerOptions.workerSrc = "";
+
 export async function parsePdfBuffer(buffer: ArrayBuffer): Promise<string> {
-  // Polyfill DOMMatrix for Node 20.x (Vercel default) before loading pdf-parse
-  if (typeof global.DOMMatrix === "undefined") {
-    global.DOMMatrix = class DOMMatrix {
-      constructor() {}
-    } as any;
+  const uint8 = new Uint8Array(buffer);
+  const doc = await pdfjs.getDocument({ data: uint8 }).promise;
+  const pages: string[] = [];
+
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items
+      .map((item: any) => item.str || "")
+      .join(" ");
+    pages.push(pageText);
   }
 
-  // Dynamically import pdf-parse so it doesn't crash the serverless function on boot in Vercel
-
-  const { PDFParse } = await import("pdf-parse");
-  
-  const uint8 = new Uint8Array(buffer);
-  const parser = new PDFParse({ data: uint8 });
-  const result = await parser.getText();
-  return result.text;
+  return pages.join("\n\n");
 }
