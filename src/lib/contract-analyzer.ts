@@ -77,7 +77,8 @@ Return ONLY a valid JSON object with this structure (no markdown, no backticks, 
 - Flag EVERYTHING that could harm a freelancer. Being thorough is better than missing something.
 - Be specific in clauseExcerpt — use actual text from the contract, not paraphrases.
 - Severity "high" means this alone could cost the freelancer thousands or their business. Severity "medium" means it's a bad term but negotiable. Severity "low" means it's worth noting but not a dealbreaker.
-- overallRiskScore: 0-30 = low risk, 31-60 = moderate risk (review carefully), 61-100 = high risk (do not sign without changes).`;
+- overallRiskScore: 0-30 = low risk, 31-60 = moderate risk (review carefully), 61-100 = high risk (do not sign without changes).
+CRITICAL SCORING INSTRUCTION: To ensure consistency, calculate the overallRiskScore strictly based on the red flags found: Start at 0. Add 25 points for every 'high' severity flag. Add 10 points for every 'medium' severity flag. Add 5 points for every 'low' severity flag. Cap the final score at 100. DO NOT GUESS THE SCORE.`;
 
 export async function analyzeContract(
   contractText: string
@@ -93,7 +94,8 @@ export async function analyzeContract(
         content: `Analyze the following freelance contract for red flags and toxic clauses. Return only valid JSON per your instructions.\n\nCONTRACT TEXT:\n\n${contractText}`,
       },
     ],
-    temperature: 0.3,
+    temperature: 0,
+    response_format: { type: "json_object" },
     max_tokens: 3000,
   });
 
