@@ -1,237 +1,135 @@
-"use client";
-
-import { useState, useCallback } from "react";
 import Link from "next/link";
-import {
-  GoogleReCaptchaProvider,
-  useGoogleReCaptcha,
-} from "react-google-recaptcha-v3";
 
-const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
-
-// Warn in development if key is missing
-if (typeof window !== "undefined" && !SITE_KEY) {
-  console.warn(
-    "[Vera] NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set. reCAPTCHA will be skipped in development."
-  );
-}
-
-function ContactForm() {
-  const { executeRecaptcha } = useGoogleReCaptcha();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setStatus("loading");
-      setErrorMsg("");
-
-      try {
-        // Generate reCAPTCHA token
-        let recaptchaToken = "";
-        if (executeRecaptcha) {
-          recaptchaToken = await executeRecaptcha("contact_form");
-        }
-
-        const res = await fetch("/api/contact", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, message, recaptchaToken }),
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Failed to send message");
-        }
-
-        setStatus("success");
-        setName("");
-        setEmail("");
-        setMessage("");
-      } catch (err: any) {
-        setStatus("error");
-        setErrorMsg(err.message || "Something went wrong. Please try again.");
-      }
-    },
-    [name, email, message, executeRecaptcha]
-  );
-
-  if (status === "success") {
-    return (
-      <div className="p-6 rounded-xl border border-emerald-500/30 bg-emerald-500/5 text-center">
-        <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-500/10 flex items-center justify-center">
-          <svg
-            className="w-7 h-7 text-emerald-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
-        <h2 className="text-xl font-bold text-emerald-400 mb-2">
-          Message sent!
-        </h2>
-        <p className="text-muted-foreground text-sm">
-          We'll get back to you as soon as possible.
-        </p>
-        <button
-          onClick={() => setStatus("idle")}
-          className="mt-6 text-sm text-primary hover:text-indigo-300 underline underline-offset-4"
-        >
-          Send another message
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div>
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-muted-foreground mb-1.5"
-        >
-          Full Name
-        </label>
-        <input
-          id="name"
-          type="text"
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-          placeholder="Jane Doe"
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-muted-foreground mb-1.5"
-        >
-          Email Address
-        </label>
-        <input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-          placeholder="jane@example.com"
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="message"
-          className="block text-sm font-medium text-muted-foreground mb-1.5"
-        >
-          Message
-        </label>
-        <textarea
-          id="message"
-          required
-          rows={5}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg bg-card border border-border text-foreground placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-y"
-          placeholder="Tell us what's on your mind..."
-        />
-      </div>
-      {status === "error" && (
-        <div className="p-4 rounded-lg border border-red-500/30 bg-red-500/5">
-          <p className="text-sm text-red-400">{errorMsg}</p>
-        </div>
-      )}
-      <button
-        type="submit"
-        disabled={status === "loading"}
-        className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-50"
-      >
-        {status === "loading" ? "Sending..." : "Send message"}
-      </button>
-      <p className="text-xs text-muted-foreground text-center">
-        This site is protected by reCAPTCHA and the Google{" "}
-        <a
-          href="https://policies.google.com/privacy"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-muted-foreground"
-        >
-          Privacy Policy
-        </a>{" "}
-        and{" "}
-        <a
-          href="https://policies.google.com/terms"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-muted-foreground"
-        >
-          Terms of Service
-        </a>{" "}
-        apply.
-      </p>
-    </form>
-  );
-}
+export const metadata = {
+  title: "Contact Us | Vera",
+  description: "Get in touch with the Vera team.",
+};
 
 export default function ContactPage() {
   return (
-    <div className="flex flex-col min-h-full">
-      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-        <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center">
+    <div className="min-h-full flex flex-col">
+      {/* Navigation */}
+      <nav className="w-full bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold tracking-tight">
             Vera<span className="text-primary">.</span>
           </Link>
+          <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Back to Home
+          </Link>
         </div>
       </nav>
-      <main className="flex-1 pt-36 pb-24">
-        <div className="max-w-lg mx-auto px-4 sm:px-8">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2">Contact Us</h1>
-          <p className="text-muted-foreground mb-10">
-            Have a question or feedback? We'd love to hear from you.
-          </p>
 
-          <GoogleReCaptchaProvider
-            reCaptchaKey={SITE_KEY}
-            scriptProps={{ async: true, defer: true }}
-          >
-            <ContactForm />
-          </GoogleReCaptchaProvider>
+      <main className="flex-grow pt-20 pb-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl sm:text-5xl font-bold mb-6 tracking-tight text-foreground">Contact Us</h1>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+              Have questions about the Vera Risk Engine™, need help with an analysis, or want to discuss enterprise pricing? We're here to help.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-5 gap-12">
+            {/* Contact Form */}
+            <div className="md:col-span-3 bg-card border border-border p-8 rounded-3xl shadow-sm">
+              <form className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label htmlFor="firstName" className="text-sm font-medium text-foreground">First Name</label>
+                    <input 
+                      type="text" 
+                      id="firstName" 
+                      className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                      placeholder="John"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="lastName" className="text-sm font-medium text-foreground">Last Name</label>
+                    <input 
+                      type="text" 
+                      id="lastName" 
+                      className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                      placeholder="Doe"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium text-foreground">Work Email</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                    placeholder="john@company.com"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="subject" className="text-sm font-medium text-foreground">Subject</label>
+                  <select 
+                    id="subject" 
+                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors appearance-none"
+                  >
+                    <option>General Inquiry</option>
+                    <option>Technical Support</option>
+                    <option>Billing Question</option>
+                    <option>Enterprise Sales</option>
+                    <option>Legal / Privacy</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="message" className="text-sm font-medium text-foreground">Message</label>
+                  <textarea 
+                    id="message" 
+                    rows={5}
+                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none"
+                    placeholder="How can we help you?"
+                  ></textarea>
+                </div>
+
+                <button 
+                  type="button" 
+                  className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  Send Message
+                </button>
+              </form>
+            </div>
+
+            {/* Direct Contact Info */}
+            <div className="md:col-span-2 space-y-8">
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-4">Direct Email</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-primary mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Support & General</p>
+                      <a href="mailto:support@verahq.xyz" className="text-sm text-muted-foreground hover:text-primary transition-colors">support@verahq.xyz</a>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-primary mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Legal & Privacy</p>
+                      <a href="mailto:legal@verahq.xyz" className="text-sm text-muted-foreground hover:text-primary transition-colors">legal@verahq.xyz</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6">
+                <h4 className="font-bold text-primary mb-2">Response Times</h4>
+                <p className="text-sm text-muted-foreground">We aim to respond to all inquiries within 24 hours during standard business days (Mon-Fri, EST).</p>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
-      <footer className="border-t border-border py-8">
-        <div className="max-w-6xl mx-auto px-8 flex flex-wrap justify-center gap-6 text-xs text-muted-foreground">
-          <Link
-            href="/privacy"
-            className="hover:text-muted-foreground transition-colors"
-          >
-            Privacy Policy
-          </Link>
-          <Link
-            href="/terms"
-            className="hover:text-muted-foreground transition-colors"
-          >
-            Terms of Service
-          </Link>
-          <Link
-            href="/contact"
-            className="hover:text-muted-foreground transition-colors"
-          >
-            Contact
-          </Link>
-        </div>
+
+      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground bg-background">
+        <p>© {new Date().getFullYear()} Vera Inc. All rights reserved.</p>
       </footer>
     </div>
   );

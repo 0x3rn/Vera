@@ -13,6 +13,8 @@ const CATEGORY_LABELS: Record<RedFlag["category"], string> = {
   liability: "Liability & Indemnity",
   "non-compete": "Non-Compete",
   "scope-creep": "Scope Creep",
+  "data-privacy": "Data & Privacy",
+  arbitration: "Arbitration & Disputes",
   other: "Other Concern",
 };
 
