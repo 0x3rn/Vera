@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { adminDb } from "@/lib/firebase/admin";
 
 const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY || "";
 
@@ -71,12 +71,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await prisma.contactMessage.create({
-      data: {
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        message: message.trim(),
-      },
+    await adminDb.collection("contact_messages").add({
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      message: message.trim(),
+      created_at: new Date().toISOString(),
     });
 
     return NextResponse.json({ success: true });

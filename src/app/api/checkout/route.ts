@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { initLemonSqueezy, getStoreId, getVariantId } from "@/lib/lemonsqueezy";
 import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { getCurrentUser } from "@/lib/auth-server";
 
 export async function POST(request: NextRequest) {
   try {
     initLemonSqueezy();
 
     // Authenticate user
-    const supabase = await createServerSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -37,12 +36,12 @@ export async function POST(request: NextRequest) {
 
     const origin = request.headers.get("origin") || "http://localhost:3000";
 
-    console.log(`[Checkout] Creating checkout — store: ${storeId}, variant: ${variantId}, user: ${user.id}`);
+    console.log(`[Checkout] Creating checkout — store: ${storeId}, variant: ${variantId}, user: ${user.uid}`);
 
     const checkout = await createCheckout(storeId, variantId, {
       checkoutData: {
         custom: {
-          user_id: user.id,
+          user_id: user.uid,
           plan,
         },
       },

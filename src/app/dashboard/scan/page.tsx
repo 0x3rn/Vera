@@ -1,43 +1,57 @@
-import { createServerSupabase } from "@/lib/supabase-server";
-import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
-import ScanDropzone from "@/components/ScanDropzone";
+"use client";
 
-export const metadata = {
-  title: "New Scan | Vera",
-};
+import { useState } from "react";
+import ScannerInput, { AppState } from "@/components/ScannerInput";
 
-export default async function ScanPage() {
-  const supabase = await createServerSupabase();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+export default function NewScanPage() {
+  const [scannerState, setScannerState] = useState<AppState>("idle");
 
-  if (!session?.user) {
-    redirect("/login");
-  }
-
-  const dbUser = await prisma.user.findUnique({
-    where: { email: session.user.email || "" },
-  });
-
-  if (!dbUser) {
-    redirect("/login");
-  }
-
-  const isPro = dbUser.subscription_status === "active";
-  const freeScansLeft = Math.max(0, 2 - dbUser.free_scans_used);
+  const isInput = scannerState === "idle" || scannerState === "uploaded" || scannerState === "error";
 
   return (
-    <div className="space-y-8">
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold">New Scan</h1>
-        <p className="text-zinc-400 text-sm mt-1">
-          Upload a PDF or paste text to detect risks.
-        </p>
-      </div>
+    <div className="animate-in fade-in duration-500">
+      {isInput && (
+        <div className="mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold">New Scan</h1>
+          <p className="text-zinc-400 text-sm mt-1">
+            Upload a document or paste text to detect legal risks.
+          </p>
+        </div>
+      )}
 
-      <ScanDropzone isPro={isPro} freeScansLeft={freeScansLeft} />
+      <div className={isInput ? "grid lg:grid-cols-[1.5fr_1fr] gap-8 items-start" : "block"}>
+        {/* Left Side: Scanner Component */}
+        <div className="w-full relative">
+          <ScannerInput onStateChange={setScannerState} />
+        </div>
+
+        {/* Right Side: Reassurance Checklist - only visible when uploading */}
+        {isInput && (
+          <div className="bg-[#121216] border border-white/5 rounded-2xl p-6 lg:p-8">
+            <h2 className="text-lg font-bold mb-6">What We'll Check</h2>
+            <div className="space-y-4">
+              {[
+                { title: "Payment Terms", desc: "Hidden Net-60 or Net-90 delays." },
+                { title: "Intellectual Property Rights", desc: "Perpetual or premature IP transfers." },
+                { title: "Exclusivity Clauses", desc: "Broad non-compete restrictions." },
+                { title: "Termination Conditions", desc: "Unfair cancellation policies." },
+                { title: "Kill Fees", desc: "Lack of compensation for cancelled work." },
+                { title: "Liability Risks", desc: "Uncapped indemnification." },
+              ].map((item, idx) => (
+                <div key={idx} className="flex gap-3">
+                  <svg className="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-200">{item.title}</p>
+                    <p className="text-xs text-zinc-500">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

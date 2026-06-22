@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { createServerSupabase } from "@/lib/supabase-server";
-import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth-server";
+import { adminDb } from "@/lib/firebase/admin";
 import Sidebar from "@/components/Sidebar";
 
 export const metadata = {
@@ -13,38 +13,33 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createServerSupabase();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const user = await getCurrentUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect("/login");
   }
 
-  // Fetch the user from the DB to get their subscription status
-  let dbUser = await prisma.user.findUnique({
-    where: { email: session.user.email || "" },
-  });
+  const { uid, email, dbUser } = user;
 
-  // If user doesn't exist in DB yet, upsert them
-  if (!dbUser && session.user.email) {
-    dbUser = await prisma.user.upsert({
-      where: { email: session.user.email },
-      update: {},
-      create: {
-        id: session.user.id,
-        email: session.user.email,
-        free_scans_used: 0,
-      },
-    });
+  let userData = dbUser;
+
+  // If user doesn't exist in DB yet, create them
+  if (!userData) {
+    const newUserData = {
+      email: email,
+      free_scans_used: 0,
+      subscription_status: "inactive",
+      created_at: new Date().toISOString(),
+    };
+    await adminDb.collection("users").doc(uid).set(newUserData);
+    userData = { id: uid, ...newUserData };
   }
 
-  const isPro = dbUser?.subscription_status === "active";
+  const isPro = userData?.subscription_status === "active";
 
   return (
     <div className="flex min-h-screen bg-[#070709] lg:flex-row flex-col">
-      <Sidebar userEmail={session.user.email || ""} isPro={isPro} />
+      <Sidebar userEmail={email || ""} isPro={isPro} />
       
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto">

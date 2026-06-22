@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { getCurrentUser } from "@/lib/auth-server";
+import { adminDb } from "@/lib/firebase/admin";
 import { initLemonSqueezy } from "@/lib/lemonsqueezy";
 import { cancelSubscription } from "@lemonsqueezy/lemonsqueezy.js";
 
@@ -8,17 +8,13 @@ export async function POST(request: NextRequest) {
   try {
     initLemonSqueezy();
 
-    const supabase = await createServerSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const dbUser = await prisma.user.findUnique({
-      where: { email: user.email! },
-      select: { subscription_id: true, subscription_status: true },
-    });
+    const { uid, dbUser } = user;
 
     if (!dbUser?.subscription_id || dbUser.subscription_status !== "active") {
       return NextResponse.json(
@@ -36,10 +32,9 @@ export async function POST(request: NextRequest) {
       // Continue anyway — webhook will handle the sync
     }
 
-    // Update Prisma immediately
-    await prisma.user.update({
-      where: { email: user.email! },
-      data: { subscription_status: "cancelled" },
+    // Update Firestore immediately
+    await adminDb.collection("users").doc(uid).update({
+      subscription_status: "cancelled",
     });
 
     return NextResponse.json({

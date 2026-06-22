@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { adminDb } from "@/lib/firebase/admin";
 import crypto from "crypto";
 
 function verifySignature(payload: string, signature: string): boolean {
@@ -31,13 +31,10 @@ export async function POST(request: NextRequest) {
     if (eventName === "order_created") {
       const scanId = customData?.scan_id;
 
-      if (scanId) {
-        await prisma.scan.update({
-          where: { id: scanId },
-          data: {
-            payment_status: "paid",
-            checkout_session_id: `ls_${event?.data?.id || "unknown"}`,
-          },
+      if (scanId && userId) {
+        await adminDb.collection("users").doc(userId).collection("scans").doc(scanId).update({
+          payment_status: "paid",
+          checkout_session_id: `ls_${event?.data?.id || "unknown"}`,
         });
         console.log(`[Webhook] Scan ${scanId} marked as paid`);
       }
@@ -46,15 +43,12 @@ export async function POST(request: NextRequest) {
     // Handle subscription created
     if (eventName === "subscription_created") {
       if (userId) {
-        await prisma.user.update({
-          where: { id: userId },
-          data: {
-            subscription_status: "active",
-            subscription_id: attributes.first_subscription_item?.subscription_id
-              ? String(attributes.first_subscription_item.subscription_id)
-              : null,
-            customer_id: attributes.customer_id ? String(attributes.customer_id) : null,
-          },
+        await adminDb.collection("users").doc(userId).update({
+          subscription_status: "active",
+          subscription_id: attributes.first_subscription_item?.subscription_id
+            ? String(attributes.first_subscription_item.subscription_id)
+            : null,
+          customer_id: attributes.customer_id ? String(attributes.customer_id) : null,
         });
         console.log(`[Webhook] User ${userId} subscription activated`);
       }
@@ -72,9 +66,8 @@ export async function POST(request: NextRequest) {
               : undefined;
 
         if (newStatus) {
-          await prisma.user.update({
-            where: { id: userId },
-            data: { subscription_status: newStatus },
+          await adminDb.collection("users").doc(userId).update({
+            subscription_status: newStatus,
           });
           console.log(`[Webhook] User ${userId} subscription status → ${newStatus}`);
         }
@@ -84,11 +77,8 @@ export async function POST(request: NextRequest) {
     // Handle subscription cancelled
     if (eventName === "subscription_cancelled") {
       if (userId) {
-        await prisma.user.update({
-          where: { id: userId },
-          data: {
-            subscription_status: "cancelled",
-          },
+        await adminDb.collection("users").doc(userId).update({
+          subscription_status: "cancelled",
         });
         console.log(`[Webhook] User ${userId} subscription cancelled`);
       }

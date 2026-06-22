@@ -36,7 +36,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">4. Cookies & Analytics</h2>
               <p>
-                We use essential session cookies for authentication via Supabase. We do not use third-party tracking cookies or analytics scripts.
+                We use essential session cookies for authentication via Firebase. We do not use third-party tracking cookies or analytics scripts.
               </p>
             </section>
             <section>

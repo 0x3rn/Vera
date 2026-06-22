@@ -1,25 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { getCurrentUser } from "@/lib/auth-server";
+import { adminDb } from "@/lib/firebase/admin";
 import { parsePdfBuffer } from "@/lib/pdf-parser";
 import { analyzeContract } from "@/lib/contract-analyzer";
 import { initLemonSqueezy, getStoreId, getVariantId } from "@/lib/lemonsqueezy";
 import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
+import { FieldValue } from "firebase-admin/firestore";
 
 const MAX_FREE_SCANS = 2;
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth check
-    const supabase = await createServerSupabase();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Auth check using our new server helper
+    const user = await getCurrentUser();
 
-    if (!user || !user.email) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { uid, email, dbUser } = user;
 
     // Parse form data
     const formData = await request.formData();
@@ -71,31 +71,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get or create DB user
-    const dbUser = await prisma.user.upsert({
-      where: { email: user.email },
-      update: {},
-      create: {
-        id: user.id,
-        email: user.email,
+    // Get or create DB user in Firestore
+    const userRef = adminDb.collection("users").doc(uid);
+    let userData = dbUser;
+
+    if (!userData) {
+      const newUserData = {
+        email: email,
         free_scans_used: 0,
-      },
-    });
+        subscription_status: "inactive",
+        created_at: new Date().toISOString(),
+      };
+      await userRef.set(newUserData);
+      userData = { id: uid, ...newUserData };
+    }
 
     const canUseFree =
-      dbUser.subscription_status === "active" ||
-      dbUser.free_scans_used < MAX_FREE_SCANS;
+      userData.subscription_status === "active" ||
+      (userData.free_scans_used || 0) < MAX_FREE_SCANS;
+
+    const scansRef = userRef.collection("scans");
 
     // If free scans used up and no active subscription, generate Lemon Squeezy checkout
     if (!canUseFree) {
-      const scan = await prisma.scan.create({
-        data: {
-          userId: dbUser.id,
-          document_name: documentName,
-          payment_status: "unpaid",
-          risk_score: 0,
-        },
-      });
+      const newScanRef = scansRef.doc();
+      const scanData = {
+        document_name: documentName,
+        payment_status: "unpaid",
+        risk_score: 0,
+        created_at: new Date().toISOString(),
+      };
+      await newScanRef.set(scanData);
 
       try {
         initLemonSqueezy();
@@ -106,12 +112,12 @@ export async function POST(request: NextRequest) {
         const checkout = await createCheckout(storeId, variantId, {
           checkoutData: {
             custom: {
-              scan_id: scan.id,
-              user_id: dbUser.id,
+              scan_id: newScanRef.id,
+              user_id: uid, // Pass the Firebase UID to webhook
             },
           },
           productOptions: {
-            redirectUrl: `${origin}/results/${scan.id}?paid=true`,
+            redirectUrl: `${origin}/results/${newScanRef.id}?paid=true`,
           },
         });
 
@@ -126,11 +132,11 @@ export async function POST(request: NextRequest) {
           error: "Free scans exhausted",
           requires_payment: true,
           checkout_url: checkoutUrl,
-          scan_id: scan.id,
+          scan_id: newScanRef.id,
           free_scans_remaining: 0,
         });
       } catch (checkoutError) {
-        await prisma.scan.delete({ where: { id: scan.id } });
+        await newScanRef.delete();
         throw checkoutError;
       }
     }
@@ -140,31 +146,30 @@ export async function POST(request: NextRequest) {
     const aiResult = await analyzeContract(truncatedText);
 
     // Only increment free scans if not on active subscription
-    if (dbUser.subscription_status !== "active") {
-      await prisma.user.update({
-        where: { id: dbUser.id },
-        data: { free_scans_used: { increment: 1 } },
+    if (userData.subscription_status !== "active") {
+      await userRef.update({
+        free_scans_used: FieldValue.increment(1),
       });
+      userData.free_scans_used = (userData.free_scans_used || 0) + 1;
     }
 
     const riskScore = aiResult.overallRiskScore ?? 0;
 
-    const scan = await prisma.scan.create({
-      data: {
-        userId: dbUser.id,
-        document_name: documentName,
-        ai_result: aiResult as any,
-        payment_status: "free",
-        risk_score: Math.max(1, Math.min(10, Math.round(riskScore / 10))),
-      },
+    const newScanRef = scansRef.doc();
+    await newScanRef.set({
+      document_name: documentName,
+      ai_result: aiResult,
+      payment_status: "free",
+      risk_score: riskScore, // Assuming we want the raw 0-100 score now
+      created_at: new Date().toISOString(),
     });
 
-    const remaining = dbUser.subscription_status === "active"
+    const remaining = userData.subscription_status === "active"
       ? Infinity
-      : MAX_FREE_SCANS - (dbUser.free_scans_used + 1);
+      : MAX_FREE_SCANS - (userData.free_scans_used || 0);
 
     return NextResponse.json({
-      scan_id: scan.id,
+      scan_id: newScanRef.id,
       ...aiResult,
       free_scans_remaining: Math.max(0, remaining),
       max_free_scans: MAX_FREE_SCANS,

@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase-client";
 import { useRouter } from "next/navigation";
 import {
   GoogleReCaptchaProvider,
   useGoogleReCaptcha,
 } from "react-google-recaptcha-v3";
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "@/lib/firebase/client";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
@@ -26,148 +27,29 @@ const DISPOSABLE_DOMAINS = new Set([
   "guerrillamail.de", "guerrillamailblock.com", "pokemail.net", "spam4.me",
 ]);
 
-function SuccessState({
-  email,
-  supabase,
-  onToggleForm,
-}: {
-  email: string;
-  supabase: ReturnType<typeof createClient>;
-  onToggleForm: () => void;
-}) {
-  const [cooldown, setCooldown] = useState(60);
-  const [resending, setResending] = useState(false);
-  const [resendError, setResendError] = useState("");
-  const [resendSuccess, setResendSuccess] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setCooldown((prev) => {
-        if (prev <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
-  const handleResend = async () => {
-    if (cooldown > 0 || resending) return;
-    setResending(true);
-    setResendError("");
-    setResendSuccess(false);
-
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-
-    const { error } = await supabase.auth.resend({
-      type: "signup",
-      email,
-      options: {
-        emailRedirectTo: `${origin}/api/auth/callback`,
-      },
-    });
-
-    if (error) {
-      setResendError(error.message);
-    } else {
-      setResendSuccess(true);
-      setCooldown(60);
-      // Re-start countdown
-      if (timerRef.current) clearInterval(timerRef.current);
-      timerRef.current = setInterval(() => {
-        setCooldown((prev) => {
-          if (prev <= 1) {
-            if (timerRef.current) clearInterval(timerRef.current!);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      // Auto-hide success toast after 5s
-      setTimeout(() => setResendSuccess(false), 5000);
-    }
-
-    setResending(false);
-  };
-
-  return (
-    <div className="text-center">
-      <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-emerald-500/10 flex items-center justify-center">
-        <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      </div>
-      <h1 className="text-2xl font-bold mb-2">Check your email</h1>
-      <p className="text-zinc-400 text-sm leading-relaxed">
-        We've sent a confirmation link to{" "}
-        <strong className="text-white">{email}</strong>. Click the link to verify
-        your account and get started.
-      </p>
-
-      <p className="text-zinc-500 text-xs mt-4">
-        Didn't receive it? Please check your Spam or Promotions folder.
-      </p>
-
-      {resendError && (
-        <p className="text-red-400 text-xs mt-3">{resendError}</p>
-      )}
-
-      {resendSuccess && (
-        <p className="text-emerald-400 text-xs mt-3 font-medium">Email resent!</p>
-      )}
-
-      <button
-        onClick={handleResend}
-        disabled={cooldown > 0 || resending}
-        className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-zinc-700 text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:border-zinc-500 hover:bg-white/5"
-      >
-        {cooldown > 0 ? (
-          <>Resend link in {cooldown}s</>
-        ) : resending ? (
-          <>Sending...</>
-        ) : (
-          <>Resend verification link</>
-        )}
-      </button>
-
-      <div className="mt-6 space-y-2">
-        <Link
-          href="/login"
-          className="inline-block text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
-        >
-          Back to sign in
-        </Link>
-      </div>
-
-      <p className="text-xs text-zinc-600 mt-8">
-        Encountering problems? Contact us at{" "}
-        <a
-          href="mailto:support@verahq.xyz"
-          className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
-        >
-          support@verahq.xyz
-        </a>
-      </p>
-    </div>
-  );
-}
-
 function RegisterForm() {
   const router = useRouter();
-  const supabase = createClient();
   const { executeRecaptcha } = useGoogleReCaptcha();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+
+  const handleAuthSuccess = async (idToken: string) => {
+    const res = await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken })
+    });
+    if (res.ok) {
+      router.push("/dashboard");
+      router.refresh();
+    } else {
+      setError("Failed to create secure session.");
+      setLoading(false);
+    }
+  };
 
   const handleEmailRegister = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,46 +73,52 @@ function RegisterForm() {
 
     setLoading(true);
 
-    // Generate reCAPTCHA token
     let recaptchaToken = "";
     if (executeRecaptcha) {
       try {
         recaptchaToken = await executeRecaptcha("register_form");
       } catch {
-        // Token generation failed — will be caught by the API
+        // Token generation failed
       }
     }
 
-    // Send to our secure API route (server-side reCAPTCHA verification)
+    // Verify Recaptcha
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, recaptchaToken }),
+      body: JSON.stringify({ email, password, recaptchaToken, skipAuth: true }),
     });
 
     const json = await res.json();
-
     if (!res.ok) {
       setError(json.error || "Registration failed");
       setLoading(false);
       return;
     }
 
-    setSuccess(true);
-    setLoading(false);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const idToken = await userCredential.user.getIdToken();
+      await handleAuthSuccess(idToken);
+    } catch (err: any) {
+      setError(err.message || "Failed to register.");
+      setLoading(false);
+    }
   }, [email, password, confirmPassword, executeRecaptcha]);
 
   const handleGoogleSignUp = useCallback(async () => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${origin}/api/auth/callback` },
-    });
-  }, [supabase]);
-
-  if (success) {
-    return <SuccessState email={email} supabase={supabase} onToggleForm={() => setSuccess(false)} />;
-  }
+    setError("");
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const idToken = await userCredential.user.getIdToken();
+      await handleAuthSuccess(idToken);
+    } catch (err: any) {
+      setError(err.message || "Failed to sign up with Google.");
+      setLoading(false);
+    }
+  }, []);
 
   return (
     <>
@@ -301,7 +189,8 @@ function RegisterForm() {
 
       <button
         onClick={handleGoogleSignUp}
-        className="w-full py-3 rounded-lg border border-zinc-700 text-white font-medium text-sm hover:border-zinc-500 hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+        disabled={loading}
+        className="w-full py-3 rounded-lg border border-zinc-700 text-white font-medium text-sm hover:border-zinc-500 hover:bg-white/5 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24">
           <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -324,7 +213,7 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col min-h-full animate-in fade-in duration-500">
       <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
         <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center">
           <Link href="/" className="text-2xl font-bold tracking-tight">

@@ -3,48 +3,62 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-client";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "@/lib/firebase/client";
 
 export default function LoginPage() {
   const router = useRouter();
-  const supabase = createClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleAuthSuccess = async (idToken: string) => {
+    const res = await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken })
+    });
+    if (res.ok) {
+      router.push("/dashboard");
+      router.refresh();
+    } else {
+      setError("Failed to create secure session.");
+      setLoading(false);
+    }
+  };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError) {
-      setError(signInError.message);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await userCredential.user.getIdToken();
+      await handleAuthSuccess(idToken);
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in.");
       setLoading(false);
-      return;
     }
-
-    router.push("/");
-    router.refresh();
   };
 
   const handleGoogleSignIn = async () => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${origin}/api/auth/callback`,
-      },
-    });
+    setError("");
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const idToken = await userCredential.user.getIdToken();
+      await handleAuthSuccess(idToken);
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in with Google.");
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col min-h-full animate-in fade-in duration-500">
       <nav className="fixed top-0 w-full z-50 bg-[#070709]/80 backdrop-blur-xl border-b border-[#22222a]">
         <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center">
           <Link href="/" className="text-2xl font-bold tracking-tight">
@@ -112,7 +126,8 @@ export default function LoginPage() {
 
           <button
             onClick={handleGoogleSignIn}
-            className="w-full py-3 rounded-lg border border-zinc-700 text-white font-medium text-sm hover:border-zinc-500 hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+            disabled={loading}
+            className="w-full py-3 rounded-lg border border-zinc-700 text-white font-medium text-sm hover:border-zinc-500 hover:bg-white/5 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />

@@ -3,19 +3,23 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase-client";
+import { auth } from "@/lib/firebase/client";
 
 export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
   const [signingOut, setSigningOut] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     setSigningOut(true);
-    await supabase.auth.signOut();
-    router.push("/");
+    try {
+      await auth.signOut();
+      await fetch("/api/auth/session/logout", { method: "POST" });
+    } catch (err) {
+      console.error(err);
+    }
+    router.push("/login");
   };
 
   const navLinks = [
@@ -29,7 +33,7 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
       )
     },
     {
-      name: "Scan Contract",
+      name: "New Scan",
       href: "/dashboard/scan",
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -38,7 +42,25 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
       )
     },
     {
-      name: "Billing & Plan",
+      name: "Reports",
+      href: "/dashboard/reports",
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      )
+    },
+    {
+      name: "Risk Library",
+      href: "/dashboard/library",
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+        </svg>
+      )
+    },
+    {
+      name: "Billing",
       href: "/dashboard/billing",
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
