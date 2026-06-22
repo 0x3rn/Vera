@@ -120,7 +120,7 @@ export default async function RiskLibraryPage() {
               <div className="space-y-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Examples found in your contracts</p>
                 {data.examples.map((example, idx) => (
-                  <Link key={idx} href={`/results/${example.scanId}`} className="block group">
+                  <Link key={idx} href={`/dashboard/results/${example.scanId}`} className="block group">
                     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 hover:border-indigo-500/30 transition-colors">
                       <p className="text-sm font-medium text-zinc-200 group-hover:text-indigo-400 transition-colors mb-2 leading-relaxed">
                         "{example.title}"

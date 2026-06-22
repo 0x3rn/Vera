@@ -114,21 +114,21 @@ export default async function DashboardOverview() {
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
-              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Reviewed</p>
-              <p className="text-2xl sm:text-3xl font-bold">{totalScans}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Reviewed</p>
+              <p className="text-3xl font-bold">{totalScans}</p>
             </div>
             <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
-              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Risks Found</p>
-              <p className="text-2xl sm:text-3xl font-bold">{totalRisks}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Risks Found</p>
+              <p className="text-3xl font-bold">{totalRisks}</p>
             </div>
             <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
-              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">High Risk</p>
-              <p className="text-2xl sm:text-3xl font-bold text-red-400">{totalHighRisks}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">High Risk</p>
+              <p className="text-3xl font-bold text-red-400">{totalHighRisks}</p>
             </div>
             <div className="bg-[#121216] border border-white/5 rounded-2xl p-4 sm:p-6">
-              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Plan</p>
-              <p className="text-lg sm:text-2xl font-bold">{isPro ? "Pro" : "Free"}</p>
-              <p className="text-zinc-400 text-[10px] sm:text-xs mt-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">Plan</p>
+              <p className="text-xl sm:text-2xl font-bold">{isPro ? "Pro" : "Free"}</p>
+              <p className="text-zinc-400 text-xs mt-1">
                 {isPro ? "Unlimited scans" : `${freeScansLeft} of 1 free left`}
               </p>
             </div>
@@ -142,15 +142,17 @@ export default async function DashboardOverview() {
                   Last Scan Preview
                 </h3>
                 <div className="bg-[#0a0a0e] border border-white/5 rounded-xl p-5 mb-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <p className="font-semibold text-white truncate">{lastScan.document_name}</p>
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white break-words" style={{ wordBreak: 'break-word', hyphens: 'auto' }}>
+                        {lastScan.document_name}
+                      </p>
                       <p className="text-xs text-zinc-500 mt-1">
                         {new Date(lastScan.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     {lastScanAiResult && (
-                      <div className={`px-2.5 py-1 rounded text-xs font-bold ${
+                      <div className={`inline-flex shrink-0 self-start px-2.5 py-1 rounded text-xs font-bold ${
                         lastScan.risk_score >= 70 ? 'bg-red-500/10 text-red-400' :
                         lastScan.risk_score >= 40 ? 'bg-amber-500/10 text-amber-400' :
                         'bg-emerald-500/10 text-emerald-400'
@@ -188,7 +190,7 @@ export default async function DashboardOverview() {
               {recentFindings.length > 0 ? (
                 <div className="space-y-4">
                   {recentFindings.map((finding, idx) => (
-                    <Link key={idx} href={`/results/${finding.scanId}`} className="block group">
+                    <Link key={idx} href={`/dashboard/results/${finding.scanId}`} className="block group">
                       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 hover:border-indigo-500/30 transition-colors">
                         <div className="flex items-center gap-2 mb-2">
                           <span className={`w-2 h-2 rounded-full ${

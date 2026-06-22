@@ -74,7 +74,7 @@ export default function ReportsClient({ initialScans }: { initialScans: ScanSumm
             <span className="text-right">Date</span>
           </div>
           {filteredScans.map((scan) => (
-            <Link key={scan.id} href={`/results/${scan.id}`} className="block group">
+            <Link key={scan.id} href={`/dashboard/results/${scan.id}`} className="block group">
               <div className="grid grid-cols-1 sm:grid-cols-5 gap-1.5 sm:gap-4 px-4 sm:px-6 py-4 border-b border-[#22222a] last:border-0 items-start sm:items-center hover:bg-white/[0.02] transition-colors cursor-pointer">
                 <span className="text-sm font-medium truncate col-span-2 group-hover:text-indigo-400 transition-colors">{scan.document_name}</span>
                 <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase px-2.5 py-1 rounded-full border w-fit ${riskBadge(scan.risk_score)}`}>
