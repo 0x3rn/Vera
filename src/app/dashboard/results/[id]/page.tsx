@@ -127,27 +127,15 @@ export default function DashboardResultsPage() {
     <div className="animate-in fade-in duration-500 space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
         <div>
-          <div className="flex items-center gap-4 mb-4">
-            <Link
-              href="/dashboard/scan"
-              className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary-hover font-medium transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              New Scan
-            </Link>
-            <span className="text-muted-foreground text-sm">|</span>
-            <Link
-              href="/dashboard/reports"
-              className="inline-flex items-center gap-2 text-sm text-foreground hover:text-muted-foreground transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Reports
-            </Link>
-          </div>
+          <Link
+            href="/dashboard/reports"
+            className="inline-flex items-center gap-2 text-sm text-foreground hover:text-muted-foreground transition-colors mb-4"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Reports
+          </Link>
           <div>
             <span className="inline-block px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-card text-muted-foreground border border-border mb-2">
               {analysis.contractType}

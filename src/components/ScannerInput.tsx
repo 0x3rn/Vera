@@ -332,16 +332,16 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
       {inputMode === "pdf" ? (
         <div
           {...getRootProps()}
-          className={`w-full bg-muted border border-dashed rounded-2xl p-10 sm:p-16 text-center transition-all duration-500 ease-out cursor-pointer
+          className={`w-full bg-muted border border-dashed rounded-2xl p-10 sm:p-16 text-center animate-in fade-in zoom-in-95 duration-300 cursor-pointer
             ${isDragActive
               ? "border-primary bg-primary/5 -translate-y-1"
-              : "border-border hover:border-primary/50 hover:bg-muted hover:-translate-y-1"
+              : "border-border hover:border-primary/50 hover:bg-muted hover:-translate-y-1 transition duration-500 ease-out"
             }
           `}
         >
           <input {...getInputProps()} />
           {file ? (
-            <div className="space-y-3">
+            <div className="space-y-3 animate-in fade-in duration-300">
               <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">
                 <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -357,7 +357,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 animate-in fade-in duration-300">
               <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
                 <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -367,26 +367,26 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
                 {isDragActive ? "Drop your contract here" : "Drop your contract here"}
               </h3>
               <p className="text-muted-foreground">Supports PDF (Max 15MB)</p>
-              <label className="inline-block px-6 py-3 rounded-lg border border-border text-sm font-medium cursor-pointer hover:border-border hover:bg-muted/50 transition-all duration-500 ease-out">
+              <label className="inline-block px-6 py-3 rounded-lg border border-border text-sm font-medium cursor-pointer hover:border-primary/50 hover:bg-muted/80 transition-colors duration-300">
                 Browse Files
               </label>
             </div>
           )}
         </div>
       ) : (
-        <div className="w-full space-y-4">
+        <div className="w-full space-y-4 animate-in fade-in zoom-in-95 duration-300">
           <textarea
             ref={textAreaRef}
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
             placeholder="Paste the full text of your contract here..."
             rows={12}
-            className="w-full p-6 rounded-xl bg-muted border border-border text-foreground placeholder-zinc-500 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-500 ease-out"
+            className="w-full p-6 rounded-xl bg-muted border border-border text-foreground placeholder-zinc-500 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors duration-300"
           />
           <button
             onClick={handleTextSubmit}
             disabled={textInput.trim().length < 100}
-            className="w-full py-4 rounded-lg bg-primary text-white font-semibold text-base hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-500 ease-out disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            className="w-full py-4 rounded-lg bg-primary text-white font-semibold text-base hover:bg-primary-hover hover:-translate-y-0.5 transition duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
             Analyze this contract
           </button>
