@@ -129,6 +129,12 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
               <Link
                 key={link.name}
                 href={link.href}
+                onClick={(e) => {
+                  if (link.name === "New Scan" && pathname === "/dashboard/scan") {
+                    e.preventDefault();
+                    window.dispatchEvent(new CustomEvent('reset-scanner'));
+                  }
+                }}
                 className={`
                   flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
                   ${isActive 

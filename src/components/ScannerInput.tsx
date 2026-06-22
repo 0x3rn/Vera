@@ -50,6 +50,13 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
     if (onStateChange) onStateChange(appState);
   }, [appState, onStateChange]);
 
+  // Listen for reset events from Sidebar when already on the scan page
+  useEffect(() => {
+    const handleReset = () => reset();
+    window.addEventListener("reset-scanner", handleReset);
+    return () => window.removeEventListener("reset-scanner", handleReset);
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -162,6 +169,17 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
       <div className="w-full space-y-10 animate-in fade-in zoom-in duration-500">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
+            <div className="mb-4">
+              <button
+                onClick={reset}
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary-hover font-medium transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                New Scan
+              </button>
+            </div>
             <span className="inline-block px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-muted/50 text-muted-foreground border border-border mb-3 shadow-sm">
               {analysis.contractType}
             </span>
