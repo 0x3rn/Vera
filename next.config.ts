@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["firebase-admin"],
+  serverExternalPackages: ["pdf-parse", "firebase-admin", "@napi-rs/canvas"],
 };
 
 export default nextConfig;

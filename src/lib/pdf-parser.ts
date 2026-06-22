@@ -8,24 +8,11 @@ export async function parsePdfBuffer(buffer: ArrayBuffer): Promise<string> {
     } as any;
   }
 
-  // Dynamically import pdfjs-dist so it doesn't crash the serverless function on boot
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-
-  // Disable workers for Next.js server compatibility
-  pdfjs.GlobalWorkerOptions.workerSrc = "";
+  // Dynamically import pdf-parse so it doesn't crash the serverless function on boot
+  const { PDFParse } = await import("pdf-parse");
 
   const uint8 = new Uint8Array(buffer);
-  const doc = await pdfjs.getDocument({ data: uint8 }).promise;
-  const pages: string[] = [];
-
-  for (let i = 1; i <= doc.numPages; i++) {
-    const page = await doc.getPage(i);
-    const content = await page.getTextContent();
-    const pageText = content.items
-      .map((item: any) => item.str || "")
-      .join(" ");
-    pages.push(pageText);
-  }
-
-  return pages.join("\n\n");
+  const parser = new PDFParse({ data: uint8 });
+  const result = await parser.getText();
+  return result.text;
 }
