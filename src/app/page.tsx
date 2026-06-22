@@ -69,7 +69,7 @@ export default function Home() {
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-16 text-center max-w-4xl mx-auto md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-700">
                 Don't Sign Away Your Rights.{" "}
                 <br className="hidden md:block" />
-                <span className="text-primary">Let AI Read the Fine Print.</span>
+                <span className="text-primary">Let the Vera Risk Engine™ Read the Fine Print.</span>
               </h1>
             )}
 
@@ -79,7 +79,7 @@ export default function Home() {
               {isInput && (
                 <div className="order-2 lg:order-1 md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-700 md:delay-100">
                   <p className="text-lg sm:text-xl text-muted-foreground mb-8 leading-relaxed">
-                    Lawyers charge hundreds per hour. Vera scans freelance contracts in seconds and explains dangerous clauses in plain English before you sign.
+                    Lawyers charge hundreds per hour. Vera scans employment contracts, freelance agreements, and Terms of Service in seconds to explain dangerous clauses in plain English before you sign.
                   </p>
                   <ul className="space-y-3 mb-8">
                     {[
@@ -114,14 +114,14 @@ export default function Home() {
             <section className="py-12 border-t border-b border-border bg-background">
               <div className="max-w-7xl mx-auto px-4 sm:px-8 text-center opacity-70">
                 <p className="text-sm font-medium text-muted-foreground mb-6 uppercase tracking-widest">
-                  Trusted by freelancers, consultants, designers, developers, marketers, and agencies worldwide.
+                  Trusted by employees, freelancers, agencies, and consumers worldwide to catch legal traps.
                 </p>
                 <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-muted-foreground font-semibold text-lg">
-                  <span>Designers</span>
-                  <span>Developers</span>
-                  <span>Copywriters</span>
-                  <span>Consultants</span>
+                  <span>Employees</span>
+                  <span>Freelancers</span>
                   <span>Agencies</span>
+                  <span>Contractors</span>
+                  <span>Consumers</span>
                 </div>
               </div>
             </section>
@@ -192,9 +192,9 @@ export default function Home() {
             {/* 5. Problem Section */}
             <section className="py-24 bg-muted border-y border-border">
               <div className="max-w-4xl mx-auto px-4 sm:px-8 text-center">
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">Most Freelancers Sign Contracts Blindly</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">Most People Sign Documents Blindly</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl mx-auto">
-                  You spend hours negotiating a project. Then receive a 15-page contract filled with legal language. Hidden inside could be:
+                  Whether it's a new 9-5 job offer, a freelance gig, or a massive Terms of Service update. Hidden inside could be:
                 </p>
                 <div className="grid sm:grid-cols-2 gap-4 text-left max-w-3xl mx-auto mb-10">
                   {["Net-90 payment terms", "Perpetual ownership transfers", "Exclusivity restrictions", "No cancellation compensation", "Automatic renewals"].map((trap, idx) => (
@@ -213,7 +213,7 @@ export default function Home() {
               <div className="max-w-7xl mx-auto px-4 sm:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything You Need Before You Sign</h2>
-                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Vera's AI engine is strictly trained on legal contracts to catch what you missed.</p>
+                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Vera's proprietary Risk Engine is strictly trained on legal contracts to catch what you missed.</p>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[
@@ -244,7 +244,7 @@ export default function Home() {
                   <div className="hidden md:block absolute top-1/4 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-transparent via-[#22222a] to-transparent"></div>
                   {[
                     { step: "1", title: "Upload PDF", desc: "Drag and drop your contract." },
-                    { step: "2", title: "Vera Scans It", desc: "AI analyzes every clause." },
+                    { step: "2", title: "Vera Scans It", desc: "The Risk Engine analyzes every clause." },
                     { step: "3", title: "Get Your Summary", desc: "Receive a one-page risk report." }
                   ].map((s, i) => (
                     <div key={i} className="relative z-10 flex flex-col items-center">
@@ -299,7 +299,7 @@ export default function Home() {
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">Why Not Just Use GPT?</h2>
                 <div className="border border-border rounded-2xl overflow-hidden">
                   <div className="grid grid-cols-2 bg-card border-b border-border p-6">
-                    <div className="font-bold text-lg text-muted-foreground">Generic AI</div>
+                    <div className="font-bold text-lg text-muted-foreground">Generic AI Models</div>
                     <div className="font-bold text-lg text-primary flex items-center gap-2">Vera <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg></div>
                   </div>
                   {[
@@ -402,7 +402,7 @@ export default function Home() {
                 <div className="space-y-4">
                   {[
                     { q: "Is this legal advice?", a: "No. Vera identifies risks and explains clauses but does not replace a lawyer." },
-                    { q: "What contract types are supported?", a: "Freelance agreements, consulting contracts, service agreements, NDAs, agency agreements, and more." },
+                    { q: "What document types are supported?", a: "Employment agreements (9-5 jobs), Freelance contracts (MSAs, SOWs), Terms of Service, Privacy Policies, NDAs, and Leases." },
                     { q: "How accurate is Vera?", a: "Vera focuses specifically on common contract red flags and risk patterns." },
                     { q: "Are my contracts stored?", a: "No. Contracts are encrypted and automatically deleted after processing." },
                     { q: "Can I upload large contracts?", a: "Yes, up to 30 pages on the current plan." },
@@ -423,6 +423,41 @@ export default function Home() {
                 </div>
               </div>
             </section>
+            {/* 14. Footer */}
+            <footer className="border-t border-border bg-background py-12">
+              <div className="max-w-7xl mx-auto px-4 sm:px-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                  <div className="col-span-2">
+                    <Link href="/" className="text-2xl font-bold tracking-tight inline-block mb-4">
+                      Vera<span className="text-primary">.</span>
+                    </Link>
+                    <p className="text-muted-foreground text-sm max-w-sm">
+                      Protecting you from unfair terms, hidden fees, and toxic clauses with the power of the Vera Risk Engine™.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-4">Product</h3>
+                    <ul className="space-y-3">
+                      <li><a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a></li>
+                      <li><a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a></li>
+                      <li><a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-4">Legal</h3>
+                    <ul className="space-y-3">
+                      <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a></li>
+                      <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms of Service</a></li>
+                      <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+                  <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Vera Inc. All rights reserved.</p>
+                  <p className="text-xs text-muted-foreground">Not a law firm. Does not provide legal advice.</p>
+                </div>
+              </div>
+            </footer>
           </>
         )}
       </main>

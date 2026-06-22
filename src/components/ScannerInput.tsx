@@ -156,7 +156,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
     return (
       <div className="w-full text-center py-20 animate-in fade-in zoom-in duration-500">
         <div className="w-16 h-16 mx-auto mb-8 rounded-full border-4 border-border border-t-primary animate-spin" />
-        <h2 className="text-3xl font-bold mb-4">Analyzing your contract</h2>
+        <h2 className="text-3xl font-bold mb-4">Vera Risk Engine™ is analyzing</h2>
         <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed text-lg">
           Scanning every clause for red flags. This usually takes 10–20 seconds.
         </p>
