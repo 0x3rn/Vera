@@ -17,7 +17,8 @@ if (!getApps().length) {
         }),
       });
     } else {
-      console.warn("Firebase Admin credentials not fully provided in env vars. Admin SDK may not initialize correctly.");
+      console.warn("Firebase Admin credentials not fully provided in env vars. Initializing dummy app for build.");
+      initializeApp({ projectId: "dummy-project" });
     }
   } catch (error) {
     console.error("Firebase Admin initialization error:", error);
