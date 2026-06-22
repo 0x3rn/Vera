@@ -190,11 +190,13 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
         {analysis.keyDates && analysis.keyDates.length > 0 && (
           <div className="p-8 rounded-2xl bg-[#121216] border border-white/5">
             <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-6">Key Dates & Deadlines</h3>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {analysis.keyDates.map((kd: any, i: number) => (
-                <div key={i} className="bg-white/[0.02] border border-white/5 p-4 rounded-xl">
-                  <div className="text-indigo-400 font-bold mb-1">{kd.date}</div>
-                  <div className="text-zinc-300 text-sm">{kd.description}</div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {analysis.keyDates.map((d: string, i: number) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/5 text-sm text-zinc-300">
+                  <svg className="w-4 h-4 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {d}
                 </div>
               ))}
             </div>
