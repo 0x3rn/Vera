@@ -84,7 +84,7 @@ export default function DashboardResultsPage() {
   }
 
   return (
-    <div className="animate-in fade-in duration-500 space-y-8">
+    <div className="animate-in fade-in duration-500 space-y-8 bg-transparent">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
         <div>
           <Link

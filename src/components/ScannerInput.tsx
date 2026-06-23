@@ -145,7 +145,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
 
   if (appState === "scanning") {
     return (
-      <div className="w-full text-center py-20 animate-in fade-in zoom-in duration-500">
+      <div className="w-full text-center py-20 animate-in fade-in zoom-in duration-500 bg-transparent">
         <div className="w-16 h-16 mx-auto mb-8 rounded-full border-4 border-border border-t-primary animate-spin" />
         <h2 className="text-3xl font-bold mb-4">Vera Risk Engine™ is analyzing</h2>
         <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed text-lg">
@@ -157,7 +157,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
 
   if (appState === "results" && analysis) {
     return (
-      <div className="w-full space-y-10 animate-in fade-in zoom-in duration-500">
+      <div className="w-full space-y-10 animate-in fade-in zoom-in duration-500 bg-transparent">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <div className="mb-4">
@@ -194,7 +194,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
 
   // Render the input UI (Dropzone or Text Area)
   return (
-    <div className="w-full">
+    <div className="w-full bg-transparent">
       {appState === "error" && (
         <div className="p-5 rounded-xl border border-red-500/30 bg-red-500/5 mb-6">
           <p className="text-sm font-medium text-red-400">{error}</p>

@@ -111,7 +111,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col min-h-full bg-transparent">
       <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto px-8 h-[70px] flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold tracking-tight">
