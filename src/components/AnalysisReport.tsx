@@ -47,7 +47,7 @@ function ExpandableDrawer({
           <div className="p-2 bg-muted rounded-lg text-primary">
             {icon}
           </div>
-          <h3 className="font-bold text-lg text-foreground">{title}</h3>
+          <h3 className="font-bold text-lg text-foreground text-left">{title}</h3>
         </div>
         <svg 
           className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} 
@@ -230,7 +230,21 @@ export default function AnalysisReport({ analysis }: AnalysisReportProps) {
               onClick={copyChecklist}
               className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg border border-indigo-500/30 transition-colors flex items-center gap-2"
             >
-              {copied ? "Copied!" : "Copy List"}
+              {copied ? (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy
+                </>
+              )}
             </button>
           </div>
           <div className="space-y-3 p-5 bg-background rounded-xl border border-border shadow-sm">
@@ -341,14 +355,14 @@ export default function AnalysisReport({ analysis }: AnalysisReportProps) {
                     {flag.industryStandard && flag.deviation && (
                       <div className="mb-6 p-4 rounded-xl bg-muted/50 border border-border">
                         <p className="text-xs font-bold text-foreground uppercase tracking-widest mb-3">Industry Benchmark Comparison</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Industry Standard</p>
-                            <p className="font-semibold text-sm">{flag.industryStandard}</p>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">Industry Standard:</span>
+                            <span className="font-semibold text-foreground text-right">{flag.industryStandard}</span>
                           </div>
-                          <div>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">This Contract</p>
-                            <p className="font-semibold text-sm text-amber-400">{flag.deviation}</p>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">This Contract:</span>
+                            <span className="font-bold text-amber-400 text-right">{flag.deviation}</span>
                           </div>
                         </div>
                       </div>
@@ -472,12 +486,12 @@ export default function AnalysisReport({ analysis }: AnalysisReportProps) {
                         <div className="bg-muted/50 p-3 rounded-lg border border-border">
                           <div className="flex justify-between text-sm mb-1">
                             <span className="text-muted-foreground">Standard:</span>
-                            <span className="font-medium text-foreground">{flag.industryStandard}</span>
+                            <span className="font-medium text-foreground text-right">{flag.industryStandard}</span>
                           </div>
                           {flag.deviation && (
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Deviation:</span>
-                              <span className="font-bold text-amber-400">{flag.deviation}</span>
+                              <span className="font-bold text-amber-400 text-right">{flag.deviation}</span>
                             </div>
                           )}
                         </div>
