@@ -98,6 +98,7 @@ export default function AnalysisReport({ analysis }: AnalysisReportProps) {
   const score = analysis.overallRiskScore;
   let verdictClass = "";
   let verdictText = "";
+  
   if (score >= 80) {
     verdictClass = "bg-red-600 border-red-700 text-white dark:bg-red-900/80 dark:border-red-900/50 dark:text-white";
     verdictText = "CRITICAL WARNING: DO NOT SIGN";
@@ -108,6 +109,52 @@ export default function AnalysisReport({ analysis }: AnalysisReportProps) {
     verdictClass = "bg-emerald-600 border-emerald-700 text-white dark:bg-emerald-900/80 dark:border-emerald-900/50 dark:text-white";
     verdictText = "PASSED: SAFE TO SIGN";
   }
+
+  const getSeverityLevel = (severity: string | undefined, defaultScore: number) => {
+    if (!severity) {
+      if (defaultScore >= 80) return "bad";
+      if (defaultScore >= 45) return "moderate";
+      return "good";
+    }
+    return severity.toLowerCase();
+  };
+
+  const getSeverityClasses = (level: string) => {
+    if (level === "bad") {
+      return {
+        bg: "bg-red-50 dark:bg-red-950/20",
+        border: "border-red-200 dark:border-red-900/50",
+        text: "text-red-800 dark:text-red-400",
+        icon: "text-red-500",
+        borderLeft: "border-red-500/50",
+      };
+    }
+    if (level === "moderate") {
+      return {
+        bg: "bg-amber-50 dark:bg-amber-950/20",
+        border: "border-amber-200 dark:border-amber-900/50",
+        text: "text-amber-800 dark:text-amber-400",
+        icon: "text-amber-500",
+        borderLeft: "border-amber-500/50",
+      };
+    }
+    return {
+      bg: "bg-emerald-50 dark:bg-emerald-500/10",
+      border: "border-emerald-200 dark:border-emerald-900/50",
+      text: "text-emerald-800 dark:text-emerald-400",
+      icon: "text-emerald-500",
+      borderLeft: "border-emerald-500/50",
+    };
+  };
+
+  // Safe navigation with typing workaround for backwards compatibility
+  const finSeverity = analysis.financialExposure ? (analysis.financialExposure as any).severity : undefined;
+  const finExposureLevel = getSeverityLevel(finSeverity, score);
+  const finColors = getSeverityClasses(finExposureLevel);
+
+  const wcSeverity = (analysis as any).worstCaseScenarioSeverity;
+  const worstCaseLevel = getSeverityLevel(wcSeverity, score);
+  const worstCaseColors = getSeverityClasses(worstCaseLevel);
 
   const enforceabilityFlags = sortedFlags.filter(f => f.enforcementLikelihood || f.industryStandard || f.enforceabilityInsight);
 
@@ -176,7 +223,7 @@ export default function AnalysisReport({ analysis }: AnalysisReportProps) {
         {analysis.financialExposure && (
           <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex flex-col">
             <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
-              <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className={`w-5 h-5 ${finColors.icon}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Financial Exposure
@@ -191,9 +238,9 @@ export default function AnalysisReport({ analysis }: AnalysisReportProps) {
                 <p className="text-base font-semibold text-zinc-900 dark:text-white">{analysis.financialExposure.liquidatedDamages}</p>
               </div>
             </div>
-            <div className="mt-4 p-5 rounded-xl border bg-red-50 text-red-800 dark:bg-red-950/20 dark:text-red-400 border-red-200 dark:border-red-900/50">
-              <p className="text-xs font-bold text-red-800 dark:text-red-400 uppercase tracking-widest mb-1">Total Estimated Exposure</p>
-              <p className="text-lg font-bold text-red-800 dark:text-red-400">{analysis.financialExposure.totalEstimatedExposure}</p>
+            <div className={`mt-4 p-5 rounded-xl border ${finColors.bg} ${finColors.text} ${finColors.border}`}>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${finColors.text}`}>Total Estimated Exposure</p>
+              <p className={`text-lg font-bold ${finColors.text}`}>{analysis.financialExposure.totalEstimatedExposure}</p>
             </div>
           </div>
         )}
@@ -202,13 +249,13 @@ export default function AnalysisReport({ analysis }: AnalysisReportProps) {
         {analysis.worstCaseScenario && (
           <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex flex-col">
             <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
-              <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className={`w-5 h-5 ${worstCaseColors.icon}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               Worst-Case Scenario
             </h3>
             <div className="flex-grow flex items-center">
-              <p className="font-medium leading-relaxed text-sm italic border-l-2 border-red-500/50 pl-4 py-2 rounded-r-xl bg-red-50 text-red-800 dark:bg-red-950/20 dark:text-red-400">
+              <p className={`font-medium leading-relaxed text-sm italic border-l-2 ${worstCaseColors.borderLeft} pl-4 py-2 rounded-r-xl ${worstCaseColors.bg} ${worstCaseColors.text}`}>
                 {analysis.worstCaseScenario}
               </p>
             </div>

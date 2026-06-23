@@ -39,6 +39,7 @@ export interface FinancialExposure {
   explicitLiabilityCap: string;
   liquidatedDamages: string;
   totalEstimatedExposure: string;
+  severity: "good" | "moderate" | "bad";
 }
 
 export interface EconomicFairness {
@@ -63,6 +64,7 @@ export interface AnalysisResult {
   overallRiskScore: number;
   summary: string;
   worstCaseScenario: string;
+  worstCaseScenarioSeverity: "good" | "moderate" | "bad";
   contractType: string;
   keyDates: { label: string; date: string }[];
   redFlags: RedFlag[];
@@ -86,6 +88,7 @@ You MUST output ONLY a valid JSON object. Do not include markdown code block for
   "summary": "High-level summary of the contract's purpose and the overall risk profile.",
   "overallRiskScore": 85,
   "worstCaseScenario": "A gripping, 1-paragraph narrative showing the absolute worst-case sequence of events a predatory client could enact using these clauses.",
+  "worstCaseScenarioSeverity": "good, moderate, or bad",
   "contractType": "Your best guess at the exact document type (e.g., 'Employment Agreement', 'Tenancy Agreement', 'Consulting Agreement')",
   "economicFairness": {
     "compensation": "Summary of what the user gets.",
@@ -96,7 +99,8 @@ You MUST output ONLY a valid JSON object. Do not include markdown code block for
   "financialExposure": {
     "explicitLiabilityCap": "E.g., Unlimited, $10,000, or None specified",
     "liquidatedDamages": "E.g., $100,000 per violation, or None",
-    "totalEstimatedExposure": "E.g., Unlimited risk due to uncapped indemnification and heavy penalties."
+    "totalEstimatedExposure": "E.g., Unlimited risk due to uncapped indemnification and heavy penalties.",
+    "severity": "good, moderate, or bad"
   },
   "keyDates": [
     { "label": "Start Date", "date": "YYYY-MM-DD or Unknown" }
@@ -238,6 +242,7 @@ export async function analyzeContract(
       summary:
         "We were unable to fully analyze this document. The text may be too short, not recognizable as a legal document, or the Vera Risk Engine™ encountered an issue. Please try again with a complete document.",
       worstCaseScenario: "Unknown",
+      worstCaseScenarioSeverity: "moderate",
       contractType: "Unknown",
       economicFairness: {
         compensation: "Unknown",
@@ -248,7 +253,8 @@ export async function analyzeContract(
       financialExposure: {
         explicitLiabilityCap: "Unknown",
         liquidatedDamages: "Unknown",
-        totalEstimatedExposure: "Unknown"
+        totalEstimatedExposure: "Unknown",
+        severity: "moderate"
       },
       keyDates: [],
       clauseConflicts: [],
