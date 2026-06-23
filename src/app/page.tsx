@@ -226,14 +226,14 @@ export default function Home() {
                 </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
-                    { title: "Payment Timelines", desc: "Know exactly when you'll get paid. Spots hidden Net-60 or Net-90 clauses." },
-                    { title: "IP Rights Analysis", desc: "Understand who owns the work. Checks if rights transfer before or after payment." },
-                    { title: "Exclusivity Detection", desc: "Avoid restrictions on future clients. Flags broad non-compete clauses." },
-                    { title: "Hidden Fee Detection", desc: "Spots unexpected charges, origination fees, and admin fees before you pay." },
-                    { title: "Landlord Advantages", desc: "Identify unfair eviction terms, right of entry, and unreasonable repair burdens." },
-                    { title: "Cancellation Traps", desc: "Avoid automatic renewals with short cancellation windows and early termination penalties." },
-                    { title: "Legal Risks", desc: "Flags forced arbitration, liability waivers, and asymmetric indemnification." },
-                    { title: "Plain-English Summaries", desc: "No legal jargon. Get straightforward explanations of complex clauses." }
+                    { title: "Cap Illusion Detection", desc: "Spots fake liability caps where critical exceptions (like IP claims) leave your financial exposure completely unlimited." },
+                    { title: "Mutuality & Balance", desc: "Calculates the exact one-sidedness of the contract by comparing rights across IP, termination, and liability." },
+                    { title: "Transparent Scoring", desc: "No black-box math. Our deterministic 0-100 risk score breaks down exactly how much risk you're taking." },
+                    { title: "Risk Concentration", desc: "Automatically alerts you if a predatory client has stacked >40% of their traps in a single category." },
+                    { title: "Automated Lawyer Review", desc: "Get an instant, algorithmic recommendation on whether your contract requires a human attorney's eyes." },
+                    { title: "Compound Risk Chains", desc: "Identifies dangerous combinations, like forced unpaid work during fee disputes plus 12-month defect windows." },
+                    { title: "False Positive Prevention", desc: "Smart enough to ignore standard boilerplate (like indefinite trade secrets) and only flag genuine threats." },
+                    { title: "Actionable Negotiation", desc: "Don't just read the problem. Get a prioritized checklist of exact compromises to request from the other party." }
                   ].map((feat, idx) => (
                     <div key={idx} className="bg-muted/50 backdrop-blur-sm border border-border p-6 rounded-2xl hover:bg-muted hover:-translate-y-1 transition-all duration-500 ease-out">
                       <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5 border border-primary/20">

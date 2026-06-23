@@ -11,12 +11,12 @@ Vera is an AI-powered legal contract scanner that analyzes freelance agreements,
 ## Features
 
 - **PDF Upload & Text Paste** — Drop a PDF or paste contract text directly
-- **AI Red Flag Detection** — DeepSeek LLM trained on 8 contract risk categories
-- **Elite Deep Audit Engine™** — Advanced tracking for Compound Risk Chains, Worst-Case Scenarios, and Economic Fairness
-- **Intelligent Auto-Naming** — AI automatically renames generic pasted text and generic PDFs into premium, descriptive titles
-- **Progressive Disclosure UI** — Executive summary dials with deep-dive legal drawers
+- **Smart Risk Engine™** — Context-aware AI trained to detect fake liability caps, risk cascades, and unbalanced obligations
+- **Zero-Hallucination Deterministic Math** — AI extracts the variables, but our backend TypeScript computes the exact 0-100 risk score
+- **Mutuality & Balance Tracking** — Measures the exact one-sidedness of IP, liability, and termination rights to apply a Risk Multiplier
+- **Automated Lawyer Review** — Programmatic recommendation on whether formal legal counsel is essential based on score thresholds
+- **Progressive Disclosure UI** — Executive summary dials with deep-dive legal drawers and strict Light/Dark mode WCAG pairings
 - **Plain-English Explanations** — "What it means" and "How to fix it" for every flag
-- **Risk Score** — Overall 0–100 risk meter with severity indicators
 - **Freemium Model** — 2 free scans per user, then $5/scan or $10/month Pro
 - **Google Sign-In** — Firebase Auth with one-click Google OAuth (Note: recently migrated from Supabase to Firebase)
 - **Stripe Payments (Lemon Squeezy)** — Checkout sessions with webhook confirmation (recently migrated to Lemon Squeezy)
@@ -173,20 +173,14 @@ npm start
    - **Free scans exhausted** → Saves a pending scan record, generates a Stripe Checkout session, returns the payment URL
 5. Upon Stripe payment, the webhook marks the scan as `paid`
 
-### AI Analysis
+### AI Analysis & Deterministic Scoring
 
-The system prompt instructs DeepSeek to act as an expert contract lawyer scanning for issues across 8 categories:
+The system prompt instructs DeepSeek to act as an expert contract lawyer scanning for issues across 8 categories. Crucially, the AI does *not* perform arithmetic.
 
-- **Payment Terms** — Net-60/90/120, "paid when paid", acceptance-based payment
-- **IP Rights** — Perpetual assignments, work-for-hire, portfolio rights
-- **Exclusivity** — Non-solicitation, right of first refusal
-- **Termination** — Termination for convenience, kill fees
-- **Liability** — Unlimited liability, indemnification clauses
-- **Non-Compete** — Post-engagement restrictions
-- **Scope Creep** — Vague SOW, unlimited revisions
-- **Other** — Governing law, arbitration, confidentiality
-
-The AI returns structured JSON with risk scores, plain-English explanations, and concrete negotiation advice.
+1. **Flag Extraction**: DeepSeek identifies clauses and assigns strict severities (Critical, High, Medium, Low) based on context (e.g. contract type, industry norms).
+2. **Advanced Heuristics**: The AI explicitly searches for "Cap Illusions" (fake liability caps bypassed by indemnification exceptions) and calculates a `riskMultiplier` based on the mutuality of the agreement.
+3. **Backend Math**: The TypeScript backend (`contract-analyzer.ts`) takes the AI's variables and mathematically computes the base score and the final score, ensuring 100% deterministic, hallucination-free risk assessment.
+4. **Lawyer Review**: The backend automatically triggers an "Essential" or "Strongly Recommended" Lawyer Review alert if the mathematical score crosses the danger threshold.
 
 ---
 
