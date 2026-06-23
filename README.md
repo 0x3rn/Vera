@@ -1,25 +1,23 @@
-# Vera — AI Contract Scanner
+# Vera — Expert System Contract Risk Engine
 
-**Don't sign away your rights. Let AI read the fine print.**
+**Don't sign away your rights. Let an expert system read the fine print.**
 
-Vera is an AI-powered legal contract scanner that analyzes freelance agreements, NDAs, employment contracts, commercial leases, and more. It identifies red flags, toxic clauses, and unfair terms, then outputs a plain-English summary with actionable negotiation advice.
+Vera is a hybrid AI and Expert-Rule-Based contract scanner that analyzes freelance agreements, NDAs, employment contracts, commercial leases, and more. It uses an advanced legal taxonomy to identify red flags, toxic clauses, and unfair terms, then calculates a deterministic risk score and outputs a plain-English summary with actionable negotiation advice.
 
-![Vera](https://img.shields.io/badge/status-active-emerald) ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Prisma](https://img.shields.io/badge/Prisma-6-indigo) ![Tailwind](https://img.shields.io/badge/Tailwind-4-cyan)
+![Vera](https://img.shields.io/badge/status-active-emerald) ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Firebase](https://img.shields.io/badge/Firebase-11-yellow) ![Tailwind](https://img.shields.io/badge/Tailwind-4-cyan)
 
 ---
 
 ## Features
 
 - **PDF Upload & Text Paste** — Drop a PDF or paste contract text directly
-- **Smart Risk Engine™** — Context-aware AI trained to detect fake liability caps, risk cascades, and unbalanced obligations
-- **Zero-Hallucination Deterministic Math** — AI extracts the variables, but our backend TypeScript computes the exact 0-100 risk score
+- **Smart Risk Engine™** — Hybrid AI and Expert System trained to detect fake liability caps, risk cascades, and unbalanced obligations
+- **Comprehensive Severity Taxonomy** — Dictionary-based weighting system scoring over 99% of contract clauses across Critical, High, Medium, and Low tiers
+- **Zero-Hallucination Deterministic Math** — AI extracts the variables, but our backend TypeScript Normalizer overrides bad severities and computes the exact 0-100 risk score
 - **Mutuality & Balance Tracking** — Measures the exact one-sidedness of IP, liability, and termination rights to apply a Risk Multiplier
-- **Automated Lawyer Review** — Programmatic recommendation on whether formal legal counsel is essential based on score thresholds
-- **Progressive Disclosure UI** — Executive summary dials with deep-dive legal drawers and strict Light/Dark mode WCAG pairings
-- **Plain-English Explanations** — "What it means" and "How to fix it" for every flag
-- **Freemium Model** — 2 free scans per user, then $5/scan or $10/month Pro
-- **Google Sign-In** — Firebase Auth with one-click Google OAuth (Note: recently migrated from Supabase to Firebase)
-- **Stripe Payments (Lemon Squeezy)** — Checkout sessions with webhook confirmation (recently migrated to Lemon Squeezy)
+- **Automated Lawyer Review** — Programmatic recommendation based on our strict 4-tier verdict system (Passed, Moderate Risk, Extreme Caution, Do Not Sign)
+- **Firebase Auth & Firestore** — Google Sign-In and highly scalable serverless NoSQL document storage
+- **Lemon Squeezy Payments** — Checkout sessions with secure webhook confirmation
 - **Dark Theme** — Premium dark UI with indigo/violet accents
 - **Privacy First** — Contracts processed entirely in-memory, never stored on disk
 
@@ -29,30 +27,25 @@ Vera is an AI-powered legal contract scanner that analyzes freelance agreements,
 
 ```
 vera/
-├── prisma/
-│   └── schema.prisma          # Database models (User, Scan, PaymentStatus enum)
 ├── src/
 │   ├── app/
 │   │   ├── api/
-│   │   │   ├── auth/callback/  # Supabase OAuth callback handler
-│   │   │   ├── scan/           # POST /api/scan — main contract analysis
-│   │   │   ├── results/[id]/   # GET /api/results/:id — fetch scan results
-│   │   │   └── webhook/stripe/ # Stripe checkout.session.completed handler
-│   │   ├── pricing/            # /pricing page
-│   │   ├── results/[id]/       # /results/:id permalink page
-│   │   ├── layout.tsx          # Root layout (Inter font, dark bg)
-│   │   ├── page.tsx            # Landing page (hero, features, upload, results)
-│   │   └── globals.css         # Tailwind v4 base styles
+│   │   │   ├── scan/               # POST /api/scan — main contract analysis
+│   │   │   ├── results/[id]/       # GET /api/results/:id — fetch scan results
+│   │   │   └── webhook/lemonsqueezy/ # Lemon Squeezy webhook handler
+│   │   ├── pricing/                # /pricing page
+│   │   ├── results/[id]/           # /results/:id permalink page
+│   │   ├── layout.tsx              # Root layout (Inter font, dark bg)
+│   │   ├── page.tsx                # Landing page
+│   │   └── globals.css             # Tailwind v4 base styles
 │   ├── lib/
-│   │   ├── contract-analyzer.ts # DeepSeek prompt engineering & response parsing
-│   │   ├── openai.ts           # DeepSeek-compatible OpenAI SDK wrapper
-│   │   ├── pdf-parser.ts       # pdfjs-dist in-memory PDF text extraction
-│   │   ├── prisma.ts           # Prisma client singleton
-│   │   ├── stripe.ts           # Stripe SDK singleton
-│   │   ├── supabase-client.ts  # Browser Supabase client
-│   │   └── supabase-server.ts  # Server Supabase client + admin client
-│   └── middleware.ts           # Supabase session refresh middleware
-├── .env.example                # Environment variable template
+│   │   ├── contract-analyzer.ts    # AI prompt engineering & Expert System Rules Engine
+│   │   ├── openai.ts               # OpenAI SDK wrapper
+│   │   ├── pdf-parser.ts           # pdfjs-dist in-memory PDF text extraction
+│   │   ├── firebase.ts             # Browser Firebase client config
+│   │   └── firebase-admin.ts       # Server Firebase Admin SDK
+│   └── middleware.ts               # Auth middleware
+├── .env.example                    # Environment variable template
 ├── next.config.ts
 ├── tailwind.config.ts
 ├── tsconfig.json
@@ -67,12 +60,11 @@ vera/
 |-------|-----------|
 | Framework | [Next.js 16](https://nextjs.org) (App Router, TypeScript) |
 | Styling | [Tailwind CSS v4](https://tailwindcss.com) |
-| Database | [Supabase PostgreSQL](https://supabase.com) |
-| ORM | [Prisma 6](https://prisma.io) |
-| Auth | [Supabase Auth](https://supabase.com/auth) (Google OAuth) |
-| AI | [DeepSeek](https://deepseek.com) (`deepseek-chat` via OpenAI SDK) |
+| Database | [Firebase Firestore](https://firebase.google.com/) |
+| Auth | [Firebase Auth](https://firebase.google.com/docs/auth) (Google OAuth) |
+| AI | OpenAI SDK |
 | PDF Parsing | [pdfjs-dist](https://mozilla.github.io/pdf.js) (in-memory) |
-| Payments | [Stripe](https://stripe.com) (Checkout Sessions + Webhooks) |
+| Payments | [Lemon Squeezy](https://lemonsqueezy.com/) (Checkout Sessions + Webhooks) |
 | Font | [Inter](https://fonts.google.com/specimen/Inter) |
 
 ---
@@ -82,10 +74,9 @@ vera/
 ### Prerequisites
 
 - Node.js 18+
-- A [Supabase](https://supabase.com) project
-- A [DeepSeek](https://platform.deepseek.com) API key
-- A [Stripe](https://stripe.com) account (with webhook secret)
-- A [Google Cloud](https://console.cloud.google.com) OAuth 2.0 client (for sign-in)
+- A [Firebase](https://firebase.google.com/) project
+- An OpenAI API key
+- A [Lemon Squeezy](https://lemonsqueezy.com/) account (with webhook secret)
 
 ### Installation
 
@@ -98,52 +89,32 @@ cd vera
 npm install
 
 # Copy environment template
-cp .env.example .env
+cp .env.example .env.local
 ```
 
 ### Environment Variables
 
-Open `.env` and fill in your keys:
+Open `.env.local` and fill in your keys:
 
 ```env
-# Required — DeepSeek API key
-DEEPSEEK_API_KEY=sk-...
+# Required — OpenAI API key
+OPENAI_API_KEY=sk-...
 
-# Required — Stripe keys
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_ONETIME_PRICE_ID=price_...
-STRIPE_SUBSCRIPTION_PRICE_ID=price_...
+# Required — Lemon Squeezy keys
+LEMONSQUEEZY_API_KEY=...
+LEMONSQUEEZY_WEBHOOK_SECRET=...
+LEMONSQUEEZY_STORE_ID=...
+LEMONSQUEEZY_VARIANT_ID=...
 
-# Required — Supabase
-DATABASE_URL=postgresql://postgres:...
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+# Required — Firebase Client
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+
+# Required — Firebase Admin (Service Account)
+FIREBASE_CLIENT_EMAIL=...
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
-
-### Database Setup
-
-```bash
-# Push schema to database
-npx prisma db push
-
-# (Optional) Run migrations
-npx prisma migrate dev --name init
-```
-
-### Supabase Auth Setup
-
-1. In your Supabase dashboard, go to **Authentication → Providers**
-2. Enable **Google** and configure your OAuth client ID and secret
-3. Set the redirect URL to: `https://your-domain.com/api/auth/callback`
-
-### Stripe Setup
-
-1. Create two products/prices in Stripe: $5 one-time and $10/month
-2. Copy the price IDs into `.env`
-3. Set up a webhook endpoint pointing to `https://your-domain.com/api/webhook/stripe`
-4. Listen for `checkout.session.completed` events
 
 ### Development
 
@@ -165,64 +136,23 @@ npm start
 
 ### Scan Flow
 
-1. User signs in with Google (Supabase Auth)
+1. User signs in with Google (Firebase Auth)
 2. User uploads a PDF or pastes contract text
 3. PDF is parsed **entirely in-memory** using `pdfjs-dist` — files never touch disk
-4. Server checks the user's `free_scans_used` count in the database:
+4. Server checks the user's `free_scans_used` count in Firestore:
    - **< 2 free scans remaining** → AI analyzes the contract, stores results in DB, returns the report
-   - **Free scans exhausted** → Saves a pending scan record, generates a Stripe Checkout session, returns the payment URL
-5. Upon Stripe payment, the webhook marks the scan as `paid`
+   - **Free scans exhausted** → Saves a pending scan record, generates a Lemon Squeezy Checkout session, returns the payment URL
+5. Upon Lemon Squeezy payment, the webhook marks the scan as `paid`
 
-### AI Analysis & Deterministic Scoring
+### Expert System Analysis & Deterministic Scoring
 
-The system prompt instructs DeepSeek to act as an expert contract lawyer scanning for issues across 8 categories. Crucially, the AI does *not* perform arithmetic.
+The system prompt instructs the AI to act as an expert contract lawyer scanning for issues across multiple categories. Crucially, the AI does *not* perform arithmetic or final severity mapping.
 
-1. **Flag Extraction**: DeepSeek identifies clauses and assigns strict severities (Critical, High, Medium, Low) based on context (e.g. contract type, industry norms).
-2. **Advanced Heuristics**: The AI explicitly searches for "Cap Illusions" (fake liability caps bypassed by indemnification exceptions) and calculates a `riskMultiplier` based on the mutuality of the agreement.
-3. **Backend Math**: The TypeScript backend (`contract-analyzer.ts`) takes the AI's variables and mathematically computes the base score and the final score, ensuring 100% deterministic, hallucination-free risk assessment.
-4. **Lawyer Review**: The backend automatically triggers an "Essential" or "Strongly Recommended" Lawyer Review alert if the mathematical score crosses the danger threshold.
-
----
-
-## Database Schema
-
-```prisma
-model User {
-  id              String   @id @default(uuid())
-  email           String   @unique
-  free_scans_used Int      @default(0)
-  created_at      DateTime @default(now())
-  scans           Scan[]
-}
-
-model Scan {
-  id                String        @id @default(uuid())
-  user_id           String
-  document_name     String
-  ai_result         Json?
-  payment_status    PaymentStatus @default(free)
-  stripe_session_id String?
-  created_at        DateTime      @default(now())
-  user              User          @relation(fields: [user_id], references: [id])
-}
-
-enum PaymentStatus {
-  free
-  unpaid
-  paid
-}
-```
-
----
-
-## API Routes
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/api/scan` | Upload PDF/text for analysis. Returns analysis JSON or Stripe URL |
-| `GET` | `/api/results/:id` | Fetch a completed scan by ID |
-| `POST` | `/api/webhook/stripe` | Stripe webhook receiver (updates payment status) |
-| `GET` | `/api/auth/callback` | Supabase OAuth callback (exchanges code for session) |
+1. **Flag Extraction**: The AI extracts the raw contract clauses and proposes a severity.
+2. **Backend Normalization**: The TypeScript backend (`contract-analyzer.ts`) runs the extracted flags through a massive Legal Taxonomy Matrix. It overrides hallucinations, unbundles merged concepts, and enforces strict severity weights (e.g., $Confession of Judgment = 40 pts$).
+3. **Advanced Heuristics**: The backend dynamically scales weights using the AI's enforcement likelihood and confidence scores, and applies negative points for user-favorable terms.
+4. **Deterministic Math**: The backend mathematically computes the final score, completely insulating the system from AI math hallucinations.
+5. **Lawyer Review**: The backend automatically triggers a Verdict (Passed, Moderate Risk, Extreme Caution, Do Not Sign) and a Lawyer Review recommendation based on the mathematical score.
 
 ---
 
@@ -234,4 +164,4 @@ MIT License. See [LICENSE](./LICENSE) for details.
 
 ## Disclaimer
 
-Vera is an AI analysis tool, not a substitute for legal counsel. The reports generated are for informational purposes only and do not constitute legal advice. Always consult a qualified attorney before signing any legally binding document.
+Vera is an analysis tool, not a substitute for legal counsel. The reports generated are for informational purposes only and do not constitute legal advice. Always consult a qualified attorney before signing any legally binding document.
