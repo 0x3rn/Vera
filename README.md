@@ -12,11 +12,14 @@ Vera is an AI-powered legal contract scanner that analyzes freelance agreements,
 
 - **PDF Upload & Text Paste** — Drop a PDF or paste contract text directly
 - **AI Red Flag Detection** — DeepSeek LLM trained on 8 contract risk categories
+- **Elite Deep Audit Engine™** — Advanced tracking for Compound Risk Chains, Worst-Case Scenarios, and Economic Fairness
+- **Intelligent Auto-Naming** — AI automatically renames generic pasted text and generic PDFs into premium, descriptive titles
+- **Progressive Disclosure UI** — Executive summary dials with deep-dive legal drawers
 - **Plain-English Explanations** — "What it means" and "How to fix it" for every flag
 - **Risk Score** — Overall 0–100 risk meter with severity indicators
 - **Freemium Model** — 2 free scans per user, then $5/scan or $10/month Pro
-- **Google Sign-In** — Supabase Auth with one-click Google OAuth
-- **Stripe Payments** — Checkout sessions with webhook confirmation
+- **Google Sign-In** — Firebase Auth with one-click Google OAuth (Note: recently migrated from Supabase to Firebase)
+- **Stripe Payments (Lemon Squeezy)** — Checkout sessions with webhook confirmation (recently migrated to Lemon Squeezy)
 - **Dark Theme** — Premium dark UI with indigo/violet accents
 - **Privacy First** — Contracts processed entirely in-memory, never stored on disk
 
