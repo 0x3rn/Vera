@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -29,6 +29,7 @@ const DISPOSABLE_DOMAINS = new Set([
 
 function RegisterForm() {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const { executeRecaptcha } = useGoogleReCaptcha();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -39,6 +40,14 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [cooldown, setCooldown] = useState(60);
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+    const preventDefault = (e: Event) => e.preventDefault();
+    form.addEventListener("submit", preventDefault);
+    return () => form.removeEventListener("submit", preventDefault);
+  }, []);
 
   // Cooldown timer for resend
   useEffect(() => {
@@ -105,8 +114,9 @@ function RegisterForm() {
     }
   };
 
-  const handleEmailRegister = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEmailRegister = useCallback(async (e?: React.FormEvent) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (loading) return;
     setError("");
 
     if (!firstName.trim() || !lastName.trim()) {
@@ -169,9 +179,11 @@ function RegisterForm() {
     } finally {
       setLoading(false);
     }
-  }, [firstName, lastName, email, password, confirmPassword, executeRecaptcha]);
+  }, [firstName, lastName, email, password, confirmPassword, executeRecaptcha, loading]);
 
-  const handleGoogleSignUp = useCallback(async () => {
+  const handleGoogleSignUp = useCallback(async (e?: React.MouseEvent) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (loading) return;
     setError("");
     setLoading(true);
     try {
@@ -183,7 +195,7 @@ function RegisterForm() {
       setError(err.message || "Failed to sign up with Google.");
       setLoading(false);
     }
-  }, []);
+  }, [loading]);
 
   return (
     <>
@@ -242,12 +254,20 @@ function RegisterForm() {
             </div>
           )}
 
-          <form onSubmit={handleEmailRegister} className="space-y-4">
+          <form 
+            ref={formRef}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleEmailRegister(e);
+            }} 
+            className="space-y-4"
+          >
             <div className="flex gap-4">
               <div className="flex-1">
                 <label htmlFor="firstName" className="block text-sm font-medium text-muted-foreground mb-1.5">First Name</label>
                 <input
                   id="firstName"
+                  name="firstName"
                   type="text"
                   required
                   value={firstName}
@@ -260,6 +280,7 @@ function RegisterForm() {
                 <label htmlFor="lastName" className="block text-sm font-medium text-muted-foreground mb-1.5">Last Name</label>
                 <input
                   id="lastName"
+                  name="lastName"
                   type="text"
                   required
                   value={lastName}
@@ -273,6 +294,7 @@ function RegisterForm() {
               <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-1.5">Email</label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 required
                 value={email}
@@ -308,8 +330,8 @@ function RegisterForm() {
             </div>
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-50"
+              className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all"
+              style={{ opacity: loading ? 0.5 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
             >
               {loading ? "Creating account..." : "Create account"}
             </button>
@@ -325,6 +347,7 @@ function RegisterForm() {
           </div>
 
           <button
+            type="button"
             onClick={handleGoogleSignUp}
             disabled={loading}
             className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-border hover:bg-muted/50 transition-all flex items-center justify-center gap-2 disabled:opacity-50"

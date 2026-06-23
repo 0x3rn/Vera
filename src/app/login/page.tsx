@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
@@ -8,6 +8,16 @@ import { auth } from "@/lib/firebase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+    const preventDefault = (e: Event) => e.preventDefault();
+    form.addEventListener("submit", preventDefault);
+    return () => form.removeEventListener("submit", preventDefault);
+  }, []);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,8 +37,9 @@ export default function LoginPage() {
     }
   };
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEmailLogin = async (e?: React.FormEvent) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (loading) return;
     setError("");
     setLoading(true);
 
@@ -42,7 +53,9 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (e?: React.MouseEvent) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (loading) return;
     setError("");
     setLoading(true);
     try {
@@ -76,13 +89,21 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          <form 
+            ref={formRef}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleEmailLogin(e);
+            }} 
+            className="space-y-4"
+          >
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-1.5">
                 Email
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 required
                 value={email}
@@ -107,8 +128,8 @@ export default function LoginPage() {
             </div>
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-50"
+              className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all"
+              style={{ opacity: loading ? 0.5 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
@@ -124,6 +145,7 @@ export default function LoginPage() {
           </div>
 
           <button
+            type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
             className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-border hover:bg-muted/50 transition-all flex items-center justify-center gap-2 disabled:opacity-50"

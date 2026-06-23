@@ -79,14 +79,14 @@ export default function Home() {
               {isInput && (
                 <div className="order-2 lg:order-1 md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-700 md:delay-100">
                   <p className="text-lg sm:text-xl text-muted-foreground mb-8 leading-relaxed">
-                    Lawyers charge hundreds per hour. Vera scans employment contracts, freelance agreements, and Terms of Service in seconds to explain dangerous clauses in plain English before you sign.
+                    Lawyers charge hundreds per hour. Vera scans tenancy agreements, employment contracts, vehicle purchases, and mortgages in seconds to explain dangerous clauses like hidden fees, landlord advantages, and cancellation traps in plain English before you sign.
                   </p>
                   <ul className="space-y-3 mb-8">
                     {[
-                      "Payment terms",
-                      "IP ownership clauses",
-                      "Exclusivity restrictions",
-                      "Kill fees",
+                      "Hidden transaction fees",
+                      "Unfair landlord advantages",
+                      "Exclusivity & non-competes",
+                      "Uncapped liability",
                       "Termination risks",
                     ].map((item) => (
                       <li key={item} className="flex items-center gap-3 text-muted-foreground">
@@ -194,13 +194,22 @@ export default function Home() {
               <div className="max-w-4xl mx-auto px-4 sm:px-8 text-center">
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">Most People Sign Documents Blindly</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-2xl mx-auto">
-                  Whether it's a new 9-5 job offer, a freelance gig, or a massive Terms of Service update. Hidden inside could be:
+                  Whether it's a new 9-5 job offer, a residential lease agreement, a vehicle purchase, or a mortgage. Hidden inside could be:
                 </p>
-                <div className="grid sm:grid-cols-2 gap-4 text-left max-w-3xl mx-auto mb-10">
-                  {["Net-90 payment terms", "Perpetual ownership transfers", "Exclusivity restrictions", "No cancellation compensation", "Automatic renewals"].map((trap, idx) => (
-                    <div key={idx} className="flex items-center gap-3 bg-card p-4 rounded-xl border border-border">
-                      <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                      <span className="text-muted-foreground font-medium">{trap}</span>
+                <div className="grid grid-cols-2 md:flex md:flex-wrap md:justify-center gap-3 sm:gap-4 text-left max-w-5xl mx-auto mb-12 px-4">
+                  {[
+                    "Net-90 payment terms", 
+                    "Hidden origination fees", 
+                    "Perpetual ownership transfers", 
+                    "Unfair landlord advantages", 
+                    "Exclusivity restrictions", 
+                    "Cancellation traps", 
+                    "Asymmetric legal liabilities", 
+                    "Automatic renewals"
+                  ].map((trap, idx) => (
+                    <div key={idx} className="flex items-center gap-2 sm:gap-3 bg-card px-3 py-3 sm:px-5 sm:py-4 rounded-xl border border-border">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                      <span className="text-muted-foreground font-medium text-xs sm:text-base md:whitespace-nowrap leading-snug">{trap}</span>
                     </div>
                   ))}
                 </div>
@@ -215,20 +224,22 @@ export default function Home() {
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything You Need Before You Sign</h2>
                   <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Vera's proprietary Risk Engine is strictly trained on legal contracts to catch what you missed.</p>
                 </div>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
-                    { title: "Payment Timeline Detection", desc: "Know exactly when you'll get paid. Spots hidden Net-60 or Net-90 clauses." },
+                    { title: "Payment Timelines", desc: "Know exactly when you'll get paid. Spots hidden Net-60 or Net-90 clauses." },
                     { title: "IP Rights Analysis", desc: "Understand who owns the work. Checks if rights transfer before or after payment." },
                     { title: "Exclusivity Detection", desc: "Avoid restrictions on future clients. Flags broad non-compete clauses." },
-                    { title: "Kill Fee Analysis", desc: "Spot weak cancellation terms. Ensures you're compensated if a project dies." },
-                    { title: "Plain-English Summaries", desc: "No legal jargon. Get straightforward explanations of complex clauses." },
-                    { title: "Risk Scoring", desc: "Instant contract risk assessment. Color-coded severity scores at a glance." }
+                    { title: "Hidden Fee Detection", desc: "Spots unexpected charges, origination fees, and admin fees before you pay." },
+                    { title: "Landlord Advantages", desc: "Identify unfair eviction terms, right of entry, and unreasonable repair burdens." },
+                    { title: "Cancellation Traps", desc: "Avoid automatic renewals with short cancellation windows and early termination penalties." },
+                    { title: "Legal Risks", desc: "Flags forced arbitration, liability waivers, and asymmetric indemnification." },
+                    { title: "Plain-English Summaries", desc: "No legal jargon. Get straightforward explanations of complex clauses." }
                   ].map((feat, idx) => (
-                    <div key={idx} className="bg-muted/50 backdrop-blur-sm border border-border p-8 rounded-2xl hover:bg-muted hover:-translate-y-1 transition-all duration-500 ease-out">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6 border border-primary/20">
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div key={idx} className="bg-muted/50 backdrop-blur-sm border border-border p-6 rounded-2xl hover:bg-muted hover:-translate-y-1 transition-all duration-500 ease-out">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5 border border-primary/20">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       </div>
-                      <h3 className="text-xl font-bold mb-3">{feat.title}</h3>
+                      <h3 className="text-lg font-bold mb-2">{feat.title}</h3>
                       <p className="text-muted-foreground text-sm leading-relaxed">{feat.desc}</p>
                     </div>
                   ))}
@@ -378,7 +389,7 @@ export default function Home() {
                       <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Upload Multi-Document Portfolios</li>
                       <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Priority Email Support</li>
                     </ul>
-                    <a href="#hero" className="inline-block w-full py-3.5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-500 ease-out">Get started free</a>
+                    <a href="#hero" className="inline-block w-full py-3.5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-500 ease-out">Subscribe Now</a>
                   </div>
                 </div>
               </div>
@@ -402,7 +413,7 @@ export default function Home() {
                 <div className="space-y-4">
                   {[
                     { q: "Is this legal advice?", a: "No. Vera identifies risks and explains clauses but does not replace a lawyer." },
-                    { q: "What document types are supported?", a: "Employment agreements (9-5 jobs), Freelance contracts (MSAs, SOWs), Terms of Service, Privacy Policies, NDAs, and Leases." },
+                    { q: "What document types are supported?", a: "Tenancy agreements, Employment contracts, Vehicle purchases, Mortgages, Freelance contracts, and general NDAs." },
                     { q: "How accurate is Vera?", a: "Vera focuses specifically on common contract red flags and risk patterns." },
                     { q: "Are my contracts stored?", a: "No. Contracts are encrypted and automatically deleted after processing." },
                     { q: "Can I upload large contracts?", a: "Yes, up to 30 pages on the current plan." },

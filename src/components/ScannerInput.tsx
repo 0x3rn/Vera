@@ -4,9 +4,10 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { auth } from "@/lib/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
-import type { AnalysisResult, RedFlag } from "@/lib/contract-analyzer";
+import type { AnalysisResult } from "@/lib/contract-analyzer";
 import RiskMeter from "./RiskMeter";
 import TrialBadge from "./TrialBadge";
+import AnalysisReport from "./AnalysisReport";
 
 export type AppState =
   | "idle"
@@ -17,18 +18,6 @@ export type AppState =
 
 type InputMode = "pdf" | "text";
 
-const CATEGORY_LABELS: Record<RedFlag["category"], string> = {
-  payment: "Payment Terms",
-  "ip-rights": "IP Rights",
-  exclusivity: "Exclusivity",
-  termination: "Termination",
-  liability: "Liability & Indemnity",
-  "non-compete": "Non-Compete",
-  "scope-creep": "Scope Creep",
-  "data-privacy": "Data & Privacy",
-  arbitration: "Arbitration & Disputes",
-  other: "Other Concern",
-};
 
 interface ScannerInputProps {
   onStateChange?: (state: AppState) => void;
@@ -198,98 +187,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
           </div>
         )}
 
-        <div className="flex justify-center py-6">
-          <RiskMeter score={analysis.overallRiskScore} />
-        </div>
-
-        <div className="p-8 rounded-2xl bg-card border border-border">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Summary</h3>
-          <p className="text-muted-foreground leading-relaxed text-lg">{analysis.summary}</p>
-        </div>
-
-        {analysis.keyDates && analysis.keyDates.length > 0 && (
-          <div className="p-8 rounded-2xl bg-card border border-border">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-6">Key Dates & Deadlines</h3>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {analysis.keyDates.map((d: string, i: number) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted border border-border text-sm text-muted-foreground">
-                  <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  {d}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div>
-          <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
-            <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            Issues Found ({analysis.redFlags.length})
-          </h3>
-          <div className="space-y-4">
-            {analysis.redFlags.length === 0 ? (
-              <div className="p-10 text-center rounded-2xl border border-emerald-500/30 bg-emerald-500/5">
-                <svg className="w-12 h-12 mx-auto text-emerald-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-lg font-semibold text-emerald-400 mb-2">Looks clean!</p>
-                <p className="text-muted-foreground">We didn't find any major red flags in this contract.</p>
-              </div>
-            ) : (
-              analysis.redFlags.map((flag: any, idx: number) => (
-                <div
-                  key={idx}
-                  className={`p-8 rounded-2xl border bg-card ${
-                    flag.severity === "high"
-                      ? "border-red-500/30"
-                      : flag.severity === "medium"
-                        ? "border-amber-500/30"
-                        : "border-blue-500/30"
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
-                    <div>
-                      <span className="inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest bg-muted/50 text-muted-foreground mb-3 border border-border">
-                        {CATEGORY_LABELS[flag.category as RedFlag["category"]] || flag.category}
-                      </span>
-                      <h4 className="text-xl font-bold text-foreground">{flag.title}</h4>
-                    </div>
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider shrink-0 border ${
-                        flag.severity === "high"
-                          ? "bg-red-500/10 text-red-400 border-red-500/30"
-                          : flag.severity === "medium"
-                            ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                            : "bg-blue-500/10 text-blue-400 border-blue-500/30"
-                      }`}
-                    >
-                      <span
-                        className={`w-2 h-2 rounded-full ${
-                          flag.severity === "high" ? "bg-red-500" : flag.severity === "medium" ? "bg-amber-500" : "bg-blue-500"
-                        }`}
-                      />
-                      {flag.severity} Risk
-                    </span>
-                  </div>
-                  <div className="bg-muted p-5 rounded-xl border border-border mb-6">
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-2">Original Text</p>
-                    <p className="text-muted-foreground italic">"{flag.clauseExcerpt}"</p>
-                  </div>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">{flag.plainEnglishExplanation}</p>
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 p-5 rounded-xl">
-                    <p className="text-sm text-emerald-300">
-                      <span className="font-bold text-emerald-400">Recommendation:</span> {flag.suggestedFix}
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+        <AnalysisReport analysis={analysis} />
       </div>
     );
   }

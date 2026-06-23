@@ -10,6 +10,20 @@ import { FieldValue } from "firebase-admin/firestore";
 const MAX_FREE_SCANS = 1;
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 
+function isGenericFilename(filename: string): boolean {
+  if (filename.startsWith("Text: ")) return true;
+
+  const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
+  const lowerName = nameWithoutExt.toLowerCase().trim();
+  
+  const blacklist = [
+    'contract', 'agreement', 'document', 'doc', 'scanned', 'scan', 
+    'untitled', 'file', 'pasted_text', 'text_scan', 'draft'
+  ];
+  
+  return blacklist.includes(lowerName);
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Auth check using our new server helper
@@ -64,6 +78,8 @@ export async function POST(request: NextRequest) {
         );
       }
       contractText = textInput.trim();
+      const snippet = contractText.substring(0, 30).replace(/[\n\r]/g, " ").replace(/[^a-zA-Z0-9 ]/g, "").trim();
+      documentName = snippet ? `Text: ${snippet}...` : "Pasted Text";
     } else {
       return NextResponse.json(
         { error: "No file or text provided" },
@@ -155,9 +171,17 @@ export async function POST(request: NextRequest) {
 
     const riskScore = aiResult.overallRiskScore ?? 0;
 
+    let finalDocumentName = documentName;
+    const isGeneric = isGenericFilename(finalDocumentName);
+      
+    if (isGeneric && aiResult.suggestedTitle && aiResult.suggestedTitle !== "Unknown Document") {
+      finalDocumentName = aiResult.suggestedTitle;
+    }
+
     const newScanRef = scansRef.doc();
     await newScanRef.set({
-      document_name: documentName,
+      document_name: finalDocumentName,
+      suggested_title: aiResult.suggestedTitle || "Unknown Document",
       ai_result: aiResult,
       payment_status: "free",
       risk_score: riskScore, // Assuming we want the raw 0-100 score now

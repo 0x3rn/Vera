@@ -31,12 +31,12 @@ export default function NewScanPage() {
             <h2 className="text-lg font-bold mb-6">What We'll Check</h2>
             <div className="space-y-4">
               {[
+                { title: "Hidden Fees", desc: "Unexpected charges or transaction fees." },
+                { title: "Landlord Advantages", desc: "Unfair eviction or entry terms." },
+                { title: "Exclusivity & Non-Competes", desc: "Broad restrictions on your future." },
+                { title: "Termination Risks", desc: "Unfair cancellation policies." },
+                { title: "Uncapped Liability", desc: "Dangerous indemnification terms." },
                 { title: "Payment Terms", desc: "Hidden Net-60 or Net-90 delays." },
-                { title: "Intellectual Property Rights", desc: "Perpetual or premature IP transfers." },
-                { title: "Exclusivity Clauses", desc: "Broad non-compete restrictions." },
-                { title: "Termination Conditions", desc: "Unfair cancellation policies." },
-                { title: "Kill Fees", desc: "Lack of compensation for cancelled work." },
-                { title: "Liability Risks", desc: "Uncapped indemnification." },
               ].map((item, idx) => (
                 <div key={idx} className="flex gap-3">
                   <svg className="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

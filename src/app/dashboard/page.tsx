@@ -102,7 +102,7 @@ export default async function DashboardOverview() {
           <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
             Upload your first contract and we'll scan it for:
             <span className="block mt-4 text-emerald-400 text-sm">
-              ✓ Payment delays &nbsp; ✓ IP ownership issues &nbsp; ✓ Exclusivity clauses &nbsp; ✓ Kill fee risks
+              ✓ Hidden fees &nbsp; ✓ Landlord advantages &nbsp; ✓ Uncapped liability &nbsp; ✓ Cancellation traps
             </span>
           </p>
           <Link href="/dashboard/scan" className="inline-block px-8 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors shadow-lg shadow-indigo-500/25">

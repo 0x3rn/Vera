@@ -112,7 +112,7 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
       <div className={`
         fixed inset-y-0 left-0 z-40 w-64 bg-muted border-r border-border transform transition-transform duration-300 ease-in-out flex flex-col
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0 lg:static lg:h-screen
+        lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto overscroll-contain
       `}>
         {/* Logo (Desktop) */}
         <div className="hidden lg:flex px-8 py-8">
@@ -122,7 +122,7 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex-1 px-4 py-8 lg:py-2 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 py-8 lg:py-2 space-y-1 overflow-y-auto overscroll-contain">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (

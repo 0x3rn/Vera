@@ -8,12 +8,16 @@ export const dynamic = "force-dynamic";
 
 const CATEGORY_LABELS: Record<string, string> = {
   payment: "Payment Terms",
+  "hidden-fees": "Hidden Fees",
+  "landlord-advantages": "Landlord Advantages",
+  "cancellation-traps": "Cancellation Traps",
+  "legal-risks": "Legal Risks",
   "ip-rights": "IP Rights",
   exclusivity: "Exclusivity",
   termination: "Termination",
   liability: "Liability & Indemnity",
   "non-compete": "Non-Compete",
-  "scope-creep": "Scope Creep",
+  arbitration: "Arbitration & Disputes",
   other: "Other Concern",
 };
 
