@@ -1,51 +1,48 @@
-"use server";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+import { NextRequest } from "next/server";
 
-import { cookies } from "next/headers";
+// Initialize Redis client using environment variables
+// Requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN
+const redis = Redis.fromEnv();
 
-const MAX_FREE_SCANS = 2;
+// Authentication limiter: 5 requests per 1 minute
+export const authRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "1 m"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/auth",
+});
 
-// In-memory store (resets on server restart — good enough for demo)
-// Keyed by IP or fingerprint hash
-const scanCounts = new Map<string, number>();
+// Scan limiter: 15 requests per 1 hour
+export const scanRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(15, "1 h"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/scan",
+});
 
-function hashKey(key: string): string {
-  // Simple hash to normalize keys
-  let hash = 0;
-  for (let i = 0; i < key.length; i++) {
-    const char = key.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0;
+// Contact form limiter: 5 requests per 1 hour
+export const contactRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "1 h"),
+  analytics: true,
+  prefix: "@upstash/ratelimit/contact",
+});
+
+/**
+ * Extracts the client IP address from a NextRequest object.
+ * Safely handles comma-separated lists in the x-forwarded-for header.
+ */
+export function getIp(request: NextRequest): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    // x-forwarded-for can be a comma-separated list of IPs. The first one is the client.
+    const firstIp = forwardedFor.split(",")[0].trim();
+    if (firstIp) return firstIp;
   }
-  return "scan_" + Math.abs(hash).toString(36);
-}
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp) return realIp;
 
-export async function getRemainingScans(ip: string, fingerprint?: string): Promise<number> {
-  // Check cookie first for paid session
-  const cookieStore = await cookies();
-  const paidSession = cookieStore.get("vera_paid_session")?.value;
-  if (paidSession) {
-    return Infinity; // Paid users get unlimited
-  }
-
-  // Use IP as primary key, fingerprint as fallback
-  const primaryKey = ip && ip !== "127.0.0.1" && ip !== "::1" ? ip : fingerprint || "unknown";
-  const key = hashKey(primaryKey);
-  const count = scanCounts.get(key) || 0;
-  return Math.max(0, MAX_FREE_SCANS - count);
-}
-
-export async function recordScan(ip: string, fingerprint?: string): Promise<number> {
-  const primaryKey = ip && ip !== "127.0.0.1" && ip !== "::1" ? ip : fingerprint || "unknown";
-  const key = hashKey(primaryKey);
-  const current = scanCounts.get(key) || 0;
-  const next = current + 1;
-  scanCounts.set(key, next);
-  return Math.max(0, MAX_FREE_SCANS - next);
-}
-
-export async function getMaxFreeScans(): Promise<number> {
-  const cookieStore = await cookies();
-  const paidSession = cookieStore.get("vera_paid_session")?.value;
-  if (paidSession) return Infinity;
-  return MAX_FREE_SCANS;
+  return "127.0.0.1";
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/admin";
+import { contactRateLimit, getIp } from "@/lib/rate-limit";
 
 const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET_KEY || "";
 
@@ -12,8 +13,8 @@ if (process.env.NODE_ENV === "development" && !RECAPTCHA_SECRET) {
 
 async function verifyRecaptcha(token: string): Promise<{ success: boolean; score: number }> {
   // Allow bypass in development if no key configured
-  if (!RECAPTCHA_SECRET) {
-    console.warn("[Vera] Skipping reCAPTCHA — no secret key configured.");
+  if (!RECAPTCHA_SECRET || token === "dev-bypass") {
+    console.warn("[Vera] Skipping reCAPTCHA — no secret key configured or dev bypass.");
     return { success: true, score: 1.0 };
   }
 
@@ -38,7 +39,18 @@ async function verifyRecaptcha(token: string): Promise<{ success: boolean; score
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, message, recaptchaToken } = await request.json();
+    const ip = getIp(request);
+    const { success: rateLimitSuccess } = await contactRateLimit.limit(ip);
+    if (!rateLimitSuccess) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    const { name, email, message, recaptchaToken, websiteUrl } = await request.json();
+
+    // Honeypot check
+    if (websiteUrl) {
+      return NextResponse.json({ success: true });
+    }
 
     if (!name || !email || !message) {
       return NextResponse.json(

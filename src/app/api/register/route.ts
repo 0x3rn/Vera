@@ -1,12 +1,42 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { authRateLimit, getIp } from "@/lib/rate-limit";
 
-export async function POST(req: Request) {
+const DISPOSABLE_DOMAINS = new Set([
+  "mailinator.com", "guerrillamail.com", "10minutemail.com", "tempmail.com",
+  "yopmail.com", "throwaway.email", "sharklasers.com", "temp-mail.org",
+  "maildrop.cc", "trashmail.com", "dispostable.com", "getnada.com",
+  "fakeinbox.com", "mohmal.com", "mintemail.com", "guerrillamail.info",
+  "guerrillamail.biz", "guerrillamail.org", "guerrillamail.net",
+  "guerrillamail.de", "guerrillamailblock.com", "pokemail.net", "spam4.me",
+]);
+
+export async function POST(req: NextRequest) {
   try {
-    const { email, password, firstName, lastName, recaptchaToken } = await req.json();
+    const ip = getIp(req);
+    const { success } = await authRateLimit.limit(ip);
+    if (!success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
+    const { email, password, firstName, lastName, recaptchaToken, websiteUrl } = await req.json();
+
+    // Honeypot check
+    if (websiteUrl) {
+      // Return 200 OK to fool bots
+      return NextResponse.json({ success: true, uid: "fake-bot-uid" });
+    }
 
     if (!email || !password || !firstName || !lastName) {
       return NextResponse.json({ error: "All fields are required." }, { status: 400 });
+    }
+
+    const domain = email.split("@")[1]?.toLowerCase();
+    if (domain && DISPOSABLE_DOMAINS.has(domain)) {
+      return NextResponse.json(
+        { error: "Disposable email addresses are not allowed. Please use a permanent email address." },
+        { status: 400 }
+      );
     }
 
     if (process.env.RECAPTCHA_SECRET_KEY && recaptchaToken) {

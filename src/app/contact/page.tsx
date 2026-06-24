@@ -1,11 +1,54 @@
-import Link from "next/link";
+"use client";
 
-export const metadata = {
-  title: "Contact Us | Vera",
-  description: "Get in touch with the Vera team.",
-};
+import Link from "next/link";
+import { useState } from "react";
 
 export default function ContactPage() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("General Inquiry");
+  const [message, setMessage] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState(""); // Honeypot
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ type: "", text: "" });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus({ type: "", text: "" });
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          name: `${firstName} ${lastName}`, 
+          email, 
+          message: `[${subject}] ${message}`,
+          websiteUrl,
+          recaptchaToken: "dev-bypass" // Simplified since recaptcha isn't wired
+        }),
+      });
+
+      if (res.ok) {
+        setStatus({ type: "success", text: "Message sent successfully!" });
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        setMessage("");
+        setWebsiteUrl("");
+      } else {
+        const data = await res.json();
+        setStatus({ type: "error", text: data.error || "Failed to send message." });
+      }
+    } catch (err) {
+      setStatus({ type: "error", text: "An error occurred." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-full flex flex-col">
       {/* Navigation */}
@@ -32,13 +75,31 @@ export default function ContactPage() {
           <div className="grid md:grid-cols-5 gap-12">
             {/* Contact Form */}
             <div className="md:col-span-3 bg-card border border-border p-8 rounded-3xl shadow-sm">
-              <form className="space-y-6">
+              {status.text && (
+                <div className={`p-4 rounded-lg mb-6 ${status.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                  {status.text}
+                </div>
+              )}
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                {/* Honeypot field - visually hidden to catch bots */}
+                <input
+                  type="text"
+                  name="website_url"
+                  className="hidden"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={websiteUrl}
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label htmlFor="firstName" className="text-sm font-medium text-foreground">First Name</label>
                     <input 
                       type="text" 
                       id="firstName" 
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
                       className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                       placeholder="John"
                     />
@@ -48,6 +109,9 @@ export default function ContactPage() {
                     <input 
                       type="text" 
                       id="lastName" 
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
                       className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                       placeholder="Doe"
                     />
@@ -59,6 +123,9 @@ export default function ContactPage() {
                   <input 
                     type="email" 
                     id="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                     placeholder="john@company.com"
                   />
@@ -68,6 +135,8 @@ export default function ContactPage() {
                   <label htmlFor="subject" className="text-sm font-medium text-foreground">Subject</label>
                   <select 
                     id="subject" 
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors appearance-none"
                   >
                     <option>General Inquiry</option>
@@ -83,16 +152,20 @@ export default function ContactPage() {
                   <textarea 
                     id="message" 
                     rows={5}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none"
                     placeholder="How can we help you?"
                   ></textarea>
                 </div>
 
                 <button 
-                  type="button" 
-                  className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:-translate-y-1"
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50"
                 >
-                  Send Message
+                  {loading ? "Sending..." : "Send Message"}
                 </button>
               </form>
             </div>

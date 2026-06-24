@@ -6,6 +6,7 @@ import { analyzeContract } from "@/lib/contract-analyzer";
 import { initLemonSqueezy, getStoreId, getVariantId } from "@/lib/lemonsqueezy";
 import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 import { FieldValue } from "firebase-admin/firestore";
+import { scanRateLimit, getIp } from "@/lib/rate-limit";
 
 const MAX_FREE_SCANS = 1;
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
@@ -26,6 +27,12 @@ function isGenericFilename(filename: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getIp(request);
+    const { success } = await scanRateLimit.limit(ip);
+    if (!success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     // Auth check using our new server helper
     const user = await getCurrentUser();
 
@@ -53,11 +60,21 @@ export async function POST(request: NextRequest) {
       if (file.size > MAX_FILE_SIZE) {
         return NextResponse.json(
           { error: "File size must be under 15MB" },
-          { status: 400 }
+          { status: 413 }
         );
       }
       documentName = file.name;
       const buffer = await file.arrayBuffer();
+
+      // Magic Number Validation for %PDF (0x25 0x50 0x44 0x46)
+      const header = new Uint8Array(buffer, 0, 4);
+      if (header.length < 4 || header[0] !== 0x25 || header[1] !== 0x50 || header[2] !== 0x44 || header[3] !== 0x46) {
+        return NextResponse.json(
+          { error: "Invalid file format. Only true PDF files are allowed." },
+          { status: 415 }
+        );
+      }
+
       const text = await parsePdfBuffer(buffer);
 
       if (!text || text.trim().length < 100) {
@@ -75,6 +92,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: "Text input must be at least 100 characters" },
           { status: 400 }
+        );
+      }
+      if (textInput.length > 100000) {
+        return NextResponse.json(
+          { error: "Pasted text is too long (limit: 100,000 characters)" },
+          { status: 413 }
         );
       }
       contractText = textInput.trim();

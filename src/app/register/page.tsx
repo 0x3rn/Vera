@@ -18,15 +18,6 @@ if (typeof window !== "undefined" && !SITE_KEY) {
   );
 }
 
-const DISPOSABLE_DOMAINS = new Set([
-  "mailinator.com", "guerrillamail.com", "10minutemail.com", "tempmail.com",
-  "yopmail.com", "throwaway.email", "sharklasers.com", "temp-mail.org",
-  "maildrop.cc", "trashmail.com", "dispostable.com", "getnada.com",
-  "fakeinbox.com", "mohmal.com", "mintemail.com", "guerrillamail.info",
-  "guerrillamail.biz", "guerrillamail.org", "guerrillamail.net",
-  "guerrillamail.de", "guerrillamailblock.com", "pokemail.net", "spam4.me",
-]);
-
 function RegisterForm() {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -36,6 +27,7 @@ function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -134,12 +126,6 @@ function RegisterForm() {
       return;
     }
 
-    const domain = email.split("@")[1]?.toLowerCase();
-    if (domain && DISPOSABLE_DOMAINS.has(domain)) {
-      setError("Disposable email addresses are not allowed. Please use a permanent email address.");
-      return;
-    }
-
     setLoading(true);
 
     let recaptchaToken = "";
@@ -156,7 +142,7 @@ function RegisterForm() {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, password, recaptchaToken }),
+        body: JSON.stringify({ firstName, lastName, email, password, recaptchaToken, websiteUrl }),
       });
 
       const json = await res.json();
@@ -262,6 +248,17 @@ function RegisterForm() {
             }} 
             className="space-y-4"
           >
+            {/* Honeypot field - visually hidden to catch bots */}
+            <input
+              type="text"
+              name="website_url"
+              className="hidden"
+              tabIndex={-1}
+              autoComplete="off"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value)}
+            />
+            
             <div className="flex gap-4">
               <div className="flex-1">
                 <label htmlFor="firstName" className="block text-sm font-medium text-muted-foreground mb-1.5">First Name</label>
