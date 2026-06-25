@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
+    "@next/third-parties": "^16.2.9",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "firebase": "^12.15.0",

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import {GoogleAnalytics} from '@next/third-parties/google';
 import { Inter } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -43,6 +44,8 @@ export default function RootLayout({
           </PageTransition>
         </ThemeProvider>
       </body>
+      {/* Google Analytics */}
+      <GoogleAnalytics gaId="G-5Z8JKH4TNQ" />
     </html>
   );
 }
