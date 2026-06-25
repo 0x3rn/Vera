@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
+import { formatErrorMessage } from "@/lib/error-handler";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function LoginPage() {
       const idToken = await userCredential.user.getIdToken();
       await handleAuthSuccess(idToken);
     } catch (err: any) {
-      setError(err.message || "Failed to sign in.");
+      setError(formatErrorMessage(err));
       setLoading(false);
     }
   };
@@ -64,7 +65,7 @@ export default function LoginPage() {
       const idToken = await userCredential.user.getIdToken();
       await handleAuthSuccess(idToken);
     } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google.");
+      setError(formatErrorMessage(err));
       setLoading(false);
     }
   };

@@ -7,6 +7,7 @@ import { initLemonSqueezy, getStoreId, getVariantId } from "@/lib/lemonsqueezy";
 import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 import { FieldValue } from "firebase-admin/firestore";
 import { scanRateLimit, getIp } from "@/lib/rate-limit";
+import { formatErrorMessage } from "@/lib/error-handler";
 
 const MAX_FREE_SCANS = 1;
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
@@ -223,10 +224,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Scan error:", error);
-    const message =
-      error instanceof Error ? error.message : String(error);
+    const message = formatErrorMessage(error);
     return NextResponse.json(
-      { error: `Scan failed: ${message}` },
+      { error: message },
       { status: 500 }
     );
   }

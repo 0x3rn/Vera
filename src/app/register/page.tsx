@@ -9,6 +9,7 @@ import {
 } from "react-google-recaptcha-v3";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendEmailVerification } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
+import { formatErrorMessage } from "@/lib/error-handler";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
@@ -66,7 +67,7 @@ function RegisterForm() {
       });
       setCooldown(60);
     } catch (err: any) {
-      setError(err.message || "Failed to resend verification email.");
+      setError(formatErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -86,7 +87,7 @@ function RegisterForm() {
       }
       setError("Email not verified yet. Please check your inbox and click the link.");
     } catch (err: any) {
-      setError("Failed to check verification status.");
+      setError(formatErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -161,7 +162,7 @@ function RegisterForm() {
       
       setIsSuccess(true);
     } catch (err: any) {
-      setError(err.message || "Failed to register.");
+      setError(formatErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -178,7 +179,7 @@ function RegisterForm() {
       const idToken = await userCredential.user.getIdToken();
       await handleAuthSuccess(idToken);
     } catch (err: any) {
-      setError(err.message || "Failed to sign up with Google.");
+      setError(formatErrorMessage(err));
       setLoading(false);
     }
   }, [loading]);
