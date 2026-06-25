@@ -14,7 +14,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Vera | Legal Document Risk Engine",
   description:
-    "Lawyers cost $400/hr. Vera scans contracts, Terms of Service, and agreements in seconds, outputting a plain-English summary of hidden traps and toxic clauses.",
+    "Vera scans contracts, mortgages and agreements in seconds, outputting a plain-English summary of hidden traps and toxic clauses.",
 };
 
 export const viewport = {
