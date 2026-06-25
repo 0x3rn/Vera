@@ -132,10 +132,10 @@ ${analysis.summary}
 
 SCORE BREAKDOWN
 ---------------
-Critical Flags: ${analysis.scoreBreakdown?.criticalCount || 0}
-High Flags: ${analysis.scoreBreakdown?.highCount || 0}
-Medium Flags: ${analysis.scoreBreakdown?.mediumCount || 0}
-Low Flags: ${analysis.scoreBreakdown?.lowCount || 0}
+Critical Risk Flags: ${analysis.scoreBreakdown?.criticalCount || 0}
+High Risk Flags: ${analysis.scoreBreakdown?.highCount || 0}
+Medium Risk Flags: ${analysis.scoreBreakdown?.mediumCount || 0}
+Low Risk Flags: ${analysis.scoreBreakdown?.lowCount || 0}
 One-Sidedness Multiplier: ${analysis.scoreBreakdown?.riskMultiplier || 1.0}x
 ${analysis.scoreExplanation ? `Context: ${analysis.scoreExplanation}` : ""}
 
@@ -305,19 +305,19 @@ ${(analysis.negotiationChecklist || []).join('\n')}
             <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-4">Score Breakdown</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Critical Flags ({analysis.scoreBreakdown.criticalCount} × 10)</span>
+                <span className="text-zinc-600 dark:text-zinc-400">Critical Risk Flags ({analysis.scoreBreakdown.criticalCount} × 10)</span>
                 <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.criticalCount * 10}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">High Flags ({analysis.scoreBreakdown.highCount} × 6)</span>
+                <span className="text-zinc-600 dark:text-zinc-400">High Risk Flags ({analysis.scoreBreakdown.highCount} × 6)</span>
                 <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.highCount * 6}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Medium Flags ({analysis.scoreBreakdown.mediumCount} × 3)</span>
+                <span className="text-zinc-600 dark:text-zinc-400">Medium Risk Flags ({analysis.scoreBreakdown.mediumCount} × 3)</span>
                 <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.mediumCount * 3}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Low Flags ({analysis.scoreBreakdown.lowCount} × 1)</span>
+                <span className="text-zinc-600 dark:text-zinc-400">Low Risk Flags ({analysis.scoreBreakdown.lowCount} × 1)</span>
                 <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.lowCount * 1}</span>
               </div>
               <div className="pt-3 mt-3 border-t border-zinc-200 dark:border-zinc-800">

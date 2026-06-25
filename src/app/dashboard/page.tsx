@@ -54,7 +54,7 @@ export default async function DashboardOverview() {
       const flags = aiResult.redFlags || [];
       totalRisks += flags.length;
 
-      const highRiskFlags = flags.filter((f) => f.severity === "high");
+      const highRiskFlags = flags.filter((f) => f.severity === "high" || f.severity === "critical");
       totalHighRisks += highRiskFlags.length;
 
       // Extract a few recent findings
