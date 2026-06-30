@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     const cookieStore = await cookies();
     cookieStore.set("session", sessionCookie, {
-      maxAge: expiresIn / 1000,
+      expires: new Date(Date.now() + expiresIn),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",

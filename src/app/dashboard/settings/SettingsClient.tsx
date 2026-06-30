@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase/client";
+import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from "firebase/auth";
 
 export default function SettingsClient({ 
   userEmail,
@@ -13,15 +15,29 @@ export default function SettingsClient({
   initialLastName: string
 }) {
   const router = useRouter();
+  
+  // Profile state
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
   const [profileStatus, setProfileStatus] = useState("");
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
+  // Email state
+  const [newEmail, setNewEmail] = useState("");
+  const [emailCurrentPassword, setEmailCurrentPassword] = useState("");
+  const [emailStatus, setEmailStatus] = useState("");
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
+
+  // Password state
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordCurrentPassword, setPasswordCurrentPassword] = useState("");
+  const [passwordStatus, setPasswordStatus] = useState("");
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firstName || !lastName) return;
-    setIsUpdating(true);
+    setIsUpdatingProfile(true);
     setProfileStatus("");
 
     try {
@@ -35,11 +51,72 @@ export default function SettingsClient({
       if (!res.ok) throw new Error(json.error || "Failed to update profile");
       
       setProfileStatus("Profile successfully updated.");
-      router.refresh(); // refresh to show updated name in dashboard greeting
+      router.refresh(); 
     } catch (error: any) {
       setProfileStatus(`Error: ${error.message}`);
     }
-    setIsUpdating(false);
+    setIsUpdatingProfile(false);
+  };
+
+  const handleUpdateEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEmail || !emailCurrentPassword) return;
+    
+    const user = auth.currentUser;
+    if (!user || !user.email) return;
+
+    setIsUpdatingEmail(true);
+    setEmailStatus("");
+
+    try {
+      // 1. Re-authenticate
+      const credential = EmailAuthProvider.credential(user.email, emailCurrentPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      // 2. Update email
+      await updateEmail(user, newEmail);
+      setEmailStatus("Email successfully updated.");
+      setNewEmail("");
+      setEmailCurrentPassword("");
+    } catch (error: any) {
+      let msg = error.message;
+      if (error.code === "auth/wrong-password") msg = "Incorrect current password.";
+      setEmailStatus(`Error: ${msg}`);
+    }
+    setIsUpdatingEmail(false);
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || !passwordCurrentPassword) return;
+    
+    const user = auth.currentUser;
+    if (!user || !user.email) return;
+
+    if (newPassword.length < 6) {
+      setPasswordStatus("Error: New password must be at least 6 characters.");
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    setPasswordStatus("");
+
+    try {
+      // 1. Re-authenticate
+      const credential = EmailAuthProvider.credential(user.email, passwordCurrentPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      // 2. Update password
+      await updatePassword(user, newPassword);
+      setPasswordStatus("Password successfully updated.");
+      setNewPassword("");
+      setPasswordCurrentPassword("");
+    } catch (error: any) {
+      let msg = error.message;
+      if (error.code === "auth/wrong-password") msg = "Incorrect current password.";
+      setPasswordStatus(`Error: ${msg}`);
+    }
+    setIsUpdatingPassword(false);
   };
 
   return (
@@ -74,7 +151,7 @@ export default function SettingsClient({
           </div>
           <button
             type="submit"
-            disabled={isUpdating || !firstName || !lastName}
+            disabled={isUpdatingProfile || !firstName || !lastName}
             className="px-6 py-2.5 rounded-lg bg-primary border border-transparent text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Save Changes
@@ -89,23 +166,87 @@ export default function SettingsClient({
 
       <div className="h-px bg-border w-full" />
 
-      {/* Password & Email Management Info */}
+      {/* Change Email */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">Password & Email</h3>
-        <div className="p-4 bg-muted border border-border rounded-xl">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            To change your email address or password, use the{" "}
-            <a 
-              href="https://firebase.google.com/docs/auth/web/manage-users" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:text-primary-hover underline underline-offset-4"
-            >
-              Firebase account management
-            </a>{" "}
-            flow, or sign out and use the "Forgot Password" option on the login page.
-          </p>
-        </div>
+        <h3 className="text-lg font-semibold mb-4">Change Email Address</h3>
+        <form onSubmit={handleUpdateEmail} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-1.5">New Email</label>
+            <input
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              required
+              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-1.5">Current Password</label>
+            <input
+              type="password"
+              value={emailCurrentPassword}
+              onChange={(e) => setEmailCurrentPassword(e.target.value)}
+              required
+              placeholder="Confirm your current password"
+              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isUpdatingEmail || !newEmail || !emailCurrentPassword}
+            className="px-6 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Update Email
+          </button>
+          {emailStatus && (
+            <p className={`text-sm ${emailStatus.startsWith("Error") ? "text-red-400" : "text-emerald-400"}`}>
+              {emailStatus}
+            </p>
+          )}
+        </form>
+      </div>
+
+      <div className="h-px bg-border w-full" />
+
+      {/* Change Password */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Change Password</h3>
+        <form onSubmit={handleUpdatePassword} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-1.5">New Password</label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              minLength={6}
+              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-1.5">Current Password</label>
+            <input
+              type="password"
+              value={passwordCurrentPassword}
+              onChange={(e) => setPasswordCurrentPassword(e.target.value)}
+              required
+              placeholder="Confirm your current password"
+              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isUpdatingPassword || !newPassword || !passwordCurrentPassword}
+            className="px-6 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Update Password
+          </button>
+          {passwordStatus && (
+            <p className={`text-sm ${passwordStatus.startsWith("Error") ? "text-red-400" : "text-emerald-400"}`}>
+              {passwordStatus}
+            </p>
+          )}
+        </form>
       </div>
 
       <div className="h-px bg-border w-full" />
