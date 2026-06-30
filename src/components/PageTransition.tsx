@@ -16,11 +16,11 @@ export default function PageTransition({ children }: { children: React.ReactNode
     }
 
     if (pathname !== mountedPath) {
-      // Start transition: hide current content instantly
+      // Start transition: hide current content
       setIsTransitioning(true);
       
       const timer = setTimeout(() => {
-        // After delay, swap the children and start fade in
+        // After delay, swap the children and start fade-slide in
         setMountedPath(pathname);
         
         requestAnimationFrame(() => {
@@ -28,7 +28,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
             setIsTransitioning(false);
           });
         });
-      }, 100);
+      }, 150);
 
       return () => clearTimeout(timer);
     }
@@ -39,14 +39,17 @@ export default function PageTransition({ children }: { children: React.ReactNode
   useEffect(() => {
     const timer = setTimeout(() => {
       setInitialMount(true);
-    }, 100);
+    }, 50);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <div 
-      className={`transition-opacity duration-500 ease-out ${
-        (!initialMount || isTransitioning) ? 'opacity-0' : 'opacity-100'
+      style={{ willChange: "opacity, transform" }}
+      className={`transition-all duration-[400ms] ease-out ${
+        (!initialMount || isTransitioning)
+          ? 'opacity-0 translate-y-2'
+          : 'opacity-100 translate-y-0'
       } flex-grow flex flex-col`}
     >
       {pathname === mountedPath ? children : null}

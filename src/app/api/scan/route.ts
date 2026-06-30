@@ -3,8 +3,6 @@ import { getCurrentUser } from "@/lib/auth-server";
 import { adminDb } from "@/lib/firebase/admin";
 import { parsePdfBuffer } from "@/lib/pdf-parser";
 import { analyzeContract } from "@/lib/contract-analyzer";
-import { initLemonSqueezy, getStoreId, getVariantId } from "@/lib/lemonsqueezy";
-import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 import { FieldValue } from "firebase-admin/firestore";
 import { scanRateLimit, getIp } from "@/lib/rate-limit";
 import { formatErrorMessage } from "@/lib/error-handler";
@@ -119,6 +117,7 @@ export async function POST(request: NextRequest) {
       const newUserData = {
         email: email,
         free_scans_used: 0,
+        bonus_scans: 0,
         subscription_status: "inactive",
         created_at: new Date().toISOString(),
       };
@@ -126,59 +125,21 @@ export async function POST(request: NextRequest) {
       userData = { id: uid, ...newUserData };
     }
 
+    // Calculate total allowed scans: base free scans + any purchased bonus scans
+    const totalAllowedScans = MAX_FREE_SCANS + (userData.bonus_scans || 0);
     const canUseFree =
       userData.subscription_status === "active" ||
-      (userData.free_scans_used || 0) < MAX_FREE_SCANS;
+      (userData.free_scans_used || 0) < totalAllowedScans;
 
     const scansRef = userRef.collection("scans");
 
-    // If free scans used up and no active subscription, generate Lemon Squeezy checkout
+    // If free scans used up and no active subscription, return payment required
     if (!canUseFree) {
-      const newScanRef = scansRef.doc();
-      const scanData = {
-        document_name: documentName,
-        payment_status: "unpaid",
-        risk_score: 0,
-        created_at: new Date().toISOString(),
-      };
-      await newScanRef.set(scanData);
-
-      try {
-        initLemonSqueezy();
-        const storeId = getStoreId();
-        const variantId = getVariantId("onetime");
-        const origin = request.headers.get("origin") || "http://localhost:3000";
-
-        const checkout = await createCheckout(storeId, variantId, {
-          checkoutData: {
-            custom: {
-              scan_id: newScanRef.id,
-              user_id: uid, // Pass the Firebase UID to webhook
-            },
-          },
-          productOptions: {
-            redirectUrl: `${origin}/results/${newScanRef.id}?paid=true`,
-          },
-        });
-
-        const checkoutData = checkout as any;
-        const checkoutUrl = checkoutData?.data?.data?.attributes?.url || null;
-
-        if (!checkoutUrl) {
-          throw new Error("Failed to create checkout URL");
-        }
-
-        return NextResponse.json({
-          error: "Free scans exhausted",
-          requires_payment: true,
-          checkout_url: checkoutUrl,
-          scan_id: newScanRef.id,
-          free_scans_remaining: 0,
-        });
-      } catch (checkoutError) {
-        await newScanRef.delete();
-        throw checkoutError;
-      }
+      return NextResponse.json({
+        error: "Free scans exhausted",
+        requires_payment: true,
+        free_scans_remaining: 0,
+      }, { status: 402 });
     }
 
     // Execute the AI analysis
@@ -207,14 +168,14 @@ export async function POST(request: NextRequest) {
       document_name: finalDocumentName,
       suggested_title: aiResult.suggestedTitle || "Unknown Document",
       ai_result: aiResult,
-      payment_status: "free",
-      risk_score: riskScore, // Assuming we want the raw 0-100 score now
+      payment_status: userData.subscription_status === "active" ? "subscription" : "free",
+      risk_score: riskScore,
       created_at: new Date().toISOString(),
     });
 
     const remaining = userData.subscription_status === "active"
       ? Infinity
-      : MAX_FREE_SCANS - (userData.free_scans_used || 0);
+      : totalAllowedScans - (userData.free_scans_used || 0);
 
     return NextResponse.json({
       scan_id: newScanRef.id,

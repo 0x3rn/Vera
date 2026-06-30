@@ -24,6 +24,9 @@ export default async function BillingPage() {
   }
 
   const isPro = dbUser.subscription_status === "active";
+  const bonusScans = dbUser.bonus_scans || 0;
+  const totalAllowed = 1 + bonusScans;
+  const freeScansLeft = Math.max(0, totalAllowed - (dbUser.free_scans_used || 0));
 
   const scansSnapshot = await adminDb
     .collection("users")
@@ -59,7 +62,7 @@ export default async function BillingPage() {
       <div className="grid lg:grid-cols-[1fr_1fr] gap-8 items-start">
         <div className="space-y-8">
           {/* Current Plan & Billing Details */}
-          <BillingPlan isPro={isPro} />
+          <BillingPlan isPro={isPro} freeScansLeft={freeScansLeft} totalAllowed={totalAllowed} />
 
           {/* Usage This Month */}
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 max-w-lg">

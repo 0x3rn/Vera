@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
         first_name: firstName,
         last_name: lastName,
         free_scans_used: 0,
+        bonus_scans: 0,
         subscription_status: "inactive",
         created_at: new Date().toISOString(),
       });

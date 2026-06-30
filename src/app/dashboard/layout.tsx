@@ -38,6 +38,7 @@ export default async function DashboardLayout({
       last_name: lastName,
       email: email,
       free_scans_used: 0,
+      bonus_scans: 0,
       subscription_status: "inactive",
       created_at: new Date().toISOString(),
     };

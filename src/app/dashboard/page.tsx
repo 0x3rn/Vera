@@ -33,9 +33,10 @@ export default async function DashboardOverview() {
   }));
 
   const isPro = dbUser.subscription_status === "active";
+  const totalAllowed = 1 + (dbUser.bonus_scans || 0);
   const freeScansLeft = isPro
     ? "Unlimited"
-    : Math.max(0, 1 - (dbUser.free_scans_used || 0));
+    : Math.max(0, totalAllowed - (dbUser.free_scans_used || 0));
 
   // Compute metrics
   const totalScans = scans.length;
@@ -129,7 +130,7 @@ export default async function DashboardOverview() {
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Plan</p>
               <p className="text-xl sm:text-2xl font-bold">{isPro ? "Pro" : "Free"}</p>
               <p className="text-muted-foreground text-xs mt-1">
-                {isPro ? "Unlimited scans" : `${freeScansLeft} of 1 free left`}
+                {isPro ? "Unlimited scans" : `${freeScansLeft} of ${totalAllowed} scan${totalAllowed !== 1 ? "s" : ""} left`}
               </p>
             </div>
           </div>

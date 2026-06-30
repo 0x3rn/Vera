@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/admin";
 import crypto from "crypto";
+import { FieldValue } from "firebase-admin/firestore";
 
 function verifySignature(payload: string, signature: string): boolean {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET || "";
@@ -23,65 +24,60 @@ export async function POST(request: NextRequest) {
     const eventName = event?.meta?.event_name;
     const customData = event?.meta?.custom_data || {};
     const userId = customData.user_id;
+    const plan = customData.plan;
     const attributes = event?.data?.attributes || {};
 
-    console.log(`[Webhook] Event: ${eventName}`, { userId, orderId: attributes?.order_id });
+    console.log(`[Webhook] Event: ${eventName}`, { userId, plan, orderId: attributes?.order_id });
 
-    // Handle single-scan payment
-    if (eventName === "order_created") {
-      const scanId = customData?.scan_id;
+    if (!userId) {
+      console.warn("[Webhook] No user_id in custom_data, skipping.");
+      return NextResponse.json({ received: true });
+    }
 
-      if (scanId && userId) {
-        await adminDb.collection("users").doc(userId).collection("scans").doc(scanId).update({
-          payment_status: "paid",
-          checkout_session_id: `ls_${event?.data?.id || "unknown"}`,
-        });
-        console.log(`[Webhook] Scan ${scanId} marked as paid`);
-      }
+    // Handle one-time scan pack purchase (5 extra scans for $5)
+    if (eventName === "order_created" && plan === "onetime") {
+      await adminDb.collection("users").doc(userId).update({
+        bonus_scans: FieldValue.increment(5),
+      });
+      console.log(`[Webhook] User ${userId}: added 5 bonus scans (one-time purchase)`);
     }
 
     // Handle subscription created
     if (eventName === "subscription_created") {
-      if (userId) {
-        await adminDb.collection("users").doc(userId).update({
-          subscription_status: "active",
-          subscription_id: attributes.first_subscription_item?.subscription_id
-            ? String(attributes.first_subscription_item.subscription_id)
-            : null,
-          customer_id: attributes.customer_id ? String(attributes.customer_id) : null,
-        });
-        console.log(`[Webhook] User ${userId} subscription activated`);
-      }
+      await adminDb.collection("users").doc(userId).update({
+        subscription_status: "active",
+        subscription_id: attributes.first_subscription_item?.subscription_id
+          ? String(attributes.first_subscription_item.subscription_id)
+          : null,
+        customer_id: attributes.customer_id ? String(attributes.customer_id) : null,
+      });
+      console.log(`[Webhook] User ${userId} subscription activated`);
     }
 
     // Handle subscription updated
     if (eventName === "subscription_updated") {
-      if (userId) {
-        const newStatus = attributes.status === "cancelled"
-          ? "cancelled"
-          : attributes.status === "paused"
-            ? "paused"
-            : attributes.status === "active"
-              ? "active"
-              : undefined;
+      const newStatus = attributes.status === "cancelled"
+        ? "cancelled"
+        : attributes.status === "paused"
+          ? "paused"
+          : attributes.status === "active"
+            ? "active"
+            : undefined;
 
-        if (newStatus) {
-          await adminDb.collection("users").doc(userId).update({
-            subscription_status: newStatus,
-          });
-          console.log(`[Webhook] User ${userId} subscription status → ${newStatus}`);
-        }
+      if (newStatus) {
+        await adminDb.collection("users").doc(userId).update({
+          subscription_status: newStatus,
+        });
+        console.log(`[Webhook] User ${userId} subscription status → ${newStatus}`);
       }
     }
 
     // Handle subscription cancelled
     if (eventName === "subscription_cancelled") {
-      if (userId) {
-        await adminDb.collection("users").doc(userId).update({
-          subscription_status: "cancelled",
-        });
-        console.log(`[Webhook] User ${userId} subscription cancelled`);
-      }
+      await adminDb.collection("users").doc(userId).update({
+        subscription_status: "cancelled",
+      });
+      console.log(`[Webhook] User ${userId} subscription cancelled`);
     }
 
     return NextResponse.json({ received: true });

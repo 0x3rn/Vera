@@ -45,7 +45,7 @@ body {
 @keyframes page-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -54,5 +54,5 @@ body {
 }
 
 .animate-page-in {
-  animation: page-in 0.25s ease-out forwards;
+  animation: page-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

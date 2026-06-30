@@ -14,6 +14,7 @@ export type AppState =
   | "uploaded"
   | "scanning"
   | "results"
+  | "payment_required"
   | "error";
 
 type InputMode = "pdf" | "text";
@@ -34,6 +35,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
   const [user, setUser] = useState<User | null>(null);
   const [remainingScans, setRemainingScans] = useState<number | null>(null);
   const [maxFreeScans, setMaxFreeScans] = useState(2);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   // Sync state upward when it changes
@@ -56,6 +58,29 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
     return () => unsubscribe();
   }, []);
 
+  const handleCheckout = async (plan: "onetime" | "subscription") => {
+    setCheckoutLoading(plan);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || "Could not start checkout");
+        setAppState("error");
+      }
+    } catch (err: any) {
+      setError(err.message || "Checkout failed");
+      setAppState("error");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
+
   const scanWithData = useCallback(async (formData: FormData) => {
     setAppState("scanning");
     setError("");
@@ -68,8 +93,8 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
 
       const data = await res.json();
 
-      if (res.status === 402 && data.requires_payment && data.checkout_url) {
-        window.location.href = data.checkout_url;
+      if (res.status === 402 && data.requires_payment) {
+        setAppState("payment_required");
         return;
       }
 
@@ -151,6 +176,68 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
         <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed text-lg">
           Scanning every clause for red flags. This usually takes 10–20 seconds.
         </p>
+      </div>
+    );
+  }
+
+  if (appState === "payment_required") {
+    return (
+      <div className="w-full text-center py-16 animate-in fade-in zoom-in duration-500 bg-transparent">
+        <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+          <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-3">You've used all your free scans</h2>
+        <p className="text-muted-foreground max-w-md mx-auto leading-relaxed mb-10">
+          Choose an option below to continue scanning your contracts for hidden risks.
+        </p>
+
+        <div className="max-w-lg mx-auto grid sm:grid-cols-2 gap-4">
+          {/* One-Time Purchase */}
+          <div className="bg-card border border-border rounded-2xl p-6 text-left flex flex-col">
+            <div className="flex-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">One-Time</p>
+              <p className="text-2xl font-bold mb-1">$5</p>
+              <p className="text-sm text-muted-foreground mb-6">Get 5 extra scans added to your balance.</p>
+            </div>
+            <button
+              onClick={() => handleCheckout("onetime")}
+              disabled={checkoutLoading !== null}
+              className="w-full py-3 rounded-lg border border-border text-foreground font-semibold text-sm hover:border-primary hover:bg-primary/5 transition-all disabled:opacity-50"
+            >
+              {checkoutLoading === "onetime" ? "Redirecting..." : "Pay $5 for 5 extra scans"}
+            </button>
+          </div>
+
+          {/* Subscription */}
+          <div className="bg-card border border-primary/30 rounded-2xl p-6 text-left flex flex-col relative overflow-hidden">
+            <div className="absolute top-3 right-3">
+              <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary rounded-full border border-primary/20">
+                Best Value
+              </span>
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Monthly</p>
+              <p className="text-2xl font-bold mb-1">$10<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+              <p className="text-sm text-muted-foreground mb-6">Unlimited scans, every month.</p>
+            </div>
+            <button
+              onClick={() => handleCheckout("subscription")}
+              disabled={checkoutLoading !== null}
+              className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-50"
+            >
+              {checkoutLoading === "subscription" ? "Redirecting..." : "Subscribe for $10/month"}
+            </button>
+          </div>
+        </div>
+
+        <button
+          onClick={reset}
+          className="mt-8 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+        >
+          Go back
+        </button>
       </div>
     );
   }

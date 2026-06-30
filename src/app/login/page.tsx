@@ -10,6 +10,17 @@ import { formatErrorMessage } from "@/lib/error-handler";
 export default function LoginPage() {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const [checking, setChecking] = useState(true);
+
+  // Client-side guard: if session cookie exists, redirect immediately
+  useEffect(() => {
+    const hasSession = document.cookie.split(";").some(c => c.trim().startsWith("session="));
+    if (hasSession) {
+      router.replace("/dashboard");
+      return;
+    }
+    setChecking(false);
+  }, [router]);
 
   useEffect(() => {
     const form = formRef.current;
@@ -79,6 +90,11 @@ export default function LoginPage() {
           </Link>
         </div>
       </nav>
+      {checking ? (
+        <main className="flex-1 pt-44 pb-24 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full border-2 border-border border-t-primary animate-spin" />
+        </main>
+      ) : (
       <main className="flex-1 pt-44 pb-24">
         <div className="max-w-sm mx-auto px-4">
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
@@ -168,6 +184,7 @@ export default function LoginPage() {
           </p>
         </div>
       </main>
+      )}
       <footer className="border-t border-border py-8">
         <div className="max-w-6xl mx-auto px-8 flex flex-wrap justify-center gap-6 text-xs text-foreground">
           <Link href="/privacy" className="hover:text-muted-foreground transition-colors">Privacy Policy</Link>

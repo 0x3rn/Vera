@@ -8,12 +8,36 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
   const router = useRouter();
   
   // Scan state
-  const [appState, setAppState] = useState<"idle" | "scanning" | "error">("idle");
+  const [appState, setAppState] = useState<"idle" | "scanning" | "payment_required" | "error">("idle");
   const [file, setFile] = useState<File | null>(null);
   const [textInput, setTextInput] = useState("");
   const [inputMode, setInputMode] = useState<"pdf" | "text">("pdf");
   const [scanError, setScanError] = useState("");
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleCheckout = async (plan: "onetime" | "subscription") => {
+    setCheckoutLoading(plan);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setScanError(data.error || "Could not start checkout");
+        setAppState("error");
+      }
+    } catch (err: any) {
+      setScanError(err.message || "Checkout failed");
+      setAppState("error");
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
 
   const scanWithData = useCallback(async (formData: FormData) => {
     setAppState("scanning");
@@ -32,8 +56,8 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
         throw new Error(`Server returned an invalid response. Please try again.`);
       }
 
-      if (res.status === 402 && data.requires_payment && data.checkout_url) {
-        window.location.href = data.checkout_url;
+      if (res.status === 402 && data.requires_payment) {
+        setAppState("payment_required");
         return;
       }
       if (!res.ok) throw new Error(data.error || "Scan failed");
@@ -104,6 +128,64 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
             Scanning every clause for red flags. This usually takes 10–20 seconds.
           </p>
         </div>
+      ) : appState === "payment_required" ? (
+        <div className="py-12 text-center bg-card border border-border rounded-2xl px-6">
+          <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+            <svg className="w-7 h-7 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold mb-2">You've used all your free scans</h3>
+          <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-8">
+            Choose an option to continue scanning contracts.
+          </p>
+
+          <div className="max-w-md mx-auto grid sm:grid-cols-2 gap-4 text-left">
+            {/* One-Time Purchase */}
+            <div className="border border-border rounded-xl p-5 flex flex-col">
+              <div className="flex-1">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">One-Time</p>
+                <p className="text-xl font-bold mb-1">$5</p>
+                <p className="text-xs text-muted-foreground mb-4">5 extra scans</p>
+              </div>
+              <button
+                onClick={() => handleCheckout("onetime")}
+                disabled={checkoutLoading !== null}
+                className="w-full py-2.5 rounded-lg border border-border text-foreground font-semibold text-sm hover:border-primary hover:bg-primary/5 transition-all disabled:opacity-50"
+              >
+                {checkoutLoading === "onetime" ? "Redirecting..." : "Pay $5 for 5 scans"}
+              </button>
+            </div>
+
+            {/* Subscription */}
+            <div className="border border-primary/30 rounded-xl p-5 flex flex-col relative">
+              <div className="absolute top-2.5 right-2.5">
+                <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary rounded-full border border-primary/20">
+                  Best Value
+                </span>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Monthly</p>
+                <p className="text-xl font-bold mb-1">$10<span className="text-xs font-normal text-muted-foreground">/mo</span></p>
+                <p className="text-xs text-muted-foreground mb-4">Unlimited scans</p>
+              </div>
+              <button
+                onClick={() => handleCheckout("subscription")}
+                disabled={checkoutLoading !== null}
+                className="w-full py-2.5 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-all disabled:opacity-50"
+              >
+                {checkoutLoading === "subscription" ? "Redirecting..." : "Subscribe $10/mo"}
+              </button>
+            </div>
+          </div>
+
+          <button
+            onClick={resetScan}
+            className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+          >
+            Go back
+          </button>
+        </div>
       ) : (
         <>
           {/* Free scans badge */}
@@ -112,7 +194,7 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
               <span className={`w-2 h-2 rounded-full ${freeScansLeft > 0 ? "bg-emerald-500" : "bg-red-500"}`} />
               <p className="text-sm text-muted-foreground">
                 {freeScansLeft > 0
-                  ? `${freeScansLeft} of 1 free scan remaining`
+                  ? `${freeScansLeft} free scan${freeScansLeft !== 1 ? "s" : ""} remaining`
                   : "Free scans used. Next scan requires payment."}
               </p>
             </div>

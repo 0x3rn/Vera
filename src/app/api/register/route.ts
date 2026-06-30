@@ -31,6 +31,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "All fields are required." }, { status: 400 });
     }
 
+    // Sanitize and validate name fields
+    const sanitize = (s: string) => s.replace(/<[^>]*>/g, "").trim().slice(0, 50);
+    const cleanFirst = sanitize(firstName);
+    const cleanLast = sanitize(lastName);
+    if (!cleanFirst || !cleanLast) {
+      return NextResponse.json({ error: "Invalid name provided." }, { status: 400 });
+    }
+
     const domain = email.split("@")[1]?.toLowerCase();
     if (domain && DISPOSABLE_DOMAINS.has(domain)) {
       return NextResponse.json(
@@ -39,7 +47,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (process.env.RECAPTCHA_SECRET_KEY && recaptchaToken) {
+    if (process.env.RECAPTCHA_SECRET_KEY) {
+      if (!recaptchaToken) {
+        return NextResponse.json(
+          { error: "reCAPTCHA verification is required." },
+          { status: 400 }
+        );
+      }
       const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`;
       const recaptchaRes = await fetch(verifyUrl, { method: "POST" });
       const recaptchaJson = await recaptchaRes.json();
@@ -53,7 +67,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Create user in Firebase Auth via Admin SDK
-    const displayName = `${firstName.trim()} ${lastName.trim()}`;
+    const displayName = `${cleanFirst} ${cleanLast}`;
     const userRecord = await adminAuth.createUser({
       email,
       password,
@@ -62,10 +76,11 @@ export async function POST(req: NextRequest) {
 
     // 2. Initialize Firestore document
     await adminDb.collection("users").doc(userRecord.uid).set({
-      first_name: firstName.trim(),
-      last_name: lastName.trim(),
+      first_name: cleanFirst,
+      last_name: cleanLast,
       email: userRecord.email,
       free_scans_used: 0,
+      bonus_scans: 0,
       subscription_status: "inactive",
       created_at: new Date().toISOString(),
     });

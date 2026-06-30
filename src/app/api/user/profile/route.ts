@@ -15,8 +15,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "First and last name are required." }, { status: 400 });
     }
 
-    const trimmedFirst = firstName.trim();
-    const trimmedLast = lastName.trim();
+    // Sanitize: strip HTML tags, trim, limit to 50 chars
+    const sanitize = (s: string) => s.replace(/<[^>]*>/g, "").trim().slice(0, 50);
+    const trimmedFirst = sanitize(firstName);
+    const trimmedLast = sanitize(lastName);
+
+    if (!trimmedFirst || !trimmedLast) {
+      return NextResponse.json({ error: "Invalid name provided." }, { status: 400 });
+    }
 
     // 1. Update Firebase Auth Profile
     await adminAuth.updateUser(user.uid, {

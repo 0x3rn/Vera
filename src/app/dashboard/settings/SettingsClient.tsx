@@ -1,9 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { auth } from "@/lib/firebase/client";
-import { updateEmail, updatePassword } from "firebase/auth";
-
 import { useRouter } from "next/navigation";
 
 export default function SettingsClient({ 
@@ -19,11 +16,6 @@ export default function SettingsClient({
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
   const [profileStatus, setProfileStatus] = useState("");
-  
-  const [newEmail, setNewEmail] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [emailStatus, setEmailStatus] = useState("");
-  const [passwordStatus, setPasswordStatus] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -50,42 +42,6 @@ export default function SettingsClient({
     setIsUpdating(false);
   };
 
-  const handleUpdateEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newEmail || !auth.currentUser) return;
-    setIsUpdating(true);
-    setEmailStatus("");
-    
-    try {
-      await updateEmail(auth.currentUser, newEmail);
-      setEmailStatus("Email successfully updated.");
-      setNewEmail("");
-    } catch (error: any) {
-      setEmailStatus(`Error: ${error.message}`);
-    }
-    setIsUpdating(false);
-  };
-
-  const handleUpdatePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPassword || !auth.currentUser) return;
-    if (newPassword.length < 6) {
-      setPasswordStatus("Error: Password must be at least 6 characters.");
-      return;
-    }
-    setIsUpdating(true);
-    setPasswordStatus("");
-    
-    try {
-      await updatePassword(auth.currentUser, newPassword);
-      setPasswordStatus("Password successfully updated.");
-      setNewPassword("");
-    } catch (error: any) {
-      setPasswordStatus(`Error: ${error.message}`);
-    }
-    setIsUpdating(false);
-  };
-
   return (
     <div className="space-y-10">
       {/* Profile Information */}
@@ -100,6 +56,7 @@ export default function SettingsClient({
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required
+                maxLength={50}
                 className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
@@ -110,6 +67,7 @@ export default function SettingsClient({
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required
+                maxLength={50}
                 className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
@@ -129,69 +87,28 @@ export default function SettingsClient({
         </form>
       </div>
 
-      <div className="h-px bg-[#22222a] w-full" />
+      <div className="h-px bg-border w-full" />
 
-      {/* Change Email */}
+      {/* Password & Email Management Info */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">Change Email Address</h3>
-        <form onSubmit={handleUpdateEmail} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1.5">New Email</label>
-            <input
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              placeholder="Enter new email"
-              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={isUpdating || !newEmail}
-            className="px-6 py-2.5 rounded-lg bg-primary border border-transparent text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Update Email
-          </button>
-          {emailStatus && (
-            <p className={`text-sm ${emailStatus.startsWith("Error") ? "text-red-400" : "text-emerald-400"}`}>
-              {emailStatus}
-            </p>
-          )}
-        </form>
+        <h3 className="text-lg font-semibold mb-4">Password & Email</h3>
+        <div className="p-4 bg-muted border border-border rounded-xl">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            To change your email address or password, use the{" "}
+            <a 
+              href="https://firebase.google.com/docs/auth/web/manage-users" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary-hover underline underline-offset-4"
+            >
+              Firebase account management
+            </a>{" "}
+            flow, or sign out and use the "Forgot Password" option on the login page.
+          </p>
+        </div>
       </div>
 
-      <div className="h-px bg-[#22222a] w-full" />
-
-      {/* Change Password */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Change Password</h3>
-        <form onSubmit={handleUpdatePassword} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1.5">New Password</label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Enter new password (min. 6 characters)"
-              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={isUpdating || !newPassword}
-            className="px-6 py-2.5 rounded-lg bg-primary border border-transparent text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Update Password
-          </button>
-          {passwordStatus && (
-            <p className={`text-sm ${passwordStatus.startsWith("Error") ? "text-red-400" : "text-emerald-400"}`}>
-              {passwordStatus}
-            </p>
-          )}
-        </form>
-      </div>
-
-      <div className="h-px bg-[#22222a] w-full" />
+      <div className="h-px bg-border w-full" />
 
       {/* 2FA Toggle (Mock) */}
       <div>

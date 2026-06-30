@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function BillingPlan({ isPro }: { isPro: boolean }) {
+export default function BillingPlan({ isPro, freeScansLeft, totalAllowed }: { isPro: boolean; freeScansLeft: number; totalAllowed: number }) {
   const router = useRouter();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelMsg, setCancelMsg] = useState("");
   const [upgrading, setUpgrading] = useState(false);
+  const [buyingScans, setBuyingScans] = useState(false);
 
   const handleUpgrade = async () => {
     setUpgrading(true);
@@ -28,6 +29,27 @@ export default function BillingPlan({ isPro }: { isPro: boolean }) {
       alert(err.message || "Checkout failed");
     } finally {
       setUpgrading(false);
+    }
+  };
+
+  const handleBuyScans = async () => {
+    setBuyingScans(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: "onetime" }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || "Could not start checkout");
+      }
+    } catch (err: any) {
+      alert(err.message || "Checkout failed");
+    } finally {
+      setBuyingScans(false);
     }
   };
 
@@ -54,12 +76,12 @@ export default function BillingPlan({ isPro }: { isPro: boolean }) {
       <div className="max-w-lg space-y-6 animate-in fade-in duration-500">
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8">
           <h2 className="text-xl font-bold mb-1">
-            {isPro ? "Pro Plan" : "Free Trial"}
+            {isPro ? "Pro Plan" : "Free Plan"}
           </h2>
           <p className="text-muted-foreground text-sm mb-6">
             {isPro
               ? "$10/month — Unlimited scans, export summaries, priority support."
-              : "1 free scan. Upgrade for unlimited access."}
+              : `${freeScansLeft} of ${totalAllowed} scan${totalAllowed !== 1 ? "s" : ""} remaining. Upgrade for unlimited access.`}
           </p>
 
           {isPro ? (
@@ -77,13 +99,22 @@ export default function BillingPlan({ isPro }: { isPro: boolean }) {
               </button>
             </>
           ) : (
-            <button
-              onClick={handleUpgrade}
-              disabled={upgrading}
-              className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-colors disabled:opacity-50"
-            >
-              {upgrading ? "Redirecting..." : "Upgrade to Pro — $10/month"}
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={handleUpgrade}
+                disabled={upgrading || buyingScans}
+                className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-colors disabled:opacity-50"
+              >
+                {upgrading ? "Redirecting..." : "Upgrade to Pro — $10/month"}
+              </button>
+              <button
+                onClick={handleBuyScans}
+                disabled={upgrading || buyingScans}
+                className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-primary hover:bg-primary/5 transition-all disabled:opacity-50"
+              >
+                {buyingScans ? "Redirecting..." : "Buy 5 extra scans — $5"}
+              </button>
+            </div>
           )}
         </div>
       </div>
