@@ -38,6 +38,15 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
+  function reset() {
+    setFile(null);
+    setTextInput("");
+    setAnalysis(null);
+    setScanId(null);
+    setError("");
+    setAppState("idle");
+  }
+
   // Sync state upward when it changes
   useEffect(() => {
     if (onStateChange) onStateChange(appState);
@@ -48,7 +57,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
     const handleReset = () => reset();
     window.addEventListener("reset-scanner", handleReset);
     return () => window.removeEventListener("reset-scanner", handleReset);
-  }, []);
+  }, [reset]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -151,14 +160,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
     [triggerScan]
   );
 
-  const reset = () => {
-    setFile(null);
-    setTextInput("");
-    setAnalysis(null);
-    setScanId(null);
-    setError("");
-    setAppState("idle");
-  };
+
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

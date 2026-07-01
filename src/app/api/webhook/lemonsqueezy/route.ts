@@ -36,21 +36,21 @@ export async function POST(request: NextRequest) {
 
     // Handle one-time scan pack purchase (5 extra scans for $5)
     if (eventName === "order_created" && plan === "onetime") {
-      await adminDb.collection("users").doc(userId).update({
+      await adminDb.collection("users").doc(userId).set({
         bonus_scans: FieldValue.increment(5),
-      });
+      }, { merge: true });
       console.log(`[Webhook] User ${userId}: added 5 bonus scans (one-time purchase)`);
     }
 
     // Handle subscription created
     if (eventName === "subscription_created") {
-      await adminDb.collection("users").doc(userId).update({
+      await adminDb.collection("users").doc(userId).set({
         subscription_status: "active",
         subscription_id: attributes.first_subscription_item?.subscription_id
           ? String(attributes.first_subscription_item.subscription_id)
           : null,
         customer_id: attributes.customer_id ? String(attributes.customer_id) : null,
-      });
+      }, { merge: true });
       console.log(`[Webhook] User ${userId} subscription activated`);
     }
 
@@ -65,18 +65,18 @@ export async function POST(request: NextRequest) {
             : undefined;
 
       if (newStatus) {
-        await adminDb.collection("users").doc(userId).update({
+        await adminDb.collection("users").doc(userId).set({
           subscription_status: newStatus,
-        });
+        }, { merge: true });
         console.log(`[Webhook] User ${userId} subscription status → ${newStatus}`);
       }
     }
 
     // Handle subscription cancelled
     if (eventName === "subscription_cancelled") {
-      await adminDb.collection("users").doc(userId).update({
+      await adminDb.collection("users").doc(userId).set({
         subscription_status: "cancelled",
-      });
+      }, { merge: true });
       console.log(`[Webhook] User ${userId} subscription cancelled`);
     }
 
