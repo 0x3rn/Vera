@@ -41,6 +41,28 @@ body {
   color: var(--foreground);
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Delay the NextTopLoader to prevent flashing on skeleton pages */
+#nprogress {
+  animation: nprogress-delay 150ms ease-in-out forwards;
+  opacity: 0;
+}
+
+@keyframes nprogress-delay {
+  0% {
+    opacity: 0;
+  }
+  99% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Page transition animation */
 @keyframes page-in {
   from {
