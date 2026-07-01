@@ -91,8 +91,18 @@ export default function LoginPage() {
         </div>
       </nav>
       {checking ? (
-        <main className="flex-1 pt-44 pb-24 flex items-center justify-center">
-          <div className="w-8 h-8 rounded-full border-2 border-border border-t-primary animate-spin" />
+        <main className="flex-1 pt-44 pb-24 flex flex-col items-center justify-center animate-in fade-in duration-500 zoom-in-95">
+          <div className="relative flex items-center justify-center">
+            {/* Pulsing rings */}
+            <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-75 [animation-duration:2s]" style={{ width: '80px', height: '80px', margin: '-10px' }} />
+            <div className="absolute inset-0 rounded-full bg-primary/10 animate-ping opacity-50 [animation-duration:3s]" style={{ width: '120px', height: '120px', margin: '-30px' }} />
+            
+            {/* Logo container */}
+            <div className="relative z-10 w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center shadow-lg">
+              <span className="text-3xl font-bold tracking-tight">V<span className="text-primary">.</span></span>
+            </div>
+          </div>
+          <p className="mt-8 text-sm text-muted-foreground animate-pulse">Authenticating securely...</p>
         </main>
       ) : (
       <main className="flex-1 pt-44 pb-24">

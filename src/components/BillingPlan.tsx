@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Spinner } from "./Spinner";
 
 export default function BillingPlan({ isPro, freeScansLeft, totalAllowed }: { isPro: boolean; freeScansLeft: number; totalAllowed: number }) {
   const router = useRouter();
@@ -103,15 +104,17 @@ export default function BillingPlan({ isPro, freeScansLeft, totalAllowed }: { is
               <button
                 onClick={handleUpgrade}
                 disabled={upgrading || buyingScans}
-                className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-colors disabled:opacity-50"
+                className="w-full py-3 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
+                {upgrading ? <Spinner size="sm" /> : null}
                 {upgrading ? "Redirecting..." : "Upgrade to Pro — $10/month"}
               </button>
               <button
                 onClick={handleBuyScans}
                 disabled={upgrading || buyingScans}
-                className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-primary hover:bg-primary/5 transition-all disabled:opacity-50"
+                className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-primary hover:bg-primary/5 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
+                {buyingScans ? <Spinner size="sm" /> : null}
                 {buyingScans ? "Redirecting..." : "Buy 5 extra scans — $5"}
               </button>
             </div>
@@ -142,8 +145,9 @@ export default function BillingPlan({ isPro, freeScansLeft, totalAllowed }: { is
               <button
                 onClick={handleCancelSubscription}
                 disabled={cancelling}
-                className="flex-1 py-2.5 rounded-lg bg-red-600 text-foreground text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                className="flex-1 py-2.5 rounded-lg bg-red-600 text-foreground text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
+                {cancelling ? <Spinner size="sm" /> : null}
                 {cancelling ? "Cancelling..." : "Confirm cancel"}
               </button>
             </div>

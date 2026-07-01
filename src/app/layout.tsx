@@ -38,7 +38,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NextTopLoader color="#6366f1" showSpinner={false} />
+          <NextTopLoader 
+            color="#6366f1" 
+            showSpinner={false} 
+            initialPosition={0.08}
+            crawlSpeed={200}
+            height={3}
+            crawl={true}
+            easing="ease"
+            speed={500}
+          />
           <PageTransition>
             {children}
           </PageTransition>

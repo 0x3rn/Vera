@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase/client";
 import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from "firebase/auth";
+import { Spinner } from "@/components/Spinner";
 
 export default function SettingsClient({ 
   userEmail,
@@ -152,9 +153,10 @@ export default function SettingsClient({
           <button
             type="submit"
             disabled={isUpdatingProfile || !firstName || !lastName}
-            className="px-6 py-2.5 rounded-lg bg-primary border border-transparent text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 rounded-lg bg-primary border border-transparent text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[140px]"
           >
-            Save Changes
+            {isUpdatingProfile ? <Spinner size="sm" /> : null}
+            {isUpdatingProfile ? "Saving..." : "Save Changes"}
           </button>
           {profileStatus && (
             <p className={`text-sm ${profileStatus.startsWith("Error") ? "text-red-400" : "text-emerald-400"}`}>
@@ -194,9 +196,10 @@ export default function SettingsClient({
           <button
             type="submit"
             disabled={isUpdatingEmail || !newEmail || !emailCurrentPassword}
-            className="px-6 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[140px]"
           >
-            Update Email
+            {isUpdatingEmail ? <Spinner size="sm" /> : null}
+            {isUpdatingEmail ? "Updating..." : "Update Email"}
           </button>
           {emailStatus && (
             <p className={`text-sm ${emailStatus.startsWith("Error") ? "text-red-400" : "text-emerald-400"}`}>
@@ -237,9 +240,10 @@ export default function SettingsClient({
           <button
             type="submit"
             disabled={isUpdatingPassword || !newPassword || !passwordCurrentPassword}
-            className="px-6 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 rounded-lg border border-border bg-card text-foreground text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
           >
-            Update Password
+            {isUpdatingPassword ? <Spinner size="sm" /> : null}
+            {isUpdatingPassword ? "Updating..." : "Update Password"}
           </button>
           {passwordStatus && (
             <p className={`text-sm ${passwordStatus.startsWith("Error") ? "text-red-400" : "text-emerald-400"}`}>
