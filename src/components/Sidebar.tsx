@@ -88,7 +88,7 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
   return (
     <>
       {/* Mobile Top Nav */}
-      <div className="lg:hidden flex items-center justify-between px-6 py-4 border-b border-border bg-background">
+      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-6 py-4 border-b border-border bg-background/95 backdrop-blur-sm">
         <Link href="/dashboard" className="text-xl font-bold tracking-tight">
           Vera<span className="text-primary">.</span>
         </Link>
