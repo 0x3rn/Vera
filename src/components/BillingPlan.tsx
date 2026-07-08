@@ -109,14 +109,16 @@ export default function BillingPlan({ isPro, freeScansLeft, totalAllowed }: { is
                 {upgrading ? <Spinner size="sm" /> : null}
                 {upgrading ? "Redirecting..." : "Upgrade to Pro — $10/month"}
               </button>
-              <button
-                onClick={handleBuyScans}
-                disabled={upgrading || buyingScans}
-                className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-primary hover:bg-primary/5 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {buyingScans ? <Spinner size="sm" /> : null}
-                {buyingScans ? "Redirecting..." : "Buy 5 extra scans — $5"}
-              </button>
+              {freeScansLeft === 0 && (
+                <button
+                  onClick={handleBuyScans}
+                  disabled={upgrading || buyingScans}
+                  className="w-full py-3 rounded-lg border border-border text-foreground font-medium text-sm hover:border-primary hover:bg-primary/5 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {buyingScans ? <Spinner size="sm" /> : null}
+                  {buyingScans ? "Redirecting..." : "Buy 5 extra scans — $5"}
+                </button>
+              )}
             </div>
           )}
         </div>
