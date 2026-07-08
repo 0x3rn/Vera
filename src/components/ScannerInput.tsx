@@ -297,20 +297,20 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
         <div className="flex justify-center gap-2 mb-6">
           <button
             onClick={() => { setInputMode("pdf"); setTextInput(""); setError(""); }}
-            className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-500 ease-out ${
+            className={`px-5 py-2.5 rounded-lg text-sm font-medium border outline-none focus:outline-none focus:ring-0 active:outline-none tap-highlight-transparent transition-colors duration-150 ease-in-out ${
               inputMode === "pdf"
-                ? "bg-primary/20 text-primary border border-primary/50"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-primary/20 text-primary border-primary/50"
+                : "bg-transparent text-muted-foreground border-primary/0 hover:text-foreground hover:bg-muted/50"
             }`}
           >
             Upload PDF
           </button>
           <button
             onClick={() => { setInputMode("text"); setFile(null); setError(""); }}
-            className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-500 ease-out ${
+            className={`px-5 py-2.5 rounded-lg text-sm font-medium border outline-none focus:outline-none focus:ring-0 active:outline-none tap-highlight-transparent transition-colors duration-150 ease-in-out ${
               inputMode === "text"
-                ? "bg-primary/20 text-primary border border-primary/50"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-primary/20 text-primary border-primary/50"
+                : "bg-transparent text-muted-foreground border-primary/0 hover:text-foreground hover:bg-muted/50"
             }`}
           >
             Paste text
@@ -318,19 +318,20 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
         </div>
       )}
 
-      {inputMode === "pdf" ? (
-        <div
-          {...getRootProps()}
-          className={`w-full bg-muted border border-dashed rounded-2xl p-10 sm:p-16 text-center animate-in fade-in zoom-in-95 duration-300 cursor-pointer
-            ${isDragActive
-              ? "border-primary bg-primary/5 -translate-y-1"
-              : "border-border hover:border-primary/50 hover:bg-muted hover:-translate-y-1 transition duration-500 ease-out"
-            }
-          `}
-        >
+      <div className="h-[320px] w-full">
+        {inputMode === "pdf" ? (
+          <div
+            {...getRootProps()}
+            className={`w-full h-[320px] flex flex-col items-center justify-center bg-muted border border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer
+              ${isDragActive
+                ? "border-primary bg-primary/5"
+                : "border-border hover:border-primary/50 hover:bg-muted"
+              }
+            `}
+          >
           <input {...getInputProps()} />
           {file ? (
-            <div className="space-y-3 animate-in fade-in duration-300">
+            <div className="space-y-3">
               <div className="w-14 h-14 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">
                 <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -340,13 +341,13 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
               <p className="text-muted-foreground text-sm">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
               <button
                 onClick={(e) => { e.stopPropagation(); reset(); }}
-                className="text-sm text-primary hover:text-primary-hover underline underline-offset-4 mt-2"
+                className="text-sm text-primary hover:text-primary-hover underline underline-offset-4 mt-2 outline-none focus:outline-none focus:ring-0 active:outline-none tap-highlight-transparent"
               >
                 Remove & choose another file
               </button>
             </div>
           ) : (
-            <div className="space-y-4 animate-in fade-in duration-300">
+            <div className="space-y-4">
               <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20">
                 <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -356,31 +357,31 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
                 {isDragActive ? "Drop your contract here" : "Drop your contract here"}
               </h3>
               <p className="text-muted-foreground">Supports PDF (Max 15MB)</p>
-              <label className="inline-block px-6 py-3 rounded-lg border border-border text-sm font-medium cursor-pointer hover:border-primary/50 hover:bg-muted/80 transition-colors duration-300">
+              <label className="inline-block px-6 py-3 rounded-lg border border-border text-sm font-medium cursor-pointer hover:border-primary/50 hover:bg-muted/80 transition-colors duration-150 outline-none focus:outline-none focus:ring-0 active:outline-none tap-highlight-transparent">
                 Browse Files
               </label>
             </div>
           )}
         </div>
-      ) : (
-        <div className="w-full space-y-4 animate-in fade-in zoom-in-95 duration-300">
-          <textarea
-            ref={textAreaRef}
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            placeholder="Paste the full text of your contract here..."
-            rows={12}
-            className="w-full p-6 rounded-xl bg-muted border border-border text-foreground placeholder-zinc-500 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors duration-300"
-          />
+        ) : (
+          <div className="w-full h-[320px] space-y-4 flex flex-col">
+            <textarea
+              ref={textAreaRef}
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              placeholder="Paste the full text of your contract here..."
+              className="w-full flex-1 p-6 rounded-xl bg-muted border border-border text-foreground placeholder-zinc-500 text-sm leading-relaxed resize-none outline-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+            />
           <button
             onClick={handleTextSubmit}
             disabled={textInput.trim().length < 100}
-            className="w-full py-4 rounded-lg bg-primary text-white font-semibold text-base hover:bg-primary-hover hover:-translate-y-0.5 transition duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            className="w-full py-4 rounded-lg bg-primary text-white font-semibold text-base hover:bg-primary-hover outline-none focus:outline-none focus:ring-0 active:outline-none tap-highlight-transparent transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Analyze this contract
           </button>
         </div>
       )}
+      </div>
 
       {!file && inputMode === "pdf" && appState !== "error" && (
         <div className="flex items-center justify-center gap-2 mt-4 text-xs sm:text-sm text-muted-foreground">
