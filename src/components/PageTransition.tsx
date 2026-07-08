@@ -45,11 +45,11 @@ export default function PageTransition({ children }: { children: React.ReactNode
 
   return (
     <div 
-      style={{ willChange: "opacity, transform" }}
-      className={`transition-all duration-[400ms] ease-out ${
+      style={{ willChange: "opacity" }}
+      className={`transition-opacity duration-[400ms] ease-out ${
         (!initialMount || isTransitioning)
-          ? 'opacity-0 translate-y-2'
-          : 'opacity-100 translate-y-0'
+          ? 'opacity-0'
+          : 'opacity-100'
       } flex-grow flex flex-col`}
     >
       {pathname === mountedPath ? children : null}
