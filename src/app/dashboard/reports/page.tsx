@@ -38,9 +38,14 @@ export default async function ReportsPage() {
       risksFound = aiResult.redFlags?.length || 0;
     }
     
+    let displayTitle = scan.suggested_title;
+    if (!displayTitle || displayTitle === "Unknown Document") {
+      displayTitle = scan.document_name;
+    }
+
     return {
       id: scan.id,
-      document_name: scan.document_name,
+      document_name: displayTitle,
       risk_score: scan.risk_score,
       payment_status: scan.payment_status,
       created_at: new Date(scan.created_at),

@@ -10,6 +10,7 @@ import AnalysisReport from "@/components/AnalysisReport";
 interface ScanData {
   id: string;
   document_name: string;
+  suggested_title?: string;
   ai_result: AnalysisResult | null;
   payment_status: "free" | "unpaid" | "paid";
   created_at: string;
@@ -102,7 +103,9 @@ export default function DashboardResultsPage() {
             </span>
           </div>
           <h2 className="text-3xl font-bold mt-2">Analysis Report</h2>
-          <p className="text-sm text-muted-foreground mt-1 break-words line-clamp-2" title={scan.document_name}>{scan.document_name}</p>
+          <p className="text-sm text-muted-foreground mt-1 break-words line-clamp-2" title={scan.suggested_title !== "Unknown Document" ? scan.suggested_title : scan.document_name}>
+            {scan.suggested_title && scan.suggested_title !== "Unknown Document" ? scan.suggested_title : scan.document_name}
+          </p>
         </div>
       </div>
 

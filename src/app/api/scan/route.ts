@@ -159,13 +159,14 @@ export async function POST(request: NextRequest) {
     let finalDocumentName = documentName;
     const isGeneric = isGenericFilename(finalDocumentName);
       
-    if (isGeneric && aiResult.suggestedTitle && aiResult.suggestedTitle !== "Unknown Document") {
+    if (aiResult.suggestedTitle && aiResult.suggestedTitle !== "Unknown Document") {
       finalDocumentName = aiResult.suggestedTitle;
     }
 
     const newScanRef = scansRef.doc();
     await newScanRef.set({
       document_name: finalDocumentName,
+      original_file_name: documentName,
       suggested_title: aiResult.suggestedTitle || "Unknown Document",
       ai_result: aiResult,
       payment_status: userData.subscription_status === "active" ? "subscription" : "free",
