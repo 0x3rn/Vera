@@ -63,8 +63,8 @@ export default async function BillingPage() {
       </div>
 
       <div className="grid lg:grid-cols-[1fr_1fr] gap-8 items-start">
-        <div className="space-y-8">
-          {/* Current Plan & Billing Details */}
+        {/* Current Plan & Billing Details (Left side or Top-Left) */}
+        <div className="w-full">
           <BillingPlan 
             isPro={isPro} 
             freeScansLeft={freeScansLeft} 
@@ -73,30 +73,11 @@ export default async function BillingPage() {
             subscriptionRenewsAt={dbUser.subscription_renews_at}
             subscriptionEndsAt={dbUser.subscription_ends_at}
           />
-
-          {/* Usage This Month */}
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 max-w-lg">
-            <h2 className="text-xl font-bold mb-6">Lifetime Usage</h2>
-            <div className="space-y-6">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Contracts Scanned</p>
-                <p className="text-2xl font-bold text-foreground">{totalScans}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">High Risk Clauses Caught</p>
-                <p className="text-2xl font-bold text-red-400">{highRiskClauses}</p>
-              </div>
-              <div className="pt-4 border-t border-border">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Estimated Legal Review Time Saved</p>
-                <p className="text-2xl font-bold text-emerald-400">{estimatedTimeSaved} hours</p>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Upgrade Benefits Section - Hidden if already Pro */}
+        {/* Upgrade Benefits Section - Hidden if already Pro, so Lifetime Usage slides up if Pro */}
         {!isPro && (
-          <div className="bg-card border border-primary/30 rounded-2xl p-6 sm:p-8">
+          <div className="bg-card border border-primary/30 rounded-2xl p-6 sm:p-8 w-full max-w-lg">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-6">
               Pro Plan Benefits
             </div>
@@ -117,6 +98,25 @@ export default async function BillingPage() {
             </ul>
           </div>
         )}
+
+        {/* Usage This Month (Right side if Pro, Bottom-Left if Free) */}
+        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 w-full max-w-lg">
+          <h2 className="text-xl font-bold mb-6">Lifetime Usage</h2>
+          <div className="space-y-6">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground mb-1">Contracts Scanned</p>
+              <p className="text-2xl font-bold text-foreground">{totalScans}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground mb-1">High Risk Clauses Caught</p>
+              <p className="text-2xl font-bold text-red-400">{highRiskClauses}</p>
+            </div>
+            <div className="pt-4 border-t border-border">
+              <p className="text-sm font-medium text-muted-foreground mb-1">Estimated Legal Review Time Saved</p>
+              <p className="text-2xl font-bold text-emerald-400">{estimatedTimeSaved} hours</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
