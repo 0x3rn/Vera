@@ -178,11 +178,14 @@ export async function POST(request: NextRequest) {
       ? Infinity
       : totalAllowedScans - (userData.free_scans_used || 0);
 
+    const hasPurchased = (userData.bonus_scans || 0) > 0;
+    const packSize = hasPurchased ? 5 : 1;
+
     return NextResponse.json({
       scan_id: newScanRef.id,
       ...aiResult,
       free_scans_remaining: Math.max(0, remaining),
-      max_free_scans: MAX_FREE_SCANS,
+      max_free_scans: packSize,
     });
   } catch (error) {
     console.error("Scan error:", error);

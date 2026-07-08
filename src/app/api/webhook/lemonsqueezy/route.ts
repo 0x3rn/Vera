@@ -37,9 +37,10 @@ export async function POST(request: NextRequest) {
     // Handle one-time scan pack purchase (5 extra scans for $5)
     if (eventName === "order_created" && plan === "onetime") {
       await adminDb.collection("users").doc(userId).set({
-        bonus_scans: FieldValue.increment(5),
+        bonus_scans: 5,
+        free_scans_used: 1,
       }, { merge: true });
-      console.log(`[Webhook] User ${userId}: added 5 bonus scans (one-time purchase)`);
+      console.log(`[Webhook] User ${userId}: purchased scan pack, reset to 5 scans left`);
     }
 
     // Handle subscription created
