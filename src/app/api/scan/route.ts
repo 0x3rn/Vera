@@ -25,6 +25,9 @@ function isGenericFilename(filename: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  let scanDeducted = false;
+  let uidToRefund: string | null = null;
+
   try {
     const ip = getIp(request);
     const { success } = await scanRateLimit.limit(ip);
@@ -142,17 +145,19 @@ export async function POST(request: NextRequest) {
       }, { status: 402 });
     }
 
-    // Execute the AI analysis
-    const truncatedText = contractText.slice(0, 25000);
-    const aiResult = await analyzeContract(truncatedText);
-
-    // Only increment free scans if not on active subscription
+    // Deduct scan BEFORE calling AI to prevent TOCTOU race conditions
     if (userData.subscription_status !== "active") {
       await userRef.update({
         free_scans_used: FieldValue.increment(1),
       });
       userData.free_scans_used = (userData.free_scans_used || 0) + 1;
+      scanDeducted = true;
+      uidToRefund = uid;
     }
+
+    // Execute the AI analysis
+    const truncatedText = contractText.slice(0, 25000);
+    const aiResult = await analyzeContract(truncatedText);
 
     const riskScore = aiResult.overallRiskScore ?? 0;
 
@@ -189,6 +194,19 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Scan error:", error);
+
+    // Refund the scan if the AI call failed after deduction
+    if (scanDeducted && uidToRefund) {
+      try {
+        await adminDb.collection("users").doc(uidToRefund).update({
+          free_scans_used: FieldValue.increment(-1),
+        });
+        console.log(`[Scan API] Refunded 1 free scan to user ${uidToRefund} due to error.`);
+      } catch (refundError) {
+        console.error(`[Scan API] Failed to refund scan for user ${uidToRefund}:`, refundError);
+      }
+    }
+
     const message = formatErrorMessage(error);
     return NextResponse.json(
       { error: message },

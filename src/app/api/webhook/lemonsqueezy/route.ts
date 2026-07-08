@@ -8,7 +8,15 @@ function verifySignature(payload: string, signature: string): boolean {
   if (!secret) return false;
   const hmac = crypto.createHmac("sha256", secret);
   const digest = hmac.update(payload).digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(digest), Buffer.from(signature));
+  
+  const digestBuffer = Buffer.from(digest);
+  const signatureBuffer = Buffer.from(signature);
+  
+  if (digestBuffer.length !== signatureBuffer.length) {
+    return false;
+  }
+  
+  return crypto.timingSafeEqual(digestBuffer, signatureBuffer);
 }
 
 export async function POST(request: NextRequest) {

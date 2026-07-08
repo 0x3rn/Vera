@@ -35,6 +35,9 @@ export const contactRateLimit = new Ratelimit({
  * Safely handles comma-separated lists in the x-forwarded-for header.
  */
 export function getIp(request: NextRequest): string {
+  // In Next.js 15, request.ip was removed. 
+  // We rely on x-forwarded-for which is securely overwritten by Vercel/proxies at the edge.
+
   const forwardedFor = request.headers.get("x-forwarded-for");
   if (forwardedFor) {
     // x-forwarded-for can be a comma-separated list of IPs. The first one is the client.
