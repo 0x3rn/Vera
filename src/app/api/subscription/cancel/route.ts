@@ -23,10 +23,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let endsAt: string | null = null;
     // Cancel in Lemon Squeezy
     try {
       const result = await cancelSubscription(dbUser.subscription_id);
       console.log(`[Cancel] Subscription ${dbUser.subscription_id} cancelled — status:`, (result as any)?.statusCode);
+      endsAt = (result as any)?.data?.data?.attributes?.ends_at || null;
     } catch (lsError: any) {
       console.error("[Cancel] Lemon Squeezy error:", lsError.message || lsError);
       // Continue anyway — webhook will handle the sync
@@ -35,6 +37,7 @@ export async function POST(request: NextRequest) {
     // Update Firestore immediately
     await adminDb.collection("users").doc(uid).update({
       subscription_status: "cancelled",
+      ...(endsAt && { subscription_ends_at: endsAt }),
     });
 
     return NextResponse.json({

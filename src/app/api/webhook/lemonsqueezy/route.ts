@@ -59,6 +59,8 @@ export async function POST(request: NextRequest) {
           ? String(attributes.first_subscription_item.subscription_id)
           : null,
         customer_id: attributes.customer_id ? String(attributes.customer_id) : null,
+        subscription_renews_at: attributes.renews_at || null,
+        subscription_ends_at: attributes.ends_at || null,
       }, { merge: true });
       console.log(`[Webhook] User ${userId} subscription activated`);
     }
@@ -76,6 +78,8 @@ export async function POST(request: NextRequest) {
       if (newStatus) {
         await adminDb.collection("users").doc(userId).set({
           subscription_status: newStatus,
+          subscription_renews_at: attributes.renews_at || null,
+          subscription_ends_at: attributes.ends_at || null,
         }, { merge: true });
         console.log(`[Webhook] User ${userId} subscription status → ${newStatus}`);
       }
@@ -85,6 +89,7 @@ export async function POST(request: NextRequest) {
     if (eventName === "subscription_cancelled") {
       await adminDb.collection("users").doc(userId).set({
         subscription_status: "cancelled",
+        subscription_ends_at: attributes.ends_at || null,
       }, { merge: true });
       console.log(`[Webhook] User ${userId} subscription cancelled`);
     }

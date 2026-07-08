@@ -4,7 +4,21 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "./Spinner";
 
-export default function BillingPlan({ isPro, freeScansLeft, totalAllowed }: { isPro: boolean; freeScansLeft: number; totalAllowed: number }) {
+export default function BillingPlan({ 
+  isPro, 
+  freeScansLeft, 
+  totalAllowed,
+  subscriptionStatus,
+  subscriptionRenewsAt,
+  subscriptionEndsAt
+}: { 
+  isPro: boolean; 
+  freeScansLeft: number; 
+  totalAllowed: number;
+  subscriptionStatus?: string;
+  subscriptionRenewsAt?: string | null;
+  subscriptionEndsAt?: string | null;
+}) {
   const router = useRouter();
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -81,7 +95,11 @@ export default function BillingPlan({ isPro, freeScansLeft, totalAllowed }: { is
           </h2>
           <p className="text-muted-foreground text-sm mb-6">
             {isPro
-              ? "$10/month — Unlimited scans, export summaries, priority support."
+              ? subscriptionStatus === "cancelled" && subscriptionEndsAt
+                ? `Ends on ${new Date(subscriptionEndsAt).toLocaleDateString()} — Unlimited scans, priority support.`
+                : subscriptionRenewsAt
+                  ? `Renews on ${new Date(subscriptionRenewsAt).toLocaleDateString()} — Unlimited scans, priority support.`
+                  : "$10/month — Unlimited scans, priority support."
               : `${freeScansLeft} of ${totalAllowed} scan${totalAllowed !== 1 ? "s" : ""} remaining. Upgrade for unlimited access.`}
           </p>
 
@@ -92,12 +110,14 @@ export default function BillingPlan({ isPro, freeScansLeft, totalAllowed }: { is
                   <p className="text-sm text-emerald-400">{cancelMsg}</p>
                 </div>
               )}
-              <button
-                onClick={() => setShowCancelModal(true)}
-                className="px-6 py-3 rounded-lg border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/5 transition-colors"
-              >
-                Cancel Subscription
-              </button>
+              {subscriptionStatus === "active" && (
+                <button
+                  onClick={() => setShowCancelModal(true)}
+                  className="px-6 py-3 rounded-lg border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/5 transition-colors"
+                >
+                  Cancel Subscription
+                </button>
+              )}
             </>
           ) : (
             <div className="space-y-3">

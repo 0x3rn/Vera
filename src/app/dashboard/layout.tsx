@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth-server";
 import { adminDb } from "@/lib/firebase/admin";
 import Sidebar from "@/components/Sidebar";
+import { checkIsPro } from "@/lib/subscription";
 
 export const metadata = {
   title: "Dashboard | Vera",
@@ -46,7 +47,7 @@ export default async function DashboardLayout({
     userData = { id: uid, ...newUserData };
   }
 
-  const isPro = userData?.subscription_status === "active";
+  const isPro = checkIsPro(userData);
 
   return (
     <div className="flex min-h-screen bg-background lg:flex-row flex-col">

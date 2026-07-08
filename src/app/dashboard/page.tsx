@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { AnalysisResult } from "@/lib/contract-analyzer";
 import ClientGreeting from "./ClientGreeting";
+import { checkIsPro } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,7 @@ export default async function DashboardOverview() {
     ...(doc.data() as any),
   }));
 
-  const isPro = dbUser.subscription_status === "active";
+  const isPro = checkIsPro(dbUser);
   const hasPurchased = (dbUser.bonus_scans || 0) > 0;
   const packSize = hasPurchased ? 5 : 1;
   const scansAllowed = 1 + (dbUser.bonus_scans || 0);

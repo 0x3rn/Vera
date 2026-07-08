@@ -6,6 +6,7 @@ import { analyzeContract } from "@/lib/contract-analyzer";
 import { FieldValue } from "firebase-admin/firestore";
 import { scanRateLimit, getIp } from "@/lib/rate-limit";
 import { formatErrorMessage } from "@/lib/error-handler";
+import { checkIsPro } from "@/lib/subscription";
 
 const MAX_FREE_SCANS = 1;
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
@@ -130,8 +131,9 @@ export async function POST(request: NextRequest) {
 
     // Calculate total allowed scans: base free scans + any purchased bonus scans
     const totalAllowedScans = MAX_FREE_SCANS + (userData.bonus_scans || 0);
+    const isPro = checkIsPro(userData);
     const canUseFree =
-      userData.subscription_status === "active" ||
+      isPro ||
       (userData.free_scans_used || 0) < totalAllowedScans;
 
     const scansRef = userRef.collection("scans");
@@ -146,7 +148,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Deduct scan BEFORE calling AI to prevent TOCTOU race conditions
-    if (userData.subscription_status !== "active") {
+    if (!isPro) {
       await userRef.update({
         free_scans_used: FieldValue.increment(1),
       });
@@ -174,12 +176,12 @@ export async function POST(request: NextRequest) {
       original_file_name: documentName,
       suggested_title: aiResult.suggestedTitle || "Unknown Document",
       ai_result: aiResult,
-      payment_status: userData.subscription_status === "active" ? "subscription" : "free",
+      payment_status: isPro ? "subscription" : "free",
       risk_score: riskScore,
       created_at: new Date().toISOString(),
     });
 
-    const remaining = userData.subscription_status === "active"
+    const remaining = isPro
       ? Infinity
       : totalAllowedScans - (userData.free_scans_used || 0);
 

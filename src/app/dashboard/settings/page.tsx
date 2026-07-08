@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 import SettingsClient from "./SettingsClient";
+import { checkIsPro } from "@/lib/subscription";
 
 export const metadata = {
   title: "Settings | Vera",
@@ -21,7 +22,7 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  const isPro = dbUser.subscription_status === "active";
+  const isPro = checkIsPro(dbUser);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">

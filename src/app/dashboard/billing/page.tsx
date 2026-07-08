@@ -3,6 +3,7 @@ import { adminDb } from "@/lib/firebase/admin";
 import { redirect } from "next/navigation";
 import BillingPlan from "@/components/BillingPlan";
 import type { AnalysisResult } from "@/lib/contract-analyzer";
+import { checkIsPro } from "@/lib/subscription";
 
 export const metadata = {
   title: "Billing | Vera",
@@ -23,7 +24,7 @@ export default async function BillingPage() {
     redirect("/login");
   }
 
-  const isPro = dbUser.subscription_status === "active";
+  const isPro = checkIsPro(dbUser);
   const bonusScans = dbUser.bonus_scans || 0;
   const hasPurchased = bonusScans > 0;
   const packSize = hasPurchased ? 5 : 1;
@@ -64,7 +65,14 @@ export default async function BillingPage() {
       <div className="grid lg:grid-cols-[1fr_1fr] gap-8 items-start">
         <div className="space-y-8">
           {/* Current Plan & Billing Details */}
-          <BillingPlan isPro={isPro} freeScansLeft={freeScansLeft} totalAllowed={packSize} />
+          <BillingPlan 
+            isPro={isPro} 
+            freeScansLeft={freeScansLeft} 
+            totalAllowed={packSize} 
+            subscriptionStatus={dbUser.subscription_status}
+            subscriptionRenewsAt={dbUser.subscription_renews_at}
+            subscriptionEndsAt={dbUser.subscription_ends_at}
+          />
 
           {/* Usage This Month */}
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 max-w-lg">
@@ -86,29 +94,29 @@ export default async function BillingPage() {
           </div>
         </div>
 
-        {/* Upgrade Benefits Section */}
-        <div className="bg-card border border-primary/30 rounded-2xl p-6 sm:p-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-6">
-            Pro Plan Benefits
+        {/* Upgrade Benefits Section - Hidden if already Pro */}
+        {!isPro && (
+          <div className="bg-card border border-primary/30 rounded-2xl p-6 sm:p-8">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-6">
+              Pro Plan Benefits
+            </div>
+            <h2 className="text-2xl font-bold mb-6">Why upgrade to Pro?</h2>
+            <ul className="space-y-4">
+              {[
+                "Unlimited contract scans",
+                "Upload multi-document portfolios",
+                "Priority email support",
+              ].map((benefit, idx) => (
+                <li key={idx} className="flex gap-3 text-muted-foreground">
+                  <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {benefit}
+                </li>
+              ))}
+            </ul>
           </div>
-          <h2 className="text-2xl font-bold mb-6">Why upgrade to Pro?</h2>
-          <ul className="space-y-4">
-            {[
-              "Unlimited contract scans",
-              "Export risk summaries to PDF",
-              "Upload multi-document portfolios",
-              "Priority email support",
-              "Faster AI processing times",
-            ].map((benefit, idx) => (
-              <li key={idx} className="flex gap-3 text-muted-foreground">
-                <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                {benefit}
-              </li>
-            ))}
-          </ul>
-        </div>
+        )}
       </div>
     </div>
   );
