@@ -40,6 +40,12 @@ export async function POST(request: NextRequest) {
         subscription_status: "inactive",
         created_at: new Date().toISOString(),
       });
+    } else {
+      // Sync email from auth to firestore if changed
+      const dbEmail = userDoc.data()?.email;
+      if (email && dbEmail !== email) {
+        await userRef.update({ email });
+      }
     }
 
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days

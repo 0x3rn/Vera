@@ -50,6 +50,10 @@ export default async function DashboardLayout({
     };
     await adminDb.collection("users").doc(uid).set(newUserData);
     userData = { id: uid, ...newUserData };
+  } else if (email && userData.email !== email) {
+    // Keep Firestore email in sync with Firebase Auth
+    await adminDb.collection("users").doc(uid).update({ email: email });
+    userData.email = email;
   }
 
   const isPro = checkIsPro(userData);
