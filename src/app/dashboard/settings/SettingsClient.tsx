@@ -76,9 +76,13 @@ export default function SettingsClient({
 
       // 2. Update email
       await updateEmail(user, newEmail);
-      setEmailStatus("Email successfully updated.");
-      setNewEmail("");
-      setEmailCurrentPassword("");
+      setEmailStatus("Email successfully updated. Signing out...");
+      
+      // Sign out since changing email can invalidate sessions
+      await auth.signOut();
+      await fetch("/api/auth/session/logout", { method: "POST" });
+      router.push("/login?message=Email+updated.+Please+log+in+again.");
+      return;
     } catch (error: any) {
       let msg = error.message;
       if (error.code === "auth/wrong-password") msg = "Incorrect current password.";
@@ -109,9 +113,13 @@ export default function SettingsClient({
 
       // 2. Update password
       await updatePassword(user, newPassword);
-      setPasswordStatus("Password successfully updated.");
-      setNewPassword("");
-      setPasswordCurrentPassword("");
+      setPasswordStatus("Password successfully updated. Signing out...");
+      
+      // Sign out since changing password invalidates all existing sessions/tokens
+      await auth.signOut();
+      await fetch("/api/auth/session/logout", { method: "POST" });
+      router.push("/login?message=Password+updated.+Please+log+in+again.");
+      return;
     } catch (error: any) {
       let msg = error.message;
       if (error.code === "auth/wrong-password") msg = "Incorrect current password.";

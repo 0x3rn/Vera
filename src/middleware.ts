@@ -3,6 +3,15 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const session = request.cookies.get("session")?.value;
   const { pathname } = request.nextUrl;
+  const clearSession = request.nextUrl.searchParams.get("clear_session");
+
+  if (clearSession === "true") {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.searchParams.delete("clear_session");
+    const response = NextResponse.redirect(loginUrl);
+    response.cookies.delete("session");
+    return response;
+  }
 
   // Protect /dashboard routes — no session cookie means redirect to login
   if (pathname.startsWith("/dashboard")) {

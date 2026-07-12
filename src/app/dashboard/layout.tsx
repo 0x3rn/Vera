@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { getCurrentUser } from "@/lib/auth-server";
 import { adminDb } from "@/lib/firebase/admin";
 import Sidebar from "@/components/Sidebar";
@@ -17,6 +18,10 @@ export default async function DashboardLayout({
   const user = await getCurrentUser();
 
   if (!user) {
+    const cookieStore = await cookies();
+    if (cookieStore.get("session")) {
+      redirect("/login?clear_session=true");
+    }
     redirect("/login");
   }
 
