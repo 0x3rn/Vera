@@ -13,6 +13,15 @@ export function formatErrorMessage(error: any): string {
   }
 
   // Firebase Auth specific errors
+  if (message.includes("auth/operation-not-allowed") && message.includes("verify the new email")) {
+    return "Error: For security reasons, you must use the verify-before-update method for emails. Please contact support if this persists.";
+  }
+  if (message.includes("auth/operation-not-allowed")) {
+    return "Error: This operation is not allowed. Please contact support.";
+  }
+  if (message.includes("auth/requires-recent-login")) {
+    return "Error: For security reasons, please log out and log back in before making this change.";
+  }
   if (message.includes("auth/popup-closed-by-user") || message.includes("pop-up closed by the user")) {
     return "Error: The sign-in popup was closed before completion. Please try again.";
   }

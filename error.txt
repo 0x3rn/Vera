@@ -1,0 +1,39 @@
+Firebase Authentication Errors Guide
+====================================
+
+When the application encounters errors from Firebase Auth, we mask the raw error codes to provide a better user experience. Below is a mapping of the raw Firebase errors I might encounter in the console or logs, and what they mean.
+
+1. auth/operation-not-allowed
+- Meaning: This operation is restricted by Firebase project settings.
+- Common trigger: Trying to use `updateEmail` instead of `verifyBeforeUpdateEmail` when email enumeration protection is enabled.
+- App Masking: "Error: For security reasons, you must use the verify-before-update method for emails. Please contact support if this persists."
+
+2. auth/requires-recent-login
+- Meaning: The user is trying to perform a sensitive operation (like changing a password or email) but their login session is too old.
+- Common trigger: Trying to change a password without re-authenticating first.
+- App Masking: "Error: For security reasons, please log out and log back in before making this change." (Note: Our app handles re-authentication under the hood using the "Current Password" field to prevent this).
+
+3. auth/popup-closed-by-user
+- Meaning: The user closed the Google/OAuth sign-in popup before finishing the flow.
+- App Masking: "Error: The sign-in popup was closed before completion. Please try again."
+
+4. auth/wrong-password & auth/invalid-credential & auth/user-not-found
+- Meaning: The email or password provided during sign in (or re-authentication) is incorrect.
+- App Masking: "Error: Invalid email or password."
+
+5. auth/email-already-in-use
+- Meaning: The user is trying to register or change their email to an address that is already registered to another account.
+- App Masking: "Error: An account with this email already exists."
+
+6. auth/weak-password
+- Meaning: The password provided during registration or update is less than 6 characters or doesn't meet Firebase's default strength requirements.
+- App Masking: "Error: Password is too weak. Please use a stronger password."
+
+7. auth/too-many-requests
+- Meaning: The user has made too many failed login attempts or requested too many password reset emails in a short period. Firebase temporarily blocks the IP or account.
+- App Masking: "Error: Too many attempts. Please try again later."
+
+General Catch-All
+If an error isn't explicitly caught, the app uses a fallback that strips the `Firebase: ` prefix and the `(auth/...)` suffix to display a clean message. For example:
+Raw: "Firebase: Network request failed. (auth/network-request-failed)."
+Displayed: "Error: Network request failed."

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase/client";
-import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from "firebase/auth";
+import { EmailAuthProvider, reauthenticateWithCredential, verifyBeforeUpdateEmail, updatePassword } from "firebase/auth";
 import { Spinner } from "@/components/Spinner";
 
 export default function SettingsClient({ 
@@ -74,18 +74,19 @@ export default function SettingsClient({
       const credential = EmailAuthProvider.credential(user.email, emailCurrentPassword);
       await reauthenticateWithCredential(user, credential);
 
-      // 2. Update email
-      await updateEmail(user, newEmail);
-      setEmailStatus("Email successfully updated. Signing out...");
-      
-      // Sign out since changing email can invalidate sessions
-      await auth.signOut();
-      await fetch("/api/auth/session/logout", { method: "POST" });
-      router.push("/login?message=Email+updated.+Please+log+in+again.");
-      return;
+      // 2. Update email using verify method to support modern Firebase security rules
+      await verifyBeforeUpdateEmail(user, newEmail);
+      setEmailStatus("A verification link has been sent to your new email. Please check your inbox.");
+      setNewEmail("");
+      setEmailCurrentPassword("");
     } catch (error: any) {
       let msg = error.message;
-      if (error.code === "auth/wrong-password") msg = "Incorrect current password.";
+      if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+        msg = "Incorrect current password.";
+      } else {
+        // Strip Firebase prefix if it slipped through
+        msg = msg.replace(/^Firebase:\s*/, "").replace(/\s*\(auth\/[a-z0-9-]+\)\.?$/, "");
+      }
       setEmailStatus(`Error: ${msg}`);
     }
     setIsUpdatingEmail(false);
@@ -122,7 +123,12 @@ export default function SettingsClient({
       return;
     } catch (error: any) {
       let msg = error.message;
-      if (error.code === "auth/wrong-password") msg = "Incorrect current password.";
+      if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+        msg = "Incorrect current password.";
+      } else {
+        // Strip Firebase prefix if it slipped through
+        msg = msg.replace(/^Firebase:\s*/, "").replace(/\s*\(auth\/[a-z0-9-]+\)\.?$/, "");
+      }
       setPasswordStatus(`Error: ${msg}`);
     }
     setIsUpdatingPassword(false);
