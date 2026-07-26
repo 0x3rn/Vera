@@ -340,7 +340,7 @@ export async function analyzeContract(
   const safeText = contractText.slice(0, 100000);
 
   const response = await deepseek.chat.completions.create({
-    model: "deepseek-chat",
+    model: "deepseek-v4-pro",
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       {
