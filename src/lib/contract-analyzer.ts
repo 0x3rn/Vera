@@ -1,6 +1,6 @@
-// Server-side contract analysis utility
+// import { getDeepSeek } from "./openai";
 
-import { getDeepSeek } from "./openai";
+import { getGemini } from "./openai";
 
 export interface RedFlag {
   id: string;
@@ -334,13 +334,14 @@ function normalizeFlag(text: string, originalSeverity: string): { severity: "cri
 export async function analyzeContract(
   contractText: string
 ): Promise<AnalysisResult> {
-  const deepseek = getDeepSeek();
+  // const deepseek = getDeepSeek();
+  const gemini = await getGemini();
 
   // Enforce a strict 100,000 character limit to prevent token exhaustion / DoS
   const safeText = contractText.slice(0, 100000);
 
-  const response = await deepseek.chat.completions.create({
-    model: "deepseek-v4-pro",
+  /* const response = await deepseek.chat.completions.create({
+    model: "deepseek-v4-flash",
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
       {
@@ -351,6 +352,30 @@ export async function analyzeContract(
     temperature: 0,
     response_format: { type: "json_object" },
     max_tokens: 8000,
+  });*/
+  const response = await gemini.chat.completions.create({
+  model: "google/gemini-3.1-pro-preview",
+
+  messages: [
+    {
+      role: "system",
+      content: SYSTEM_PROMPT,
+    },
+    {
+      role: "user",
+      content:
+        `Analyze the following document for red flags and toxic clauses. ` +
+        `Return only valid JSON per your instructions.\n\n` +
+        `DOCUMENT TEXT:\n\n${safeText}`,
+    },
+  ],
+
+  temperature: 0,
+  response_format: {
+    type: "json_object",
+  },
+
+  max_tokens: 8000,
   });
 
   const raw = response.choices[0]?.message?.content || "";
