@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
-export default function ContactPage() {
+const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
+
+function ContactForm() {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -19,6 +23,9 @@ export default function ContactPage() {
     setStatus({ type: "", text: "" });
 
     try {
+      const recaptchaToken = executeRecaptcha
+        ? await executeRecaptcha("contact_form")
+        : process.env.NODE_ENV === "development" ? "dev-bypass" : "";
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,7 +34,7 @@ export default function ContactPage() {
           email, 
           message: `[${subject}] ${message}`,
           websiteUrl,
-          recaptchaToken: "dev-bypass" // Simplified since recaptcha isn't wired
+          recaptchaToken,
         }),
       });
 
@@ -42,7 +49,7 @@ export default function ContactPage() {
         const data = await res.json();
         setStatus({ type: "error", text: data.error || "Failed to send message." });
       }
-    } catch (err) {
+    } catch {
       setStatus({ type: "error", text: "An error occurred." });
     } finally {
       setLoading(false);
@@ -100,6 +107,7 @@ export default function ContactPage() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       required
+                      autoComplete="given-name"
                       className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                       placeholder="John"
                     />
@@ -112,6 +120,7 @@ export default function ContactPage() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       required
+                      autoComplete="family-name"
                       className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                       placeholder="Doe"
                     />
@@ -126,6 +135,7 @@ export default function ContactPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoComplete="email"
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                     placeholder="john@company.com"
                   />
@@ -205,5 +215,13 @@ export default function ContactPage() {
         <p>© {new Date().getFullYear()} Vera Inc. All rights reserved.</p>
       </footer>
     </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={SITE_KEY} scriptProps={{ async: true, defer: true }}>
+      <ContactForm />
+    </GoogleReCaptchaProvider>
   );
 }

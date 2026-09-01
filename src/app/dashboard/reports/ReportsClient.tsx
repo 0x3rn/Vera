@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { getRiskBand, getRiskLabel } from "@/lib/risk";
 
 type ScanSummary = {
   id: string;
@@ -14,15 +15,11 @@ type ScanSummary = {
 };
 
 function riskBadge(score: number) {
-  if (score >= 70) return "bg-red-500/10 text-red-400 border-red-500/30";
-  if (score >= 40) return "bg-amber-500/10 text-amber-400 border-amber-500/30";
+  const band = getRiskBand(score);
+  if (band === "critical") return "bg-red-500/10 text-red-400 border-red-500/30";
+  if (band === "high") return "bg-orange-500/10 text-orange-400 border-orange-500/30";
+  if (band === "moderate") return "bg-amber-500/10 text-amber-400 border-amber-500/30";
   return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
-}
-
-function riskLabel(score: number) {
-  if (score >= 70) return "High";
-  if (score >= 40) return "Medium";
-  return "Low";
 }
 
 export default function ReportsClient({ initialScans }: { initialScans: ScanSummary[] }) {
@@ -78,8 +75,8 @@ export default function ReportsClient({ initialScans }: { initialScans: ScanSumm
               <div className="grid grid-cols-1 sm:grid-cols-5 gap-1.5 sm:gap-4 px-4 sm:px-6 py-4 border-b border-border last:border-0 items-start sm:items-center hover:bg-muted transition-colors cursor-pointer">
                 <span className="text-sm font-medium truncate col-span-2 group-hover:text-primary transition-colors">{scan.document_name}</span>
                 <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase px-2.5 py-1 rounded-full border w-fit ${riskBadge(scan.risk_score)}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${scan.risk_score >= 70 ? "bg-red-500" : scan.risk_score >= 40 ? "bg-amber-500" : "bg-emerald-500"}`} />
-                  {riskLabel(scan.risk_score)} ({scan.risk_score})
+                  <span className={`w-1.5 h-1.5 rounded-full ${getRiskBand(scan.risk_score) === "critical" ? "bg-red-600" : getRiskBand(scan.risk_score) === "high" ? "bg-orange-500" : getRiskBand(scan.risk_score) === "moderate" ? "bg-amber-500" : "bg-emerald-500"}`} />
+                  {getRiskLabel(scan.risk_score)} ({scan.risk_score})
                 </span>
                 <span className="text-sm text-muted-foreground">{scan.risks_found}</span>
                 <span className="text-xs text-muted-foreground sm:text-right">

@@ -79,7 +79,7 @@ export default function Home() {
               {isInput && (
                 <div className="order-2 lg:order-1 md:animate-in md:fade-in md:slide-in-from-bottom-4 md:duration-700 md:delay-100">
                   <p className="text-lg sm:text-xl text-muted-foreground mb-8 leading-relaxed">
-                    Lawyers charge hundreds per hour. Vera scans tenancy agreements, employment contracts, vehicle purchases, and mortgages in seconds to explain dangerous clauses like hidden fees, landlord advantages, and cancellation traps in plain English before you sign.
+                    Vera reviews tenancy agreements, employment contracts, vehicle purchases, and mortgages to explain clauses such as hidden fees, landlord advantages, and cancellation traps in plain English before you sign.
                   </p>
                   <ul className="space-y-3 mb-8">
                     {[
@@ -114,7 +114,7 @@ export default function Home() {
             <section className="py-12 border-t border-b border-border bg-background">
               <div className="max-w-7xl mx-auto px-4 sm:px-8 text-center opacity-70">
                 <p className="text-sm font-medium text-muted-foreground mb-6 uppercase tracking-widest">
-                  Trusted by employees, freelancers, agencies, and consumers worldwide to catch legal traps.
+                  Built for employees, freelancers, agencies, contractors, and consumers reviewing everyday agreements.
                 </p>
                 <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-muted-foreground font-semibold text-lg">
                   <span>Employees</span>
@@ -222,17 +222,17 @@ export default function Home() {
               <div className="max-w-7xl mx-auto px-4 sm:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything You Need Before You Sign</h2>
-                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Vera's proprietary Risk Engine is strictly trained on legal contracts to catch what you missed.</p>
+                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Vera combines contract-focused AI review with deterministic validation and scoring.</p>
                 </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
                     { title: "Cap Illusion Detection", desc: "Spots fake liability caps where critical exceptions (like IP claims) leave your financial exposure completely unlimited." },
-                    { title: "Mutuality & Balance", desc: "Calculates the exact one-sidedness of the contract by comparing rights across IP, termination, and liability." },
-                    { title: "Transparent Scoring", desc: "No black-box math. Our deterministic 0-100 risk score breaks down exactly how much risk you're taking." },
-                    { title: "Risk Concentration", desc: "Automatically alerts you if a predatory client has stacked >40% of their traps in a single category." },
+                    { title: "Mutuality & Balance", desc: "Compares rights across IP, termination, confidentiality, and liability." },
+                    { title: "Transparent Scoring", desc: "Shows the flag counts, score adjustments, and one-sidedness multiplier behind the 0–100 score." },
+                    { title: "Risk Concentration", desc: "Highlights when at least 40% of identified risks fall into one category." },
                     { title: "Automated Lawyer Review", desc: "Get an instant, algorithmic recommendation on whether your contract requires a human attorney's eyes." },
                     { title: "Compound Risk Chains", desc: "Identifies dangerous combinations, like forced unpaid work during fee disputes plus 12-month defect windows." },
-                    { title: "False Positive Prevention", desc: "Smart enough to ignore standard boilerplate (like indefinite trade secrets) and only flag genuine threats." },
+                    { title: "Severity Calibration", desc: "Applies deterministic rules so standard boilerplate is not automatically treated as a severe risk." },
                     { title: "Actionable Negotiation", desc: "Don't just read the problem. Get a prioritized checklist of exact compromises to request from the other party." }
                   ].map((feat, idx) => (
                     <div key={idx} className="bg-muted/50 backdrop-blur-sm border border-border p-6 rounded-2xl hover:bg-muted hover:-translate-y-1 transition-all duration-500 ease-out">
@@ -255,7 +255,7 @@ export default function Home() {
                   <div className="hidden md:block absolute top-1/4 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-transparent via-[#22222a] to-transparent"></div>
                   {[
                     { step: "1", title: "Upload PDF", desc: "Drag and drop your contract." },
-                    { step: "2", title: "Vera Scans It", desc: "The Risk Engine analyzes every clause." },
+                    { step: "2", title: "Vera Scans It", desc: "The Risk Engine reviews the submitted contract text." },
                     { step: "3", title: "Get Your Summary", desc: "Receive a one-page risk report." }
                   ].map((s, i) => (
                     <div key={i} className="relative z-10 flex flex-col items-center">
@@ -315,7 +315,7 @@ export default function Home() {
                   </div>
                   {[
                     ["General-purpose responses", "Contract-focused analysis"],
-                    ["May miss legal red flags", "Trained specifically for contract review"],
+                    ["May miss legal red flags", "Prompted and validated for contract review"],
                     ["Inconsistent outputs", "Structured, color-coded risk reports"],
                     ["Requires prompt engineering", "Upload PDF and scan instantly"]
                   ].map((row, idx) => (
@@ -340,10 +340,10 @@ export default function Home() {
                 <h2 className="text-3xl md:text-4xl font-bold mb-16">Your Contracts Stay Private</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                   {[
-                    { icon: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z", text: "Bank-level encryption" },
+                    { icon: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z", text: "Encrypted HTTPS transport" },
                     { icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", text: "Secure cloud storage" },
-                    { icon: "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16", text: "Files automatically deleted" },
-                    { icon: "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636", text: "Never used for AI training" }
+                    { icon: "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16", text: "Source files not retained" },
+                    { icon: "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636", text: "Owner-scoped saved reports" }
                   ].map((sec, idx) => (
                     <div key={idx} className="flex flex-col items-center">
                       <div className="w-16 h-16 rounded-full bg-muted/50 border border-border flex items-center justify-center mb-4 text-muted-foreground">
@@ -365,11 +365,11 @@ export default function Home() {
                 </div>
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="bg-card border border-border rounded-3xl p-8 text-center hover:border-zinc-600 transition-all duration-500 ease-out">
-                    <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Per Scan</p>
+                    <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Scan Pack</p>
                     <div className="text-5xl font-bold mb-4">$5</div>
-                    <p className="text-muted-foreground text-sm mb-8">One contract, one fee</p>
+                    <p className="text-muted-foreground text-sm mb-8">Five contract scans, one fee</p>
                     <ul className="text-left space-y-4 mb-8">
-                      <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>1 Full PDF Scan (up to 30 pages)</li>
+                      <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>5 PDF or pasted-text scans</li>
                       <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>1-Page Plain English Summary</li>
                       <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Highlights Red Flags & Toxic Clauses</li>
                       <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Secure Checkout</li>
@@ -385,9 +385,9 @@ export default function Home() {
                     <p className="text-muted-foreground text-sm mb-8">Unlimited scans</p>
                     <ul className="text-left space-y-4 mb-8">
                       <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Unlimited Document Scans</li>
-                      <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Export Summaries to PDF</li>
-                      <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Upload Multi-Document Portfolios</li>
-                      <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Priority Email Support</li>
+                      <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Saved report history</li>
+                      <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Copyable summaries and checklists</li>
+                      <li className="flex items-center gap-3 text-sm text-muted-foreground"><svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Email support</li>
                     </ul>
                     <a href="#hero" className="inline-block w-full py-3.5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-500 ease-out">Subscribe Now</a>
                   </div>
@@ -415,8 +415,8 @@ export default function Home() {
                     { q: "Is this legal advice?", a: "No. Vera identifies risks and explains clauses but does not replace a lawyer." },
                     { q: "What document types are supported?", a: "Tenancy agreements, Employment contracts, Vehicle purchases, Mortgages, Freelance contracts, and general NDAs." },
                     { q: "How accurate is Vera?", a: "Vera focuses specifically on common contract red flags and risk patterns." },
-                    { q: "Are my contracts stored?", a: "No. Contracts are encrypted and automatically deleted after processing." },
-                    { q: "Can I upload large contracts?", a: "Yes, up to 30 pages on the current plan." },
+                    { q: "Are my contracts stored?", a: "The source PDF or pasted text is processed for analysis and is not saved as a source document. Generated reports and quoted clauses are saved to your account until you delete them." },
+                    { q: "Can I upload large contracts?", a: "PDFs may be up to 30 pages and 4MB; pasted text may be up to 100,000 characters." },
                     { q: "Can agencies use Vera?", a: "Yes. The Pro plan includes unlimited scans." }
                   ].map((faq, idx) => (
                     <details key={idx} className="group bg-card border border-border rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden">

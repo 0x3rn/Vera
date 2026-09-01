@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import type { AnalysisResult } from "@/lib/contract-analyzer";
 import AnalysisReport from "@/components/AnalysisReport";
@@ -16,7 +16,6 @@ interface ScanData {
 
 export default function ResultsPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
   const [scan, setScan] = useState<ScanData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,8 +31,8 @@ export default function ResultsPage() {
         }
         const data = await res.json();
         setScan(data);
-      } catch (err: any) {
-        setError(err.message || "Failed to load results");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to load results");
       } finally {
         setLoading(false);
       }

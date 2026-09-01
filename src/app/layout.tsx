@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import {GoogleAnalytics} from '@next/third-parties/google';
+import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -12,23 +12,30 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Vera | Legal Document Risk Engine",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://verahq.xyz"),
+  title: { default: "Vera | Contract Risk Analysis", template: "%s | Vera" },
   description:
-    "Vera scans contracts, mortgages and agreements in seconds, outputting a plain-English summary of hidden traps and toxic clauses.",
+    "Vera reviews contracts, mortgages, and agreements and produces a structured plain-English risk report.",
+  openGraph: {
+    type: "website",
+    title: "Vera | Contract Risk Analysis",
+    description: "Review contracts for risky clauses and get a plain-English report.",
+    siteName: "Vera",
+  },
+  twitter: { card: "summary", title: "Vera | Contract Risk Analysis", description: "Review contracts for risky clauses and get a plain-English report." },
 };
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get("x-nonce") || undefined;
   return (
     <html lang="en" className={`${inter.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans antialiased overflow-x-hidden">
@@ -37,6 +44,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          nonce={nonce}
         >
 
           <PageTransition>
@@ -44,8 +52,6 @@ export default function RootLayout({
           </PageTransition>
         </ThemeProvider>
       </body>
-      {/* Google Analytics */}
-      <GoogleAnalytics gaId="G-5Z8JKH4TNQ" />
     </html>
   );
 }

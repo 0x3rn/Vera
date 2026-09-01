@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { GoogleAuth } from "google-auth-library";
+import { withTimeout } from "./http";
 
 // DEEPSEEK - DISABLED FOR NOW
 
@@ -25,7 +26,18 @@ export async function getGemini() {
     throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON is not configured.");
   }
 
-  const credentials = JSON.parse(credentialsJson);
+  let credentials: { project_id?: string; client_email?: string; private_key?: string };
+  try {
+    credentials = JSON.parse(credentialsJson) as typeof credentials;
+  } catch {
+    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON must be valid one-line JSON.");
+  }
+  if (!credentials.project_id || !credentials.client_email || !credentials.private_key) {
+    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON is missing required service-account fields.");
+  }
+  if (credentials.project_id !== projectId) {
+    throw new Error("GOOGLE_CLOUD_PROJECT must match the service account project_id.");
+  }
 
   const auth = new GoogleAuth({
     credentials,
@@ -33,7 +45,7 @@ export async function getGemini() {
   });
 
   const client = await auth.getClient();
-  const accessToken = await client.getAccessToken();
+  const accessToken = await withTimeout(client.getAccessToken(), 10_000, "Google authentication");
 
   if (!accessToken.token) {
     throw new Error("Unable to obtain Google Cloud access token.");
@@ -41,6 +53,8 @@ export async function getGemini() {
 
   return new OpenAI({
     apiKey: accessToken.token,
+    timeout: 45_000,
+    maxRetries: 1,
     baseURL:
       `https://aiplatform.googleapis.com/v1/` +
       `projects/${projectId}/locations/global/endpoints/openapi`,

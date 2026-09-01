@@ -305,20 +305,20 @@ ${(analysis.negotiationChecklist || []).join('\n')}
             <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-4">Score Breakdown</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Critical Risk Flags ({analysis.scoreBreakdown.criticalCount} × 10)</span>
-                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.criticalCount * 10}</span>
+                <span className="text-zinc-600 dark:text-zinc-400">Critical risk flags</span>
+                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.criticalCount}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">High Risk Flags ({analysis.scoreBreakdown.highCount} × 6)</span>
-                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.highCount * 6}</span>
+                <span className="text-zinc-600 dark:text-zinc-400">High risk flags</span>
+                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.highCount}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Medium Risk Flags ({analysis.scoreBreakdown.mediumCount} × 3)</span>
-                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.mediumCount * 3}</span>
+                <span className="text-zinc-600 dark:text-zinc-400">Medium risk flags</span>
+                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.mediumCount}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Low Risk Flags ({analysis.scoreBreakdown.lowCount} × 1)</span>
-                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.lowCount * 1}</span>
+                <span className="text-zinc-600 dark:text-zinc-400">Low risk flags</span>
+                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.lowCount}</span>
               </div>
               <div className="pt-3 mt-3 border-t border-zinc-200 dark:border-zinc-800">
                 <div className="flex justify-between items-center text-sm">

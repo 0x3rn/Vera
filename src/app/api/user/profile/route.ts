@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth-server";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
+import { parseJsonRequest, profileRequestSchema } from "@/lib/validation";
+import { RequestValidationError } from "@/lib/http";
 
 export async function POST(req: Request) {
   try {
@@ -8,39 +10,29 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const { firstName, lastName } = await req.json();
-
-    if (!firstName || !lastName) {
-      return NextResponse.json({ error: "First and last name are required." }, { status: 400 });
+    if (!user.emailVerified) {
+      return NextResponse.json({ error: "Verify your email first.", code: "EMAIL_NOT_VERIFIED" }, { status: 403 });
     }
 
-    // Sanitize: strip HTML tags, trim, limit to 50 chars
-    const sanitize = (s: string) => s.replace(/<[^>]*>/g, "").trim().slice(0, 50);
-    const trimmedFirst = sanitize(firstName);
-    const trimmedLast = sanitize(lastName);
-
-    if (!trimmedFirst || !trimmedLast) {
-      return NextResponse.json({ error: "Invalid name provided." }, { status: 400 });
-    }
+    const { firstName, lastName } = await parseJsonRequest(req, profileRequestSchema);
 
     // 1. Update Firebase Auth Profile
     await adminAuth.updateUser(user.uid, {
-      displayName: `${trimmedFirst} ${trimmedLast}`,
+      displayName: `${firstName} ${lastName}`,
     });
 
     // 2. Update Firestore Document
     await adminDb.collection("users").doc(user.uid).update({
-      first_name: trimmedFirst,
-      last_name: trimmedLast,
+      first_name: firstName,
+      last_name: lastName,
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
+    if (error instanceof RequestValidationError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     console.error("Profile update error:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to update profile." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update profile." }, { status: 500 });
   }
 }

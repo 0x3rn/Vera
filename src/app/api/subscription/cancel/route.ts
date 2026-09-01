@@ -1,55 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cancelSubscription } from "@lemonsqueezy/lemonsqueezy.js";
 import { getCurrentUser } from "@/lib/auth-server";
 import { adminDb } from "@/lib/firebase/admin";
 import { initLemonSqueezy } from "@/lib/lemonsqueezy";
-import { cancelSubscription } from "@lemonsqueezy/lemonsqueezy.js";
+import { billingRateLimit, getIp } from "@/lib/rate-limit";
+import { withTimeout } from "@/lib/http";
 
 export async function POST(request: NextRequest) {
   try {
-    initLemonSqueezy();
-
     const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user.emailVerified) return NextResponse.json({ error: "Verify your email first.", code: "EMAIL_NOT_VERIFIED" }, { status: 403 });
+    const { success } = await billingRateLimit.limit(`${getIp(request)}:${user.uid}:cancel`);
+    if (!success) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const subscriptionId = user.dbUser?.subscription_id;
+    if (!subscriptionId || !["active", "on_trial", "past_due", "paused"].includes(user.dbUser?.subscription_status || "")) {
+      return NextResponse.json({ error: "No cancellable subscription was found." }, { status: 400 });
     }
 
-    const { uid, dbUser } = user;
-
-    if (!dbUser?.subscription_id || dbUser.subscription_status !== "active") {
-      return NextResponse.json(
-        { error: "No active subscription found." },
-        { status: 400 }
-      );
+    initLemonSqueezy();
+    const result = await withTimeout(cancelSubscription(subscriptionId), 10_000, "Billing provider");
+    if (result.error || !result.data) {
+      console.error("[Cancel] Provider rejected cancellation", result.error);
+      return NextResponse.json({ error: "The subscription could not be cancelled. No local changes were made." }, { status: 502 });
     }
 
-    let endsAt: string | null = null;
-    // Cancel in Lemon Squeezy
-    try {
-      const result = await cancelSubscription(dbUser.subscription_id);
-      console.log(`[Cancel] Subscription ${dbUser.subscription_id} cancelled — status:`, (result as any)?.statusCode);
-      endsAt = (result as any)?.data?.data?.attributes?.ends_at || null;
-    } catch (lsError: any) {
-      console.error("[Cancel] Lemon Squeezy error:", lsError.message || lsError);
-      // Continue anyway — webhook will handle the sync
+    const attributes = result.data.data.attributes;
+    if (attributes.status !== "cancelled" || !attributes.ends_at) {
+      console.error("[Cancel] Provider response was incomplete", { status: attributes.status, endsAt: attributes.ends_at });
+      return NextResponse.json({ error: "Cancellation was not confirmed by the billing provider." }, { status: 502 });
     }
 
-    // Update Firestore immediately
-    await adminDb.collection("users").doc(uid).update({
-      subscription_status: "cancelled",
-      ...(endsAt && { subscription_ends_at: endsAt }),
+    await adminDb.collection("users").doc(user.uid).update({
+      subscription_status: attributes.status,
+      subscription_ends_at: attributes.ends_at,
+      subscription_renews_at: attributes.renews_at || null,
+      subscription_provider_updated_at: attributes.updated_at || new Date().toISOString(),
     });
-
-    return NextResponse.json({
-      success: true,
-      message: "Subscription cancelled. You will receive a confirmation email.",
-    });
+    return NextResponse.json({ success: true, endsAt: attributes.ends_at, message: "Subscription cancelled at the end of the current billing period." });
   } catch (error) {
-    console.error("[Cancel] Error:", error);
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json(
-      { error: `Cancellation failed: ${message}` },
-      { status: 500 }
-    );
+    console.error("[Cancel] Failed", error);
+    return NextResponse.json({ error: "Cancellation is temporarily unavailable. Your subscription remains unchanged." }, { status: 502 });
   }
 }

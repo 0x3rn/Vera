@@ -49,11 +49,11 @@ export default async function SettingsPage() {
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">Member Since</p>
               <p className="text-foreground">
-                {new Date(dbUser.created_at).toLocaleDateString("en-US", {
+                {dbUser.created_at ? new Date(dbUser.created_at).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
-                })}
+                }) : "Unknown"}
               </p>
             </div>
           </div>
@@ -62,7 +62,7 @@ export default async function SettingsPage() {
         {/* Security Section (Forms handled by Client Component) */}
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8">
           <h2 className="text-xl font-bold mb-6">Security</h2>
-          <SettingsClient userEmail={email || ""} initialFirstName={dbUser.first_name || ""} initialLastName={dbUser.last_name || ""} />
+          <SettingsClient initialFirstName={dbUser.first_name || ""} initialLastName={dbUser.last_name || ""} canUsePassword={user.providerIds.includes("password")} />
         </div>
       </div>
     </div>

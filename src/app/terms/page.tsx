@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Terms of Service | Vera",
+  title: "Terms of Service",
   description: "Terms of Service for Vera Legal Document Risk Engine.",
 };
 

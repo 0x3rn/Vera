@@ -15,7 +15,7 @@ export default async function DashboardOverview() {
     redirect("/login");
   }
 
-  const { uid, email, dbUser } = user;
+  const { uid, dbUser } = user;
 
   if (!dbUser) {
     redirect("/login");
@@ -86,7 +86,7 @@ export default async function DashboardOverview() {
       <div className="mb-8">
         <ClientGreeting firstName={dbUser.first_name || "User"} />
         <p className="text-muted-foreground text-sm mt-1">
-          Don't sign your next contract blindly. Upload a PDF and get a plain-English risk report in seconds.
+          Upload a PDF or paste contract text to get a structured plain-English risk report.
         </p>
       </div>
 
@@ -158,8 +158,9 @@ export default async function DashboardOverview() {
                     </div>
                     {lastScanAiResult && (
                       <div className={`inline-flex shrink-0 self-start px-2.5 py-1 rounded text-xs font-bold ${
-                        lastScan.risk_score >= 70 ? 'bg-red-500/10 text-red-400' :
-                        lastScan.risk_score >= 40 ? 'bg-amber-500/10 text-amber-400' :
+                        lastScan.risk_score >= 90 ? 'bg-red-500/10 text-red-400' :
+                        lastScan.risk_score >= 75 ? 'bg-orange-500/10 text-orange-400' :
+                        lastScan.risk_score >= 45 ? 'bg-amber-500/10 text-amber-400' :
                         'bg-emerald-500/10 text-emerald-400'
                       }`}>
                         Score: {lastScan.risk_score}/100
@@ -199,6 +200,7 @@ export default async function DashboardOverview() {
                       <div className="bg-muted border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
                         <div className="flex items-center gap-2 mb-2">
                           <span className={`w-2 h-2 rounded-full ${
+                            finding.severity === "critical" ? "bg-red-700" :
                             finding.severity === "high" ? "bg-red-500" :
                             finding.severity === "medium" ? "bg-amber-500" :
                             "bg-blue-500"

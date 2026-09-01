@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth-server";
 import { adminDb } from "@/lib/firebase/admin";
 import { redirect } from "next/navigation";
-import type { AnalysisResult, RedFlag } from "@/lib/contract-analyzer";
+import type { AnalysisResult } from "@/lib/contract-analyzer";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -64,7 +64,7 @@ export default async function RiskLibraryPage() {
         }
         
         riskCategories[cat].count++;
-        if (flag.severity === "high") {
+        if (flag.severity === "high" || flag.severity === "critical") {
           riskCategories[cat].highRiskCount++;
         }
 
@@ -116,7 +116,7 @@ export default async function RiskLibraryPage() {
                 {data.highRiskCount > 0 && (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/30 shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                    {data.highRiskCount} High Risk
+                    {data.highRiskCount} High/Critical
                   </span>
                 )}
               </div>

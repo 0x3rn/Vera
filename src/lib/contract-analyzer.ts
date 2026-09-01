@@ -1,6 +1,7 @@
 // import { getDeepSeek } from "./openai";
 
 import { getGemini } from "./openai";
+import { z } from "zod";
 
 export interface RedFlag {
   id: string;
@@ -337,8 +338,10 @@ export async function analyzeContract(
   // const deepseek = getDeepSeek();
   const gemini = await getGemini();
 
-  // Enforce a strict 100,000 character limit to prevent token exhaustion / DoS
-  const safeText = contractText.slice(0, 100000);
+  if (contractText.length > 100_000) {
+    throw new Error("Contract exceeds the 100,000-character analysis limit.");
+  }
+  const safeText = contractText;
 
   /* const response = await deepseek.chat.completions.create({
     model: "deepseek-v4-flash",
@@ -394,7 +397,14 @@ export async function analyzeContract(
   jsonStr = jsonStr.trim();
 
   try {
-    const result: AnalysisResult = JSON.parse(jsonStr);
+    const parsed = parseRawAnalysisPayload(JSON.parse(jsonStr));
+    const result: AnalysisResult = {
+      ...parsed,
+      overallRiskScore: 0,
+      scoreBreakdown: { criticalCount: 0, highCount: 0, mediumCount: 0, lowCount: 0, baseScore: 0, riskMultiplier: 1, finalScore: 0 },
+      riskConcentration: null,
+      lawyerReview: "Pending",
+    };
   
     // DEDUPLICATE REDUNDANT FLAGS
     const seen = new Set<string>();
@@ -407,7 +417,7 @@ export async function analyzeContract(
 
       let bucket = "";
 
-      const isIpRisk = text.includes("ip indemn") || text.includes("intellectual property");
+      const isIpRisk = text.includes("ip indemn") || (text.includes("intellectual property") && text.includes("indemn"));
       const isCapRisk = text.includes("liability cap") && (text.includes("exception") || text.includes("excluded") || text.includes("nullify") || text.includes("does not apply"));
 
       if (isIpRisk || (isCapRisk && (text.includes("ip") || text.includes("intellectual property")))) {
@@ -433,7 +443,7 @@ export async function analyzeContract(
       const text = `${flag.title || ""} ${flag.clauseExcerpt || ""} ${flag.plainEnglishExplanation || ""}`.toLowerCase();
       const normalized = normalizeFlag(text, flag.severity || "medium");
       flag.severity = normalized.severity;
-      (flag as any)._baseWeight = normalized.weight;
+      (flag as RedFlag & { _baseWeight?: number })._baseWeight = normalized.weight;
     });
 
     // GLOBAL CONTEXT AUTO-ESCALATION RULES
@@ -539,6 +549,14 @@ export async function analyzeContract(
     }
 
     
+    // Normalize all flags, including deterministic flags added above.
+    result.redFlags.forEach((flag) => {
+      const text = `${flag.title} ${flag.clauseExcerpt} ${flag.plainEnglishExplanation}`.toLowerCase();
+      const normalized = normalizeFlag(text, flag.severity);
+      flag.severity = normalized.severity;
+      (flag as RedFlag & { _baseWeight?: number })._baseWeight = normalized.weight;
+    });
+
     // count the final severities and dynamically calculate base score
     let criticalCount = 0;
     let highCount = 0;
@@ -548,7 +566,7 @@ export async function analyzeContract(
     const categoryCounts: Record<string, number> = {};
 
     (result.redFlags || []).forEach(flag => {
-      let flagBase = (flag as any)._baseWeight || 5;
+      let flagBase = (flag as RedFlag & { _baseWeight?: number })._baseWeight ?? 5;
 
       if (flag.severity === "critical") criticalCount++;
       else if (flag.severity === "high") highCount++;
@@ -602,7 +620,7 @@ export async function analyzeContract(
     if (criticalCount >= 4) baseScore += 15;
     if (criticalCount >= 6) baseScore += 20;
       
-    const multiplier = result.mutualityAnalysis?.riskMultiplier || 1.0;
+    const multiplier = Math.min(2, Math.max(1, result.mutualityAnalysis.riskMultiplier));
     let finalScore = Math.min(Math.round(baseScore * multiplier), 100);
 
     // Exposure-based automatic boost
@@ -658,64 +676,66 @@ export async function analyzeContract(
       }
     }
 
+    result.riskDistribution = Object.entries(categoryCounts)
+      .map(([category, count]) => ({ category, percentage: Math.round((count / totalFlags) * 100) }))
+      .sort((a, b) => b.percentage - a.percentage);
+
     return result;
   } catch (error) {
     console.error("Analysis parsing failed:", error);
-    // Fallback response for complete failure
-    return {
-      suggestedTitle: "Unknown Document",
-      overallRiskScore: 50,
-      summary:
-        "We were unable to fully analyze this document. The text may be too short, not recognizable as a legal document, or the Vera Risk Engine™ encountered an issue. Please try again with a complete document.",
-      scoreExplanation: "Analysis could not be completed.",
-      lawyerReview: "Recommended",
-      scoreBreakdown: {
-        criticalCount: 0, highCount: 0, mediumCount: 0, lowCount: 0, baseScore: 50, riskMultiplier: 1.0, finalScore: 50
-      },
-      riskConcentration: null,
-      mutualityAnalysis: {
-        termination: "Unknown", liability: "Unknown", ip: "Unknown", confidentiality: "Unknown", overall: "Unknown", riskMultiplier: 1.0
-      },
-      worstCaseScenario: "Unknown",
-      worstCaseScenarioSeverity: "moderate",
-      contractType: "Unknown",
-      economicFairness: {
-        compensation: "Unknown",
-        obligations: "Unknown",
-        exposure: "Unknown",
-        assessment: "Neutral"
-      },
-      financialExposure: {
-        explicitLiabilityCap: "Unknown",
-        liquidatedDamages: "Unknown",
-        totalEstimatedExposure: "Unknown",
-        severity: "moderate"
-      },
-      keyDates: [],
-      clauseConflicts: [],
-      riskChains: [],
-      riskDistribution: [
-        { category: "Other", percentage: 100 }
-      ],
-      redFlags: [
-        {
-          id: "fallback-1",
-          category: "other",
-          severity: "medium",
-          title: "Could Not Complete Analysis",
-          clauseExcerpt:
-            "Unable to extract structured analysis from the document.",
-          plainEnglishExplanation:
-            "The Vera Risk Engine™ was unable to parse this document. This could mean the PDF is image-based (scanned), contains primarily non-contract text, or is too short to evaluate. Try uploading a text-based PDF.",
-          suggestedFix:
-            "Ensure you are uploading a text-based (not scanned/image) PDF of a legal agreement, or try pasting the text directly.",
-          confidenceScore: 0,
-          enforcementLikelihood: "Medium"
-        },
-      ],
-      dealBreakers: [],
-      positiveFindings: [],
-      negotiationChecklist: []
-    };
+    throw new Error("AI analysis returned invalid structured data.", { cause: error });
   }
+}
+
+const boundedText = z.string().trim().min(1).max(4_000);
+const redFlagSchema = z.object({
+  id: z.string().trim().min(1).max(100),
+  category: z.enum(["payment", "hidden-fees", "landlord-advantages", "cancellation-traps", "legal-risks", "ip-rights", "exclusivity", "termination", "liability", "non-compete", "arbitration", "data-privacy", "other"]),
+  severity: z.enum(["low", "medium", "high", "critical"]),
+  title: z.string().trim().min(1).max(160),
+  clauseExcerpt: z.string().trim().max(1_000),
+  plainEnglishExplanation: boundedText,
+  suggestedFix: boundedText,
+  enforceabilityInsight: z.string().trim().max(2_000).optional(),
+  enforcementLikelihood: z.enum(["High", "Medium", "Low"]).optional(),
+  industryStandard: z.string().trim().max(500).optional(),
+  deviation: z.string().trim().max(200).optional(),
+  confidenceScore: z.number().finite().min(0).max(100),
+});
+
+const rawAnalysisSchema = z.object({
+  suggestedTitle: z.string().trim().min(1).max(80),
+  scoreExplanation: boundedText,
+  summary: boundedText,
+  worstCaseScenario: boundedText,
+  worstCaseScenarioSeverity: z.enum(["good", "moderate", "bad"]),
+  contractType: z.string().trim().min(1).max(120),
+  mutualityAnalysis: z.object({
+    termination: boundedText,
+    liability: boundedText,
+    ip: boundedText,
+    confidentiality: boundedText,
+    overall: boundedText,
+    riskMultiplier: z.number().finite().min(1).max(2),
+  }),
+  economicFairness: z.object({ compensation: boundedText, obligations: boundedText, exposure: boundedText, assessment: boundedText }),
+  financialExposure: z.object({
+    explicitLiabilityCap: boundedText,
+    liquidatedDamages: boundedText,
+    totalEstimatedExposure: boundedText,
+    severity: z.enum(["good", "moderate", "bad"]),
+    capIllusion: z.object({ isIllusory: z.boolean(), explanation: boundedText }).optional(),
+  }),
+  keyDates: z.array(z.object({ label: z.string().trim().min(1).max(200), date: z.string().trim().min(1).max(100) })).max(100),
+  redFlags: z.array(redFlagSchema).max(100),
+  clauseConflicts: z.array(z.object({ conflict: boundedText, explanation: boundedText })).max(50),
+  riskChains: z.array(z.object({ clauses: z.array(z.string().trim().min(1).max(300)).max(20), effect: boundedText })).max(50),
+  riskDistribution: z.array(z.object({ category: z.string().trim().min(1).max(100), percentage: z.number().finite().min(0).max(100) })).max(30),
+  negotiationChecklist: z.array(z.string().trim().min(1).max(1_000)).max(50),
+  dealBreakers: z.array(z.string().trim().min(1).max(1_000)).max(5),
+  positiveFindings: z.array(z.string().trim().min(1).max(1_000)).max(20),
+});
+
+export function parseRawAnalysisPayload(value: unknown) {
+  return rawAnalysisSchema.parse(value);
 }

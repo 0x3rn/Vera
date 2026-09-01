@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "./Spinner";
 
@@ -25,6 +25,17 @@ export default function BillingPlan({
   const [cancelMsg, setCancelMsg] = useState("");
   const [upgrading, setUpgrading] = useState(false);
   const [buyingScans, setBuyingScans] = useState(false);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!showCancelModal) return;
+    cancelButtonRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !cancelling) setShowCancelModal(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showCancelModal, cancelling]);
 
   const handleUpgrade = async () => {
     setUpgrading(true);
@@ -76,13 +87,13 @@ export default function BillingPlan({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Cancellation failed");
 
-      setCancelMsg("Subscription cancelled. A confirmation email has been sent.");
+      setCancelMsg(data.message || "Subscription cancelled at the end of the billing period.");
+      setShowCancelModal(false);
       router.refresh();
-    } catch (err: any) {
-      setCancelMsg(err.message);
+    } catch (err: unknown) {
+      setCancelMsg(err instanceof Error ? err.message : "Cancellation failed.");
     } finally {
       setCancelling(false);
-      setShowCancelModal(false);
     }
   };
 
@@ -146,19 +157,21 @@ export default function BillingPlan({
 
       {/* Cancel confirmation modal */}
       {showCancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-200">
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-200" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !cancelling) setShowCancelModal(false); }}>
+          <div role="dialog" aria-modal="true" aria-labelledby="cancel-title" className="bg-card border border-border rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl">
             <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
               <svg className="w-7 h-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold mb-2">Cancel Subscription?</h3>
+            <h3 id="cancel-title" className="text-xl font-bold mb-2">Cancel Subscription?</h3>
             <p className="text-muted-foreground text-sm mb-6">
               You will lose access at the end of your billing cycle.
             </p>
+            {cancelMsg && <p className="text-sm text-red-500 mb-4" role="alert">{cancelMsg}</p>}
             <div className="flex gap-3">
               <button
+                ref={cancelButtonRef}
                 onClick={() => setShowCancelModal(false)}
                 className="flex-1 py-2.5 rounded-lg border border-border text-sm font-medium hover:bg-muted/50 transition-colors"
               >

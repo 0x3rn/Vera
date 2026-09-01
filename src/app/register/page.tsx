@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   GoogleReCaptchaProvider,
   useGoogleReCaptcha,
@@ -20,7 +19,6 @@ if (typeof window !== "undefined" && !SITE_KEY) {
 }
 
 function RegisterForm() {
-  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const { executeRecaptcha } = useGoogleReCaptcha();
   const [firstName, setFirstName] = useState("");
@@ -166,7 +164,7 @@ function RegisterForm() {
     } finally {
       setLoading(false);
     }
-  }, [firstName, lastName, email, password, confirmPassword, executeRecaptcha, loading]);
+  }, [firstName, lastName, email, password, confirmPassword, executeRecaptcha, loading, websiteUrl]);
 
   const handleGoogleSignUp = useCallback(async (e?: React.MouseEvent) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -267,6 +265,7 @@ function RegisterForm() {
                   id="firstName"
                   name="firstName"
                   type="text"
+                  autoComplete="given-name"
                   required
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
@@ -280,6 +279,7 @@ function RegisterForm() {
                   id="lastName"
                   name="lastName"
                   type="text"
+                  autoComplete="family-name"
                   required
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
@@ -294,6 +294,7 @@ function RegisterForm() {
                 id="email"
                 name="email"
                 type="email"
+                autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -305,7 +306,9 @@ function RegisterForm() {
               <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-1.5">Password</label>
               <input
                 id="password"
+                name="password"
                 type="password"
+                autoComplete="new-password"
                 required
                 minLength={8}
                 value={password}
@@ -318,7 +321,9 @@ function RegisterForm() {
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-muted-foreground mb-1.5">Confirm Password</label>
               <input
                 id="confirmPassword"
+                name="confirmPassword"
                 type="password"
+                autoComplete="new-password"
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

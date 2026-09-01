@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy Policy | Vera",
+  title: "Privacy Policy",
   description: "Privacy Policy for Vera Legal Document Risk Engine.",
 };
 
@@ -49,7 +49,7 @@ export default function PrivacyPolicy() {
                 <p>The core function of Vera is to analyze documents. When you upload a PDF file or paste text into the Vera Risk Engine™, we collect that document content. This includes the full text of the agreement, identifying metadata, names of contracting parties, and any financial or legal terms contained within the document.</p>
                 
                 <h3 className="text-xl font-semibold text-foreground mt-6">2.3. Payment Information</h3>
-                <p>If you purchase a premium subscription, billing information is required. We use third-party payment processors (such as Stripe) to handle all transactions securely. Vera does not store complete credit card numbers, CVV codes, or full financial data on our servers. We only retain the transaction ID, subscription status, and billing history.</p>
+                <p>If you purchase a scan pack or subscription, Lemon Squeezy processes the transaction. Vera does not receive or store complete card numbers or CVV codes. We retain provider identifiers, purchase credits, and subscription status needed to provide billing access.</p>
               </div>
             </section>
 
@@ -59,7 +59,7 @@ export default function PrivacyPolicy() {
                 <p>When you access our platform, our servers automatically record certain technical data. This information helps us ensure the security of the platform and understand how users navigate the Service.</p>
                 <ul className="list-disc pl-6 space-y-3">
                   <li><strong>Device and Connection Data:</strong> We collect your IP address, browser type, browser version, operating system, and unique device identifiers.</li>
-                  <li><strong>Usage Analytics:</strong> We track the pages of our Service that you visit, the time and date of your visit, the time spent on those pages, and interactions with specific features (like the "Scan" button).</li>
+                  <li><strong>Service Operations:</strong> We process request timing, rate-limit counters, and feature events needed to operate and secure the Service. Vera does not currently load a third-party behavioral analytics tag.</li>
                   <li><strong>Log Data:</strong> In the event of an application error, we collect log data regarding performance metrics, crash reports, and system security flags to troubleshoot the issue.</li>
                 </ul>
               </div>
@@ -84,9 +84,9 @@ export default function PrivacyPolicy() {
               <div className="space-y-4">
                 <p>Because we handle highly sensitive legal documents, we want to be completely transparent about our processing pipeline. When you upload a document:</p>
                 <ul className="list-disc pl-6 space-y-3">
-                  <li>The document is securely transmitted via encrypted TLS/SSL channels to our isolated processing servers.</li>
-                  <li>The text is extracted and fed into the proprietary Vera Risk Engine™ and our trusted AI infrastructure providers for mathematical risk scoring and clause analysis.</li>
-                  <li>The analysis is fully automated. No human employee at Vera manually reads or reviews your confidential contracts unless you explicitly request technical support for a specific document issue.</li>
+                  <li>The document is transmitted over HTTPS to Vera's server-side processing route.</li>
+                  <li>PDF text is extracted and submitted to Google Cloud/Vertex AI for clause analysis; Vera then validates the response and calculates the risk score.</li>
+                  <li>The normal analysis path is automated. Support staff should only access report information when needed to respond to a request or investigate abuse or reliability issues.</li>
                 </ul>
               </div>
             </section>
@@ -96,9 +96,9 @@ export default function PrivacyPolicy() {
               <div className="space-y-4">
                 <p>We do not hoard your data. Our retention protocols are designed to minimize risk:</p>
                 <ul className="list-disc pl-6 space-y-3">
-                  <li><strong>Raw Uploaded Contracts:</strong> The original PDF files and pasted raw text are temporarily processed in memory. We actively delete the raw source files from our processing servers immediately after the analysis report is successfully generated. We do not maintain a permanent archive of your raw documents.</li>
+                  <li><strong>Raw Uploaded Contracts:</strong> Vera processes the PDF or pasted text for the request and does not save the source document to its report database. Contract text is transmitted to the AI provider and is subject to that provider's applicable data-handling terms.</li>
                   <li><strong>Generated Reports:</strong> The resulting risk reports, risk scores, and extracted clause summaries are saved to our encrypted database so you can access them later via your user Dashboard. You may delete these reports manually at any time.</li>
-                  <li><strong>Account Data:</strong> If you choose to terminate and delete your account, we will permanently purge all your personal information, user metadata, and historical reports from our active databases within 30 days.</li>
+                  <li><strong>Account Data:</strong> You may permanently delete your account and its saved reports from Settings. Provider records that must be retained for fraud, tax, billing, or legal compliance may remain with the relevant provider.</li>
                 </ul>
               </div>
             </section>
@@ -108,7 +108,7 @@ export default function PrivacyPolicy() {
               <div className="space-y-4">
                 <p>Vera does not sell, rent, or trade your personal information or uploaded documents to data brokers or advertising networks. We only share data with trusted third parties necessary to operate the Service:</p>
                 <h3 className="text-xl font-semibold text-foreground mt-6">7.1. Service Providers</h3>
-                <p>We utilize industry-leading cloud infrastructure providers (such as Vercel, Firebase, and Google Cloud) to host the application, securely store the generated reports, and manage user authentication. We use Stripe for payment processing. These providers are bound by rigorous confidentiality and data protection agreements.</p>
+                <p>We use Vercel, Firebase, Google Cloud/Vertex AI, and Lemon Squeezy to host the application, authenticate users, process contract text, store reports, and process payments. Their handling is governed by their applicable terms and privacy commitments.</p>
                 
                 <h3 className="text-xl font-semibold text-foreground mt-6">7.2. Legal Compliance</h3>
                 <p>We may disclose your information if we are required to do so by law, such as to comply with a valid subpoena, binding court order, or formal request from law enforcement authorities.</p>
@@ -123,8 +123,8 @@ export default function PrivacyPolicy() {
               <div className="space-y-4">
                 <p>We implement robust technical and organizational measures to protect your data:</p>
                 <ul className="list-disc pl-6 space-y-3">
-                  <li><strong>Encryption:</strong> All data transmitted between your browser and our servers is encrypted using modern TLS/SSL protocols. Data at rest in our databases is encrypted using AES-256 standards.</li>
-                  <li><strong>Access Controls:</strong> Access to our production databases and AI processing environments is strictly limited to authorized engineering personnel via multi-factor authentication (MFA) and secure VPNs.</li>
+                  <li><strong>Encryption:</strong> Production traffic is sent over HTTPS, and managed infrastructure providers apply their platform encryption controls.</li>
+                  <li><strong>Access Controls:</strong> Authentication, owner-scoped server queries, session-cookie validation, and least-privilege service credentials limit access to reports and production systems.</li>
                 </ul>
                 <p>While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security. No method of transmission over the Internet, or method of electronic storage, is 100% secure.</p>
               </div>

@@ -94,7 +94,10 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
         </Link>
         <button 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 -mr-2 text-foreground hover:text-muted-foreground"
+          aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="dashboard-sidebar"
+          className="p-2 -mr-2 text-foreground hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
         >
           {mobileMenuOpen ? (
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -109,7 +112,7 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
       </div>
 
       {/* Sidebar (Desktop & Mobile Overlay) */}
-      <div className={`
+      <div id="dashboard-sidebar" className={`
         fixed inset-y-0 left-0 z-40 w-64 bg-muted border-r border-border transform transition-transform duration-300 ease-in-out flex flex-col h-[100dvh]
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto overscroll-contain
@@ -184,7 +187,9 @@ export default function Sidebar({ userEmail, isPro }: { userEmail: string; isPro
 
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
-        <div 
+        <button
+          type="button"
+          aria-label="Close navigation menu"
           className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-sm"
           onClick={() => setMobileMenuOpen(false)}
         />

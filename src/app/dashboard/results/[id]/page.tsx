@@ -18,10 +18,12 @@ interface ScanData {
 
 export default function DashboardResultsPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const [scan, setScan] = useState<ScanData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     async function fetchScan() {
@@ -33,8 +35,8 @@ export default function DashboardResultsPage() {
         }
         const data = await res.json();
         setScan(data);
-      } catch (err: any) {
-        setError(err.message || "Failed to load results");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Failed to load results");
       } finally {
         setLoading(false);
       }
@@ -66,6 +68,18 @@ export default function DashboardResultsPage() {
   }
 
   const analysis = scan.ai_result;
+
+  const deleteReport = async () => {
+    if (!window.confirm("Delete this report permanently? This cannot be undone.")) return;
+    setDeleting(true);
+    const response = await fetch(`/api/results/${id}`, { method: "DELETE" });
+    if (response.ok) router.replace("/dashboard/reports");
+    else {
+      const data = await response.json().catch(() => ({}));
+      setError(data.error || "Could not delete this report.");
+      setDeleting(false);
+    }
+  };
 
   if (!analysis || scan.payment_status === "unpaid") {
     return (
@@ -107,6 +121,9 @@ export default function DashboardResultsPage() {
             {scan.suggested_title && scan.suggested_title !== "Unknown Document" ? scan.suggested_title : scan.document_name}
           </p>
         </div>
+        <button onClick={deleteReport} disabled={deleting} className="self-start rounded-lg border border-red-500/30 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-50">
+          {deleting ? "Deleting…" : "Delete report"}
+        </button>
       </div>
 
       <AnalysisReport analysis={analysis} />

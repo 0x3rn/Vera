@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { useDropzone } from "react-dropzone";
+import { FileRejection, useDropzone } from "react-dropzone";
 import { useRouter } from "next/navigation";
 
 export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean; freeScansLeft: number }) {
@@ -46,6 +46,7 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
       const res = await fetch("/api/scan", {
         method: "POST",
         body: formData,
+        headers: { "x-idempotency-key": crypto.randomUUID() },
       });
 
       const text = await res.text();
@@ -103,9 +104,13 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected: (rejections: FileRejection[]) => {
+      setScanError(rejections[0]?.errors[0]?.code === "file-too-large" ? "PDF must be 4MB or smaller." : "Choose one valid PDF file.");
+      setAppState("error");
+    },
     accept: { "application/pdf": [".pdf"] },
     maxFiles: 1,
-    maxSize: 15 * 1024 * 1024,
+    maxSize: 4 * 1024 * 1024,
     disabled: appState === "scanning",
   });
 
@@ -125,7 +130,7 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
           <div className="w-12 h-12 mx-auto mb-6 rounded-full border-4 border-zinc-800 border-t-primary animate-spin" />
           <h3 className="text-xl font-bold mb-2">Analyzing your contract</h3>
           <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-            Scanning every clause for red flags. This usually takes 10–20 seconds.
+            Reviewing the submitted text for red flags. Larger contracts can take a minute.
           </p>
         </div>
       ) : appState === "payment_required" ? (
@@ -260,7 +265,7 @@ export default function ScanDropzone({ isPro, freeScansLeft }: { isPro: boolean;
                   <h3 className="text-lg sm:text-xl font-semibold">
                     {isDragActive ? "Drop your contract here" : "Drop your contract here"}
                   </h3>
-                  <p className="text-muted-foreground text-sm">Supports PDF (Max 15MB)</p>
+                  <p className="text-muted-foreground text-sm">PDF, up to 30 pages and 4MB</p>
                   <label className="inline-block px-5 py-2.5 rounded-lg border border-[#33333d] text-sm font-medium cursor-pointer hover:border-border hover:bg-muted/50 transition-all mt-2">
                     Browse Files
                   </label>

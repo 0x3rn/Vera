@@ -7,13 +7,13 @@ import { EmailAuthProvider, reauthenticateWithCredential, verifyBeforeUpdateEmai
 import { Spinner } from "@/components/Spinner";
 
 export default function SettingsClient({ 
-  userEmail,
   initialFirstName,
-  initialLastName
+  initialLastName,
+  canUsePassword,
 }: { 
-  userEmail: string,
   initialFirstName: string,
-  initialLastName: string
+  initialLastName: string,
+  canUsePassword: boolean,
 }) {
   const router = useRouter();
   
@@ -34,6 +34,9 @@ export default function SettingsClient({
   const [passwordCurrentPassword, setPasswordCurrentPassword] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deleteStatus, setDeleteStatus] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +60,21 @@ export default function SettingsClient({
       setProfileStatus(`Error: ${error.message}`);
     }
     setIsUpdatingProfile(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== "DELETE") return;
+    setIsDeleting(true);
+    setDeleteStatus("");
+    const response = await fetch("/api/user/account", { method: "DELETE" });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok) {
+      await auth.signOut();
+      window.location.href = "/?account=deleted";
+      return;
+    }
+    setDeleteStatus(data.error || "Account deletion failed.");
+    setIsDeleting(false);
   };
 
   const handleUpdateEmail = async (e: React.FormEvent) => {
@@ -99,8 +117,8 @@ export default function SettingsClient({
     const user = auth.currentUser;
     if (!user || !user.email) return;
 
-    if (newPassword.length < 6) {
-      setPasswordStatus("Error: New password must be at least 6 characters.");
+    if (newPassword.length < 8) {
+      setPasswordStatus("Error: New password must be at least 8 characters.");
       return;
     }
 
@@ -142,8 +160,10 @@ export default function SettingsClient({
         <form onSubmit={handleUpdateProfile} className="space-y-4">
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-muted-foreground mb-1.5">First Name</label>
+              <label htmlFor="settings-first-name" className="block text-sm font-medium text-muted-foreground mb-1.5">First Name</label>
               <input
+                id="settings-first-name"
+                autoComplete="given-name"
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
@@ -153,8 +173,10 @@ export default function SettingsClient({
               />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-medium text-muted-foreground mb-1.5">Last Name</label>
+              <label htmlFor="settings-last-name" className="block text-sm font-medium text-muted-foreground mb-1.5">Last Name</label>
               <input
+                id="settings-last-name"
+                autoComplete="family-name"
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
@@ -182,13 +204,16 @@ export default function SettingsClient({
 
       <div className="h-px bg-border w-full" />
 
+      {canUsePassword && (<>
       {/* Change Email */}
       <div>
         <h3 className="text-lg font-semibold mb-4">Change Email Address</h3>
         <form onSubmit={handleUpdateEmail} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1.5">New Email</label>
+            <label htmlFor="settings-new-email" className="block text-sm font-medium text-muted-foreground mb-1.5">New Email</label>
             <input
+              id="settings-new-email"
+              autoComplete="email"
               type="email"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
@@ -197,8 +222,10 @@ export default function SettingsClient({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1.5">Current Password</label>
+            <label htmlFor="settings-email-password" className="block text-sm font-medium text-muted-foreground mb-1.5">Current Password</label>
             <input
+              id="settings-email-password"
+              autoComplete="current-password"
               type="password"
               value={emailCurrentPassword}
               onChange={(e) => setEmailCurrentPassword(e.target.value)}
@@ -230,19 +257,23 @@ export default function SettingsClient({
         <h3 className="text-lg font-semibold mb-4">Change Password</h3>
         <form onSubmit={handleUpdatePassword} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1.5">New Password</label>
+            <label htmlFor="settings-new-password" className="block text-sm font-medium text-muted-foreground mb-1.5">New Password</label>
             <input
+              id="settings-new-password"
+              autoComplete="new-password"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={8}
               className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1.5">Current Password</label>
+            <label htmlFor="settings-current-password" className="block text-sm font-medium text-muted-foreground mb-1.5">Current Password</label>
             <input
+              id="settings-current-password"
+              autoComplete="current-password"
               type="password"
               value={passwordCurrentPassword}
               onChange={(e) => setPasswordCurrentPassword(e.target.value)}
@@ -266,6 +297,7 @@ export default function SettingsClient({
           )}
         </form>
       </div>
+      </>)}
 
       <div className="h-px bg-border w-full" />
 
@@ -286,6 +318,18 @@ export default function SettingsClient({
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="h-px bg-border w-full" />
+      <div>
+        <h3 className="text-lg font-semibold text-red-500 mb-2">Delete account</h3>
+        <p className="text-sm text-muted-foreground mb-4">Permanently deletes your profile and saved reports. Active subscriptions must be cancelled first.</p>
+        <label htmlFor="delete-confirmation" className="block text-sm font-medium text-muted-foreground mb-1.5">Type DELETE to confirm</label>
+        <input id="delete-confirmation" value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} autoComplete="off" className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-red-500/50" />
+        <button type="button" onClick={handleDeleteAccount} disabled={deleteConfirmation !== "DELETE" || isDeleting} className="mt-3 rounded-lg border border-red-500/40 px-5 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-500/10 disabled:opacity-50">
+          {isDeleting ? "Deleting…" : "Delete my account"}
+        </button>
+        {deleteStatus && <p className="mt-3 text-sm text-red-500">{deleteStatus}</p>}
       </div>
     </div>
   );

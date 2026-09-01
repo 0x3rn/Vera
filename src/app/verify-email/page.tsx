@@ -4,10 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { auth } from "@/lib/firebase/client";
 import { sendEmailVerification } from "firebase/auth";
-import { useRouter } from "next/navigation";
 
 export default function VerifyEmailPage() {
-  const router = useRouter();
   const [cooldown, setCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -37,8 +35,8 @@ export default function VerifyEmailPage() {
         handleCodeInApp: true,
       });
       setCooldown(60);
-    } catch (err: any) {
-      setError(err.message || "Failed to resend verification email.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to resend verification email.");
     } finally {
       setLoading(false);
     }
@@ -63,7 +61,7 @@ export default function VerifyEmailPage() {
         }
       }
       setError("Email not verified yet. Please check your inbox and click the link.");
-    } catch (err: any) {
+    } catch {
       setError("Failed to check verification status.");
     } finally {
       setLoading(false);

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useDropzone } from "react-dropzone";
+import { FileRejection, useDropzone } from "react-dropzone";
 import { auth } from "@/lib/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import type { AnalysisResult } from "@/lib/contract-analyzer";
-import RiskMeter from "./RiskMeter";
 import TrialBadge from "./TrialBadge";
 import AnalysisReport from "./AnalysisReport";
 
@@ -30,22 +29,21 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
   const [textInput, setTextInput] = useState("");
   const [inputMode, setInputMode] = useState<InputMode>("pdf");
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [scanId, setScanId] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
+  const [authResolved, setAuthResolved] = useState(false);
   const [remainingScans, setRemainingScans] = useState<number | null>(null);
   const [maxFreeScans, setMaxFreeScans] = useState(2);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  function reset() {
+  const reset = useCallback(() => {
     setFile(null);
     setTextInput("");
     setAnalysis(null);
-    setScanId(null);
     setError("");
     setAppState("idle");
-  }
+  }, []);
 
   // Sync state upward when it changes
   useEffect(() => {
@@ -62,6 +60,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setAuthResolved(true);
     });
 
     return () => unsubscribe();
@@ -98,6 +97,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
       const res = await fetch("/api/scan", {
         method: "POST",
         body: formData,
+        headers: { "x-idempotency-key": crypto.randomUUID() },
       });
 
       const data = await res.json();
@@ -111,11 +111,9 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
         throw new Error(data.error || "Scan failed");
       }
 
-      const { scan_id, free_scans_remaining, max_free_scans, ...result } = data;
-      setAnalysis(result);
-      setScanId(scan_id);
-      setRemainingScans(free_scans_remaining ?? null);
-      setMaxFreeScans(max_free_scans ?? 2);
+      setAnalysis(data as AnalysisResult);
+      setRemainingScans(data.free_scans_remaining ?? null);
+      setMaxFreeScans(data.max_free_scans ?? 2);
       setAppState("results");
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
@@ -125,13 +123,9 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
 
   const triggerScan = useCallback(
     (payload: FormData) => {
-      if (!user) {
-        window.location.href = "/register";
-        return;
-      }
       scanWithData(payload);
     },
-    [user, scanWithData]
+    [scanWithData]
   );
 
   const handleTextSubmit = useCallback(() => {
@@ -160,13 +154,20 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
     [triggerScan]
   );
 
+  const onDropRejected = useCallback((rejections: FileRejection[]) => {
+    const code = rejections[0]?.errors[0]?.code;
+    setError(code === "file-too-large" ? "PDF must be 4MB or smaller." : "Choose one valid PDF file.");
+    setAppState("error");
+  }, []);
+
 
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept: { "application/pdf": [".pdf"] },
     maxFiles: 1,
-    maxSize: 15 * 1024 * 1024,
+    maxSize: 4 * 1024 * 1024,
     disabled: appState === "scanning",
   });
 
@@ -176,8 +177,22 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
         <div className="w-16 h-16 mx-auto mb-8 rounded-full border-4 border-border border-t-primary animate-spin" />
         <h2 className="text-3xl font-bold mb-4">Vera Risk Engine™ is analyzing</h2>
         <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed text-lg">
-          Scanning every clause for red flags. This usually takes 10–20 seconds.
+          Reviewing the submitted text for red flags. Larger contracts can take a minute.
         </p>
+      </div>
+    );
+  }
+
+  if (!authResolved) {
+    return <div className="h-[320px] rounded-2xl border border-border bg-muted animate-pulse" aria-label="Loading scanner" />;
+  }
+
+  if (!user) {
+    return (
+      <div className="h-[320px] rounded-2xl border border-border bg-muted flex flex-col items-center justify-center text-center p-8">
+        <h2 className="text-2xl font-bold mb-3">Sign in before adding a contract</h2>
+        <p className="text-muted-foreground max-w-md mb-6">This keeps contract text out of browser storage and saves the report securely to your account.</p>
+        <a href="/register" className="rounded-lg bg-primary px-6 py-3 text-white font-semibold hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Create a free account</a>
       </div>
     );
   }
@@ -297,7 +312,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
         <div className="flex justify-center gap-2 mb-6">
           <button
             onClick={() => { setInputMode("pdf"); setTextInput(""); setError(""); }}
-            className={`px-5 py-2.5 rounded-lg text-sm font-medium border outline-none focus:outline-none focus:ring-0 active:outline-none tap-highlight-transparent transition-colors duration-150 ease-in-out ${
+            className={`px-5 py-2.5 rounded-lg text-sm font-medium border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-150 ease-in-out ${
               inputMode === "pdf"
                 ? "bg-primary/20 text-primary border-primary/50"
                 : "bg-transparent text-muted-foreground border-primary/0 hover:text-foreground hover:bg-muted/50"
@@ -307,7 +322,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
           </button>
           <button
             onClick={() => { setInputMode("text"); setFile(null); setError(""); }}
-            className={`px-5 py-2.5 rounded-lg text-sm font-medium border outline-none focus:outline-none focus:ring-0 active:outline-none tap-highlight-transparent transition-colors duration-150 ease-in-out ${
+            className={`px-5 py-2.5 rounded-lg text-sm font-medium border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors duration-150 ease-in-out ${
               inputMode === "text"
                 ? "bg-primary/20 text-primary border-primary/50"
                 : "bg-transparent text-muted-foreground border-primary/0 hover:text-foreground hover:bg-muted/50"
@@ -356,7 +371,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
               <h3 className="text-xl sm:text-2xl font-semibold">
                 {isDragActive ? "Drop your contract here" : "Drop your contract here"}
               </h3>
-              <p className="text-muted-foreground">Supports PDF (Max 15MB)</p>
+              <p className="text-muted-foreground">PDF, up to 30 pages and 4MB</p>
               <label className="inline-block px-6 py-3 rounded-lg border border-border text-sm font-medium cursor-pointer hover:border-primary/50 hover:bg-muted/80 transition-colors duration-150 outline-none focus:outline-none focus:ring-0 active:outline-none tap-highlight-transparent">
                 Browse Files
               </label>
@@ -388,7 +403,7 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
           <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
-          Bank-level encryption. We never store your contracts.
+          Reports are private to your account. Uploaded source files are not retained.
         </div>
       )}
     </div>

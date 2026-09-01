@@ -4,7 +4,7 @@
 
 Vera is a hybrid AI and Expert-Rule-Based contract scanner that analyzes freelance agreements, NDAs, employment contracts, commercial leases, and more. It uses an advanced legal taxonomy to identify red flags, toxic clauses, and unfair terms, then calculates a deterministic risk score and outputs a plain-English summary with actionable negotiation advice.
 
-![Vera](https://img.shields.io/badge/status-active-emerald) ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Firebase](https://img.shields.io/badge/Firebase-11-yellow) ![Tailwind](https://img.shields.io/badge/Tailwind-4-cyan)
+![Vera](https://img.shields.io/badge/status-active-emerald) ![Next.js](https://img.shields.io/badge/Next.js-16-black) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Firebase](https://img.shields.io/badge/Firebase-12-yellow) ![Tailwind](https://img.shields.io/badge/Tailwind-4-cyan)
 
 ---
 
@@ -12,14 +12,14 @@ Vera is a hybrid AI and Expert-Rule-Based contract scanner that analyzes freelan
 
 - **PDF Upload & Text Paste** — Drop a PDF or paste contract text directly
 - **Smart Risk Engine™** — Hybrid AI and Expert System trained to detect fake liability caps, risk cascades, and unbalanced obligations
-- **Comprehensive Severity Taxonomy** — Dictionary-based weighting system scoring over 99% of contract clauses across Critical, High, Medium, and Low tiers
+- **Comprehensive Severity Taxonomy** — Rule-based weighting across Critical, High, Medium, and Low tiers
 - **Zero-Hallucination Deterministic Math** — AI extracts the variables, but our backend TypeScript Normalizer overrides bad severities and computes the exact 0-100 risk score
 - **Mutuality & Balance Tracking** — Measures the exact one-sidedness of IP, liability, and termination rights to apply a Risk Multiplier
 - **Automated Lawyer Review** — Programmatic recommendation based on our strict 4-tier verdict system (Passed, Moderate Risk, Extreme Caution, Do Not Sign)
 - **Firebase Auth & Firestore** — Google Sign-In and highly scalable serverless NoSQL document storage
 - **Lemon Squeezy Payments** — Checkout sessions with secure webhook confirmation
 - **Dark Theme** — Premium dark UI with indigo/violet accents
-- **Privacy First** — Contracts processed entirely in-memory, never stored on disk
+- **Privacy First** — Uploaded PDFs are parsed in an isolated in-memory worker; reports are stored for the signed-in user
 
 ---
 
@@ -33,18 +33,17 @@ vera/
 │   │   │   ├── scan/               # POST /api/scan — main contract analysis
 │   │   │   ├── results/[id]/       # GET /api/results/:id — fetch scan results
 │   │   │   └── webhook/lemonsqueezy/ # Lemon Squeezy webhook handler
-│   │   ├── pricing/                # /pricing page
+│   │   ├── pricing/                # /pricing redirect
 │   │   ├── results/[id]/           # /results/:id permalink page
-│   │   ├── layout.tsx              # Root layout (Inter font, dark bg)
+│   │   ├── layout.tsx              # Root metadata and theme providers
 │   │   ├── page.tsx                # Landing page
 │   │   └── globals.css             # Tailwind v4 base styles
 │   ├── lib/
 │   │   ├── contract-analyzer.ts    # AI prompt engineering & Expert System Rules Engine
-│   │   ├── openai.ts               # OpenAI SDK wrapper
-│   │   ├── pdf-parser.ts           # pdfjs-dist in-memory PDF text extraction
-│   │   ├── firebase.ts             # Browser Firebase client config
-│   │   └── firebase-admin.ts       # Server Firebase Admin SDK
-│   └── middleware.ts               # Auth middleware
+│   │   ├── openai.ts               # OpenAI-compatible Vertex AI client
+│   │   ├── pdf-parser.ts           # Isolated, bounded PDF text extraction
+│   │   └── firebase/               # Browser and Admin Firebase clients
+│   └── proxy.ts                    # Security headers and nonce CSP
 ├── .env.example                    # Environment variable template
 ├── next.config.ts
 ├── tailwind.config.ts
@@ -62,8 +61,8 @@ vera/
 | Styling | [Tailwind CSS v4](https://tailwindcss.com) |
 | Database | [Firebase Firestore](https://firebase.google.com/) |
 | Auth | [Firebase Auth](https://firebase.google.com/docs/auth) (Google OAuth) |
-| AI | OpenAI SDK |
-| PDF Parsing | [pdfjs-dist](https://mozilla.github.io/pdf.js) (in-memory) |
+| AI | Vertex AI through the OpenAI-compatible API |
+| PDF Parsing | `pdf-parse` in a bounded worker |
 | Payments | [Lemon Squeezy](https://lemonsqueezy.com/) (Checkout Sessions + Webhooks) |
 | Font | [Inter](https://fonts.google.com/specimen/Inter) |
 
@@ -75,7 +74,7 @@ vera/
 
 - Node.js 18+
 - A [Firebase](https://firebase.google.com/) project
-- An OpenAI API key
+- A Google Cloud project with Vertex AI access and a service account
 - A [Lemon Squeezy](https://lemonsqueezy.com/) account (with webhook secret)
 
 ### Installation
@@ -97,19 +96,27 @@ cp .env.example .env.local
 Open `.env.local` and fill in your keys:
 
 ```env
-# Required — OpenAI API key
-OPENAI_API_KEY=sk-...
+# Required — Vertex AI. The JSON value must remain on one line.
+GOOGLE_CLOUD_PROJECT=your-google-cloud-project
+GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"your-google-cloud-project",...}
 
 # Required — Lemon Squeezy keys
 LEMONSQUEEZY_API_KEY=...
 LEMONSQUEEZY_WEBHOOK_SECRET=...
 LEMONSQUEEZY_STORE_ID=...
-LEMONSQUEEZY_VARIANT_ID=...
+LEMONSQUEEZY_ONETIME_VARIANT_ID=...
+LEMONSQUEEZY_SUBSCRIPTION_VARIANT_ID=...
 
 # Required — Firebase Client
 NEXT_PUBLIC_FIREBASE_API_KEY=...
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+
+# Required in production — rate limiting and reCAPTCHA
+UPSTASH_REDIS_REST_URL=...
+UPSTASH_REDIS_REST_TOKEN=...
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=...
+RECAPTCHA_SECRET_KEY=...
 
 # Required — Firebase Admin (Service Account)
 FIREBASE_CLIENT_EMAIL=...
@@ -138,11 +145,10 @@ npm start
 
 1. User signs in with Google (Firebase Auth)
 2. User uploads a PDF or pastes contract text
-3. PDF is parsed **entirely in-memory** using `pdfjs-dist` — files never touch disk
-4. Server checks the user's `free_scans_used` count in Firestore:
-   - **< 2 free scans remaining** → AI analyzes the contract, stores results in DB, returns the report
-   - **Free scans exhausted** → Saves a pending scan record, generates a Lemon Squeezy Checkout session, returns the payment URL
-5. Upon Lemon Squeezy payment, the webhook marks the scan as `paid`
+3. PDF is parsed in a terminable worker with file, page, text, and time limits
+4. The server atomically reserves a scan entitlement and validates the AI result
+5. The report and credit settlement commit together; failed or abandoned work does not consume a credit
+6. Lemon Squeezy webhooks add scan packs or project subscription state idempotently
 
 ### Expert System Analysis & Deterministic Scoring
 

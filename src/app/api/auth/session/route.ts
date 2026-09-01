@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { authRateLimit, getIp } from "@/lib/rate-limit";
+import { parseJsonRequest, sessionRequestSchema } from "@/lib/validation";
+import { RequestValidationError } from "@/lib/http";
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,11 +13,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
-    const { idToken } = await request.json();
-
-    if (!idToken) {
-      return NextResponse.json({ error: "Missing ID token" }, { status: 400 });
-    }
+    const { idToken } = await parseJsonRequest(request, sessionRequestSchema);
 
     // Verify token to get user details
     const decodedToken = await adminAuth.verifyIdToken(idToken);
@@ -62,8 +60,11 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
+    if (error instanceof RequestValidationError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     console.error("Session creation error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Unable to create a session." }, { status: 401 });
   }
 }
