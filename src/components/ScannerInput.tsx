@@ -31,7 +31,6 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
-  const [authResolved, setAuthResolved] = useState(false);
   const [remainingScans, setRemainingScans] = useState<number | null>(null);
   const [maxFreeScans, setMaxFreeScans] = useState(2);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
@@ -60,7 +59,6 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setAuthResolved(true);
     });
 
     return () => unsubscribe();
@@ -123,9 +121,13 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
 
   const triggerScan = useCallback(
     (payload: FormData) => {
+      if (!user) {
+        window.location.href = "/register";
+        return;
+      }
       scanWithData(payload);
     },
-    [scanWithData]
+    [user, scanWithData]
   );
 
   const handleTextSubmit = useCallback(() => {
@@ -179,20 +181,6 @@ export default function ScannerInput({ onStateChange }: ScannerInputProps) {
         <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed text-lg">
           Reviewing the submitted text for red flags. Larger contracts can take a minute.
         </p>
-      </div>
-    );
-  }
-
-  if (!authResolved) {
-    return <div className="h-[320px] rounded-2xl border border-border bg-muted animate-pulse" aria-label="Loading scanner" />;
-  }
-
-  if (!user) {
-    return (
-      <div className="h-[320px] rounded-2xl border border-border bg-muted flex flex-col items-center justify-center text-center p-8">
-        <h2 className="text-2xl font-bold mb-3">Sign in before adding a contract</h2>
-        <p className="text-muted-foreground max-w-md mb-6">This keeps contract text out of browser storage and saves the report securely to your account.</p>
-        <a href="/register" className="rounded-lg bg-primary px-6 py-3 text-white font-semibold hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Create a free account</a>
       </div>
     );
   }
