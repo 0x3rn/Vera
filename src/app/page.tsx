@@ -34,7 +34,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-full">
       {/* 1. Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+      <nav className="fixed top-0 w-full z-50 border-b border-border bg-background shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold tracking-tight">
             Vera<span className="text-primary">.</span>
