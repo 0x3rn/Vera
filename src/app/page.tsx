@@ -35,7 +35,7 @@ export default function Home() {
     <div className="flex flex-col min-h-full">
       {/* 1. Navigation */}
       <nav className="fixed top-0 w-full z-50 border-b border-border bg-background shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 h-[70px] flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold tracking-tight">
             Vera<span className="text-primary">.</span>
           </Link>
@@ -62,7 +62,7 @@ export default function Home() {
         <main className="flex-grow pt-[70px]">
         {/* 2. Hero Section (Split Layout logic via conditional classes) */}
         <section className={isInput ? "pt-20 sm:pt-32 pb-16 relative" : "pt-8 sm:pt-16 pb-32 relative"} id="hero">
-          <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
             
             {/* Main Hero Title - Only show when waiting for input */}
             {isInput && (
@@ -112,7 +112,7 @@ export default function Home() {
           <>
             {/* 3. Trust Bar */}
             <section className="py-12 border-t border-b border-border bg-background">
-              <div className="max-w-7xl mx-auto px-4 sm:px-8 text-center opacity-70">
+              <div className="max-w-[1440px] mx-auto px-4 sm:px-8 text-center opacity-70">
                 <p className="text-sm font-medium text-muted-foreground mb-6 uppercase tracking-widest">
                   Built for employees, freelancers, agencies, contractors, and consumers reviewing everyday agreements.
                 </p>
@@ -128,7 +128,7 @@ export default function Home() {
 
             {/* 4. Product Demo Section */}
             <section className="py-24 relative overflow-hidden">
-              <div className="max-w-7xl mx-auto px-4 sm:px-8">
+              <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">Spot Red Flags Instantly</h2>
                   <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Upload your contract and Vera will highlight exactly what you need to look out for.</p>
@@ -219,7 +219,7 @@ export default function Home() {
 
             {/* 6. Features Grid */}
             <section id="features" className="py-24">
-              <div className="max-w-7xl mx-auto px-4 sm:px-8">
+              <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything You Need Before You Sign</h2>
                   <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Vera combines contract-focused AI review with deterministic validation and scoring.</p>
@@ -249,7 +249,7 @@ export default function Home() {
 
             {/* 7. How It Works */}
             <section id="how-it-works" className="py-24 bg-muted border-y border-border">
-              <div className="max-w-7xl mx-auto px-4 sm:px-8 text-center">
+              <div className="max-w-[1440px] mx-auto px-4 sm:px-8 text-center">
                 <h2 className="text-3xl md:text-4xl font-bold mb-16">Review Any Contract In 3 Steps</h2>
                 <div className="grid md:grid-cols-3 gap-12 relative">
                   <div className="hidden md:block absolute top-1/4 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-transparent via-[#22222a] to-transparent"></div>
@@ -336,7 +336,7 @@ export default function Home() {
 
             {/* 10. Security Section */}
             <section className="py-24">
-              <div className="max-w-7xl mx-auto px-4 sm:px-8 text-center">
+              <div className="max-w-[1440px] mx-auto px-4 sm:px-8 text-center">
                 <h2 className="text-3xl md:text-4xl font-bold mb-16">Your Contracts Stay Private</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                   {[
@@ -436,7 +436,7 @@ export default function Home() {
             </section>
             {/* 14. Footer */}
             <footer className="border-t border-border bg-background py-12">
-              <div className="max-w-7xl mx-auto px-4 sm:px-8">
+              <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                   <div className="col-span-2">
                     <Link href="/" className="text-2xl font-bold tracking-tight inline-block mb-4">
