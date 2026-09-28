@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { adminAuth, adminDb } from "./firebase/admin";
+import { isInvalidSessionError } from "./auth-session";
 
 export type DbUser = {
   id?: string;
@@ -25,28 +26,36 @@ export async function getCurrentUser() {
     return null;
   }
 
-  try {
-    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
-    const userRecord = await adminAuth.getUser(decodedClaims.uid);
-    
-    // Fetch db user record
-    const userDoc = await adminDb.collection("users").doc(decodedClaims.uid).get();
-    const dbUser: DbUser | null = userDoc.exists
-      ? { id: userDoc.id, ...(userDoc.data() as Omit<DbUser, "id">) }
-      : null;
+  let decodedClaims;
+  let userRecord;
 
-    return {
-      uid: decodedClaims.uid,
-      email: userRecord.email,
-      emailVerified: userRecord.emailVerified,
-      displayName: userRecord.displayName,
-      dbUser,
-      providerIds: userRecord.providerData.map((provider) => provider.providerId),
-    };
+  try {
+    decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
+    userRecord = await adminAuth.getUser(decodedClaims.uid);
   } catch (error) {
-    console.error("auth-server error:", error);
-    return null;
+    if (isInvalidSessionError(error)) {
+      return null;
+    }
+
+    console.error("Session verification temporarily failed:", error);
+    throw error;
   }
+
+  // A profile lookup failure must not turn a valid session into a logout.
+  // Let the request fail temporarily so the browser keeps the session cookie.
+  const userDoc = await adminDb.collection("users").doc(decodedClaims.uid).get();
+  const dbUser: DbUser | null = userDoc.exists
+    ? { id: userDoc.id, ...(userDoc.data() as Omit<DbUser, "id">) }
+    : null;
+
+  return {
+    uid: decodedClaims.uid,
+    email: userRecord.email,
+    emailVerified: userRecord.emailVerified,
+    displayName: userRecord.displayName,
+    dbUser,
+    providerIds: userRecord.providerData.map((provider) => provider.providerId),
+  };
 }
 
 export async function getCurrentVerifiedUser() {

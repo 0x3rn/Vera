@@ -4,6 +4,7 @@ import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { authRateLimit, getIp } from "@/lib/rate-limit";
 import { parseJsonRequest, sessionRequestSchema } from "@/lib/validation";
 import { RequestValidationError } from "@/lib/http";
+import { SESSION_DURATION_MS } from "@/lib/auth-session";
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,13 +47,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-
-    const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
+      expiresIn: SESSION_DURATION_MS,
+    });
 
     const cookieStore = await cookies();
     cookieStore.set("session", sessionCookie, {
-      expires: new Date(Date.now() + expiresIn),
+      expires: new Date(Date.now() + SESSION_DURATION_MS),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
