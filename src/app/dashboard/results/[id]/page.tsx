@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { AnalysisResult } from "@/lib/contract-analyzer";
 import AnalysisReport from "@/components/AnalysisReport";
+import ReportLoading from "@/components/ReportLoading";
 
 
 interface ScanData {
@@ -45,12 +46,7 @@ export default function DashboardResultsPage() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="animate-in fade-in duration-500 text-center py-20">
-        <div className="w-16 h-16 mx-auto mb-8 rounded-full border-4 border-zinc-800 border-t-primary animate-spin" />
-        <h2 className="text-2xl font-bold">Loading results...</h2>
-      </div>
-    );
+    return <ReportLoading />;
   }
 
   if (error || !scan) {
