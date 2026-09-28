@@ -139,7 +139,7 @@ export default async function DashboardOverview() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-w-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 lg:items-start gap-8 min-w-0">
             {/* Last Scan Preview */}
             {lastScan && (
               <div className="bg-card border border-border rounded-2xl p-6 min-w-0 overflow-hidden">
