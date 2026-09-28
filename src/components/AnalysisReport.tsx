@@ -585,17 +585,14 @@ ${(analysis.negotiationChecklist || []).join('\n')}
                 const isHigh = flag.severity === "high";
                 const isMedium = flag.severity === "medium";
                 
-                const borderClass = isCritical ? "border-red-200 dark:border-red-900/50" : isHigh ? "border-red-200 dark:border-red-900/50" : isMedium ? "border-amber-200 dark:border-amber-900/50" : "border-cyan-200 dark:border-cyan-900/50";
-                const bgClass = isCritical || isHigh ? "bg-red-50 text-red-800 dark:bg-red-950/20 dark:text-red-400" : isMedium ? "bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400" : "bg-cyan-50 dark:bg-cyan-950/20 text-cyan-800 dark:text-cyan-400";
-
                 return (
-                  <div key={idx} className={`p-6 md:p-8 rounded-2xl border ${borderClass} ${bgClass} shadow-sm`}>
+                  <div key={idx} className="p-6 md:p-8 rounded-2xl border border-zinc-200 bg-white text-zinc-900 dark:border-white/10 dark:bg-[#121216] dark:text-white shadow-sm">
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
                       <div>
                         <span className="inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 mb-3 border border-zinc-200 dark:border-white/10">
                           {CATEGORY_LABELS[flag.category as RedFlag["category"]] || flag.category}
                         </span>
-                        <h4 className={`text-xl font-bold ${isCritical || isHigh ? 'text-red-800 dark:text-red-400' : isMedium ? 'text-amber-800 dark:text-amber-400' : 'text-cyan-800 dark:text-cyan-400'}`}>{flag.title}</h4>
+                        <h4 className="text-xl font-bold text-zinc-900 dark:text-white">{flag.title}</h4>
                       </div>
                       <div className="flex flex-wrap gap-2 shrink-0">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
@@ -609,11 +606,7 @@ ${(analysis.negotiationChecklist || []).join('\n')}
                           Confidence: {flag.confidenceScore}%
                         </span>
                         {flag.enforcementLikelihood && (
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
-                            flag.enforcementLikelihood === 'High' ? "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-900/50" : 
-                            flag.enforcementLikelihood === 'Medium' ? "bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900/50" : 
-                            "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50"
-                          }`}>
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300">
                             Enforceability: {flag.enforcementLikelihood}
                           </span>
                         )}
@@ -632,7 +625,7 @@ ${(analysis.negotiationChecklist || []).join('\n')}
                           </div>
                           <div className="flex justify-between items-center text-sm border-t border-zinc-200 dark:border-zinc-800 pt-3">
                             <span className="text-zinc-600 dark:text-zinc-400">This Contract:</span>
-                            <span className="font-bold text-amber-600 dark:text-amber-400 text-right">{flag.deviation}</span>
+                            <span className="font-bold text-zinc-900 dark:text-white text-right">{flag.deviation}</span>
                           </div>
                         </div>
                       </div>
@@ -640,7 +633,7 @@ ${(analysis.negotiationChecklist || []).join('\n')}
 
                     <p className="text-zinc-900 dark:text-white mb-6 leading-relaxed text-base font-medium">{flag.plainEnglishExplanation}</p>
                     
-                    <div className="border border-emerald-200 dark:border-emerald-900/50 p-5 rounded-xl bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">
+                    <div className="border border-zinc-200 dark:border-white/10 p-5 rounded-xl bg-zinc-50 text-zinc-800 dark:bg-[#0b0b0e] dark:text-zinc-200">
                       <p className="text-sm font-medium">
                         <span className="font-bold block mb-1">Recommendation:</span> {flag.suggestedFix}
                       </p>
