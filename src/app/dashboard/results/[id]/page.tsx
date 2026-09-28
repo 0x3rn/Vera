@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { AnalysisResult } from "@/lib/contract-analyzer";
-import AnalysisReport from "@/components/AnalysisReport";
+import AnalysisReport, { CopyFullReportButton } from "@/components/AnalysisReport";
 import ReportLoading from "@/components/ReportLoading";
 
 
@@ -117,12 +117,15 @@ export default function DashboardResultsPage() {
             {scan.suggested_title && scan.suggested_title !== "Unknown Document" ? scan.suggested_title : scan.document_name}
           </p>
         </div>
-        <button onClick={deleteReport} disabled={deleting} className="self-start rounded-lg border border-red-500/30 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-50">
-          {deleting ? "Deleting…" : "Delete report"}
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <CopyFullReportButton analysis={analysis} />
+          <button onClick={deleteReport} disabled={deleting} className="rounded-lg border border-red-500/30 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:opacity-50">
+            {deleting ? "Deleting…" : "Delete report"}
+          </button>
+        </div>
       </div>
 
-      <AnalysisReport analysis={analysis} />
+      <AnalysisReport analysis={analysis} showCopyAction={false} />
     </div>
   );
 }

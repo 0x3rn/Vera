@@ -22,6 +22,7 @@ export const CATEGORY_LABELS: Record<RedFlag["category"], string> = {
 
 interface AnalysisReportProps {
   analysis: AnalysisResult;
+  showCopyAction?: boolean;
 }
 
 function ExpandableDrawer({ 
@@ -76,30 +77,11 @@ function ExpandableDrawer({
   );
 }
 
-export default function AnalysisReport({ analysis }: AnalysisReportProps) {
-  const [copiedChecklist, setCopiedChecklist] = useState(false);
+export function CopyFullReportButton({ analysis }: { analysis: AnalysisResult }) {
   const [copiedReport, setCopiedReport] = useState(false);
-  const [activeDrawer, setActiveDrawer] = useState<string | null>(null);
-
-  const toggleDrawer = (id: string) => setActiveDrawer(a => a === id ? null : id);
-
-  // Sort flags: critical > high > medium > low
-  const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-  const sortedFlags = [...analysis.redFlags].sort(
-    (a, b) => severityOrder[a.severity] - severityOrder[b.severity]
-  );
-
-  const copyChecklist = () => {
-    if (!analysis.negotiationChecklist) return;
-    navigator.clipboard.writeText(analysis.negotiationChecklist.join("\n"));
-    setCopiedChecklist(true);
-    setTimeout(() => setCopiedChecklist(false), 2000);
-  };
-
   const score = analysis.overallRiskScore;
-  let verdictClass = "";
   let verdictText = analysis.verdict || "";
-  
+
   if (!verdictText) {
     if (score >= 90) verdictText = "CRITICAL WARNING: DO NOT SIGN";
     else if (score >= 75) verdictText = "WARNING: PROCEED WITH EXTREME CAUTION";
@@ -107,15 +89,10 @@ export default function AnalysisReport({ analysis }: AnalysisReportProps) {
     else verdictText = "PASSED: GENERALLY ACCEPTABLE";
   }
 
-  if (verdictText.includes("DO NOT SIGN")) {
-    verdictClass = "bg-red-600 border-red-700 text-white dark:bg-red-900/80 dark:border-red-900/50 dark:text-white";
-  } else if (verdictText.includes("EXTREME CAUTION")) {
-    verdictClass = "bg-orange-600 border-orange-700 text-white dark:bg-orange-900/80 dark:border-orange-900/50 dark:text-white";
-  } else if (verdictText.includes("NEGOTIATE") || verdictText.includes("MODERATE")) {
-    verdictClass = "bg-amber-600 border-amber-700 text-white dark:bg-amber-900/80 dark:border-amber-900/50 dark:text-white";
-  } else {
-    verdictClass = "bg-emerald-600 border-emerald-700 text-white dark:bg-emerald-900/80 dark:border-emerald-900/50 dark:text-white";
-  }
+  const severityOrder: Record<RedFlag["severity"], number> = { critical: 0, high: 1, medium: 2, low: 3 };
+  const sortedFlags = [...analysis.redFlags].sort(
+    (a, b) => severityOrder[a.severity] - severityOrder[b.severity]
+  );
 
   const copyFullReport = () => {
     const reportText = `
@@ -178,6 +155,72 @@ ${(analysis.negotiationChecklist || []).join('\n')}
     setTimeout(() => setCopiedReport(false), 2000);
   };
 
+
+  return (
+        <button
+          onClick={copyFullReport}
+          className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 rounded-lg hover:opacity-90 transition-opacity text-sm font-bold shadow-sm"
+        >
+          {copiedReport ? (
+            <>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Copied to Clipboard!
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+              </svg>
+              Copy Full Report
+            </>
+          )}
+        </button>
+  );
+}
+
+export default function AnalysisReport({ analysis, showCopyAction = true }: AnalysisReportProps) {
+  const [copiedChecklist, setCopiedChecklist] = useState(false);
+  const [activeDrawer, setActiveDrawer] = useState<string | null>(null);
+
+  const toggleDrawer = (id: string) => setActiveDrawer(a => a === id ? null : id);
+
+  // Sort flags: critical > high > medium > low
+  const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+  const sortedFlags = [...analysis.redFlags].sort(
+    (a, b) => severityOrder[a.severity] - severityOrder[b.severity]
+  );
+
+  const copyChecklist = () => {
+    if (!analysis.negotiationChecklist) return;
+    navigator.clipboard.writeText(analysis.negotiationChecklist.join("\n"));
+    setCopiedChecklist(true);
+    setTimeout(() => setCopiedChecklist(false), 2000);
+  };
+
+  const score = analysis.overallRiskScore;
+  let verdictClass = "";
+  let verdictText = analysis.verdict || "";
+  
+  if (!verdictText) {
+    if (score >= 90) verdictText = "CRITICAL WARNING: DO NOT SIGN";
+    else if (score >= 75) verdictText = "WARNING: PROCEED WITH EXTREME CAUTION";
+    else if (score >= 45) verdictText = "MODERATE RISK: NEGOTIATE BEFORE SIGNING";
+    else verdictText = "PASSED: GENERALLY ACCEPTABLE";
+  }
+
+  if (verdictText.includes("DO NOT SIGN")) {
+    verdictClass = "bg-red-600 border-red-700 text-white dark:bg-red-900/80 dark:border-red-900/50 dark:text-white";
+  } else if (verdictText.includes("EXTREME CAUTION")) {
+    verdictClass = "bg-orange-600 border-orange-700 text-white dark:bg-orange-900/80 dark:border-orange-900/50 dark:text-white";
+  } else if (verdictText.includes("NEGOTIATE") || verdictText.includes("MODERATE")) {
+    verdictClass = "bg-amber-600 border-amber-700 text-white dark:bg-amber-900/80 dark:border-amber-900/50 dark:text-white";
+  } else {
+    verdictClass = "bg-emerald-600 border-emerald-700 text-white dark:bg-emerald-900/80 dark:border-emerald-900/50 dark:text-white";
+  }
+
+
   const getSeverityLevel = (severity: string | undefined, defaultScore: number) => {
     if (!severity) {
       if (defaultScore >= 80) return "bad";
@@ -229,29 +272,11 @@ ${(analysis.negotiationChecklist || []).join('\n')}
   return (
     <div className="w-full space-y-10 animate-in fade-in zoom-in duration-500 relative">
       
-      {/* Header Actions */}
-      <div className="flex justify-end mb-[-20px] relative z-10">
-        <button
-          onClick={copyFullReport}
-          className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 rounded-lg hover:opacity-90 transition-opacity text-sm font-bold shadow-sm"
-        >
-          {copiedReport ? (
-            <>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              Copied to Clipboard!
-            </>
-          ) : (
-            <>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-              </svg>
-              Copy Full Report
-            </>
-          )}
-        </button>
-      </div>
+      {showCopyAction && (
+        <div className="flex justify-end mb-[-20px] relative z-10">
+          <CopyFullReportButton analysis={analysis} />
+        </div>
+      )}
 
       {/* 1. EXECUTIVE SUMMARY SECTION */}
       
@@ -584,9 +609,19 @@ ${(analysis.negotiationChecklist || []).join('\n')}
                 const isCritical = flag.severity === "critical";
                 const isHigh = flag.severity === "high";
                 const isMedium = flag.severity === "medium";
+                const severityBorderClass = isCritical || isHigh
+                  ? "border-red-300 dark:border-red-700/70"
+                  : isMedium
+                    ? "border-amber-300 dark:border-amber-700/70"
+                    : "border-emerald-300 dark:border-emerald-700/70";
+                const severityTextClass = isCritical || isHigh
+                  ? "text-red-700 dark:text-red-400"
+                  : isMedium
+                    ? "text-amber-700 dark:text-amber-400"
+                    : "text-emerald-700 dark:text-emerald-400";
                 
                 return (
-                  <div key={idx} className="p-6 md:p-8 rounded-2xl border border-zinc-200 bg-white text-zinc-900 dark:border-white/10 dark:bg-[#121216] dark:text-white shadow-sm">
+                  <div key={idx} className={`p-6 md:p-8 rounded-2xl border bg-white text-zinc-900 dark:bg-[#121216] dark:text-white shadow-sm ${severityBorderClass}`}>
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
                       <div>
                         <span className="inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 mb-3 border border-zinc-200 dark:border-white/10">
@@ -596,10 +631,10 @@ ${(analysis.negotiationChecklist || []).join('\n')}
                       </div>
                       <div className="flex flex-wrap gap-2 shrink-0">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
-                            isCritical || isHigh ? "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-900/50" : isMedium ? "bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900/50" : "bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-400 border-cyan-200 dark:border-cyan-900/50"
+                            isCritical || isHigh ? "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-900/50" : isMedium ? "bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900/50" : "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50"
                           }`}
                         >
-                          <span className={`w-2 h-2 rounded-full ${isCritical ? "bg-red-600 animate-pulse" : isHigh ? "bg-red-500" : isMedium ? "bg-amber-500" : "bg-cyan-500"}`} />
+                          <span className={`w-2 h-2 rounded-full ${isCritical ? "bg-red-600 animate-pulse" : isHigh ? "bg-red-500" : isMedium ? "bg-amber-500" : "bg-emerald-500"}`} />
                           {flag.severity} Risk
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-white/10 text-zinc-600 dark:text-zinc-400">
@@ -625,7 +660,7 @@ ${(analysis.negotiationChecklist || []).join('\n')}
                           </div>
                           <div className="flex justify-between items-center text-sm border-t border-zinc-200 dark:border-zinc-800 pt-3">
                             <span className="text-zinc-600 dark:text-zinc-400">This Contract:</span>
-                            <span className="font-bold text-zinc-900 dark:text-white text-right">{flag.deviation}</span>
+                            <span className={`font-bold text-right ${severityTextClass}`}>{flag.deviation}</span>
                           </div>
                         </div>
                       </div>
