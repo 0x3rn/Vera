@@ -64,21 +64,21 @@ export default function ReportsClient({ initialScans }: { initialScans: ScanSumm
         </div>
       ) : (
         <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-          <div className="hidden sm:grid grid-cols-5 gap-4 px-6 py-4 border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted">
-            <span className="col-span-2">Document</span>
+          <div className="hidden sm:grid sm:grid-cols-[minmax(0,2fr)_minmax(12rem,1.1fr)_minmax(5.5rem,0.55fr)_minmax(7rem,0.75fr)] gap-4 px-6 py-4 border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted">
+            <span>Document</span>
             <span>Risk Score</span>
-            <span>Risks Found</span>
+            <span className="text-center">Risks Found</span>
             <span className="text-right">Date</span>
           </div>
           {filteredScans.map((scan) => (
             <Link key={scan.id} href={`/dashboard/results/${scan.id}`} className="block group">
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-1.5 sm:gap-4 px-4 sm:px-6 py-4 border-b border-border last:border-0 items-start sm:items-center hover:bg-muted transition-colors cursor-pointer">
-                <span className="text-sm font-medium truncate col-span-2 group-hover:text-primary transition-colors">{scan.document_name}</span>
-                <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase px-2.5 py-1 rounded-full border w-fit ${riskBadge(scan.risk_score)}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,2fr)_minmax(12rem,1.1fr)_minmax(5.5rem,0.55fr)_minmax(7rem,0.75fr)] gap-1.5 sm:gap-4 px-4 sm:px-6 py-4 border-b border-border last:border-0 items-start sm:items-center hover:bg-muted transition-colors cursor-pointer">
+                <span className="text-sm font-medium truncate group-hover:text-primary transition-colors">{scan.document_name}</span>
+                <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-[11px] font-bold uppercase px-2.5 py-1 rounded-full border w-fit ${riskBadge(scan.risk_score)}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${getRiskBand(scan.risk_score) === "critical" ? "bg-red-600" : getRiskBand(scan.risk_score) === "high" ? "bg-orange-500" : getRiskBand(scan.risk_score) === "moderate" ? "bg-amber-500" : "bg-emerald-500"}`} />
                   {getRiskLabel(scan.risk_score)} ({scan.risk_score})
                 </span>
-                <span className="text-sm text-muted-foreground">{scan.risks_found}</span>
+                <span className="text-sm text-muted-foreground sm:text-center">{scan.risks_found}</span>
                 <span className="text-xs text-muted-foreground sm:text-right">
                   {new Date(scan.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </span>
