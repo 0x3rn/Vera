@@ -61,7 +61,7 @@ function RegisterForm() {
 
       await sendEmailVerification(user, {
         url: window.location.origin + "/dashboard",
-        handleCodeInApp: true,
+        handleCodeInApp: false,
       });
       setCooldown(60);
     } catch (err: any) {
@@ -155,7 +155,7 @@ function RegisterForm() {
       // 3. Immediately send verification email
       await sendEmailVerification(userCredential.user, {
         url: window.location.origin + "/dashboard",
-        handleCodeInApp: true,
+        handleCodeInApp: false,
       });
       
       setIsSuccess(true);
