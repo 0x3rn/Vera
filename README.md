@@ -123,7 +123,26 @@ FIREBASE_CLIENT_EMAIL=...
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
-### Development
+### Verification email action URL
+
+Vera serves Firebase email verification links at `https://verahq.xyz/__/auth/action`.
+The route validates the action and applies the one-time code, then refreshes the
+signed-in user's Firebase token and server session. Links opened in another browser
+verify the email without a session and offer sign-in. Invalid, expired, or used links
+offer sign-in or a fresh verification email.
+
+In Firebase Authentication → Templates, confirm the customized action URL is
+`https://verahq.xyz/__/auth/action`. The `url` passed to `sendEmailVerification` is
+the continuation destination (`/dashboard`), not the action handler. The handler
+uses Vera's configured Firebase project, not the `apiKey` or `continueUrl` in the link.
+It supports `verifyEmail` and `verifyAndChangeEmail`; other modes show an unsupported
+action message. Do not enable password-reset templates against this handler without
+adding a password-reset flow.
+
+After deploying, request a fresh verification email and test both the registration
+browser and a separate browser. Also confirm a reused link shows recovery options.
+
+### Development server
 
 ```bash
 npm run dev

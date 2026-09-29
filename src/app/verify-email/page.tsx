@@ -32,7 +32,7 @@ export default function VerifyEmailPage() {
 
       await sendEmailVerification(user, {
         url: window.location.origin + "/dashboard",
-        handleCodeInApp: true,
+        handleCodeInApp: false,
       });
       setCooldown(60);
     } catch (err: unknown) {
@@ -51,11 +51,12 @@ export default function VerifyEmailPage() {
         if (user.emailVerified) {
           // Re-auth the session so the server gets the updated claims
           const idToken = await user.getIdToken(true);
-          await fetch("/api/auth/session", {
+          const response = await fetch("/api/auth/session", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ idToken })
           });
+          if (!response.ok) throw new Error("Failed to create secure session.");
           window.location.href = "/dashboard";
           return;
         }
