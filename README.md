@@ -125,6 +125,31 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY----
 
 ### Verification email action URL
 
+Registration and resend now send branded HTML and plain-text emails through the
+server's SMTP transport, using Firebase Admin-generated action codes. The HTML
+contains a white “Verify email” button on Vera's `#6366f1` background and a copyable
+fallback URL. Both URLs omit `apiKey` and point directly to Vera's action handler.
+The authenticated endpoint only emails the Firebase account belonging to the
+request's ID token; it limits requests by IP and to one email per user per minute.
+
+Before deploying this flow, configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
+`SMTP_PASSWORD`, and `SMTP_FROM_EMAIL` in the hosting provider's server environment.
+`SMTP_REPLY_TO` is optional. Use a sender your SMTP provider permits, and configure
+its SPF/DKIM records. Set `APP_URL=https://verahq.xyz` and keep Firebase Admin and
+Upstash credentials configured. These settings must never use `NEXT_PUBLIC_`.
+Missing configuration or delivery failures show a retryable error rather than
+claiming an email was sent. A registration remains recoverable through resend or
+sign-in if delivery fails after the account was created.
+
+Run `npm run email:verify-smtp` with Node.js 22.18+ and your `.env.local` (or injected
+environment) to check SMTP connectivity, TLS, and authentication without sending
+mail. The script does not prove inbox delivery. Run `npm run test` for automated
+template, authentication, rate-limit, delivery-failure, and action-code checks.
+After deployment, register a test account, inspect the button and fallback URL,
+verify through each link in separate accounts, and test resend. Check spam as well
+as the inbox. The Firebase console's built-in verification message is no longer
+used by registration/resend; email-change notifications still use Firebase.
+
 Vera serves Firebase email verification links at `https://verahq.xyz/__/auth/action`.
 The route validates the action and applies the one-time code, then refreshes the
 signed-in user's Firebase token and server session. Links opened in another browser

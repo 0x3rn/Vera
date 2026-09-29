@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { auth } from "@/lib/firebase/client";
-import { sendEmailVerification } from "firebase/auth";
+import { sendBrandedVerificationEmail } from "@/lib/firebase/send-verification-email";
 
 export default function VerifyEmailPage() {
   const [cooldown, setCooldown] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -30,10 +31,8 @@ export default function VerifyEmailPage() {
         throw new Error("No user found. Please try logging in again.");
       }
 
-      await sendEmailVerification(user, {
-        url: window.location.origin + "/dashboard",
-        handleCodeInApp: false,
-      });
+      await sendBrandedVerificationEmail(user);
+      setSent(true);
       setCooldown(60);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to resend verification email.");
@@ -88,7 +87,7 @@ export default function VerifyEmailPage() {
           
           <h1 className="text-3xl font-bold mb-4">Check your inbox</h1>
           <p className="text-muted-foreground mb-8 leading-relaxed">
-            We've sent a verification link to your email address. Please click the link to verify your account and access the dashboard.
+            {sent ? "A new verification link has been sent to your email address. Click it to verify your account and access the dashboard." : "Check your inbox for your verification email, or request a new link below. Click the link to verify your account and access the dashboard."}
           </p>
 
           {error && (

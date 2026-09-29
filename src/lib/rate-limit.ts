@@ -40,6 +40,8 @@ function createLimiter(limit: number, window: `${number} ${"m" | "h"}`, prefix: 
 }
 
 export const authRateLimit = createLimiter(5, "1 m", "@upstash/ratelimit/auth");
+export const verificationIpRateLimit = createLimiter(10, "1 m", "@upstash/ratelimit/verification-ip");
+export const verificationUserRateLimit = createLimiter(1, "1 m", "@upstash/ratelimit/verification-user");
 export const scanRateLimit = createLimiter(15, "1 h", "@upstash/ratelimit/scan");
 export const contactRateLimit = createLimiter(5, "1 h", "@upstash/ratelimit/contact");
 export const billingRateLimit = createLimiter(10, "10 m", "@upstash/ratelimit/billing");

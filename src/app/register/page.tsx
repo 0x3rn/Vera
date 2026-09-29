@@ -6,8 +6,9 @@ import {
   GoogleReCaptchaProvider,
   useGoogleReCaptcha,
 } from "react-google-recaptcha-v3";
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendEmailVerification } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
+import { sendBrandedVerificationEmail } from "@/lib/firebase/send-verification-email";
 import { formatErrorMessage } from "@/lib/error-handler";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
@@ -30,6 +31,7 @@ function RegisterForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
   const [cooldown, setCooldown] = useState(60);
 
   useEffect(() => {
@@ -59,10 +61,8 @@ function RegisterForm() {
       const user = auth.currentUser;
       if (!user) throw new Error("No user session found.");
 
-      await sendEmailVerification(user, {
-        url: window.location.origin + "/dashboard",
-        handleCodeInApp: false,
-      });
+      await sendBrandedVerificationEmail(user);
+      setVerificationSent(true);
       setCooldown(60);
     } catch (err: any) {
       setError(formatErrorMessage(err));
@@ -152,13 +152,12 @@ function RegisterForm() {
       // 2. Sign in on the client to establish the Firebase Auth session
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       
-      // 3. Immediately send verification email
-      await sendEmailVerification(userCredential.user, {
-        url: window.location.origin + "/dashboard",
-        handleCodeInApp: false,
-      });
-      
+      // Keep the created account recoverable if email delivery fails.
       setIsSuccess(true);
+      setCooldown(0);
+      await sendBrandedVerificationEmail(userCredential.user);
+      setVerificationSent(true);
+      setCooldown(60);
     } catch (err: any) {
       setError(formatErrorMessage(err));
     } finally {
@@ -192,9 +191,9 @@ function RegisterForm() {
             </svg>
           </div>
           
-          <h1 className="text-3xl font-bold mb-4">Check your inbox</h1>
+          <h1 className="text-3xl font-bold mb-4">{verificationSent ? "Check your inbox" : "Verify your email"}</h1>
           <p className="text-muted-foreground mb-8 leading-relaxed">
-            We've sent a verification link to your email address. Please click the link to verify your account and access the dashboard.
+            {verificationSent ? "We’ve sent a verification link to your email address. Click the link to verify your account and access the dashboard." : "Your account has been created. Request a verification link below to verify your email address."}
           </p>
 
           {error && (
