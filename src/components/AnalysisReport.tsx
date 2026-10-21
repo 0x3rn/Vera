@@ -89,6 +89,15 @@ export function CopyFullReportButton({ analysis }: { analysis: AnalysisResult })
     else verdictText = "PASSED: GENERALLY ACCEPTABLE";
   }
 
+  const hasDealBreakers = Boolean(analysis.dealBreakers && analysis.dealBreakers.length > 0);
+  const isPassedVerdict = !verdictText.includes("DO NOT SIGN") && !verdictText.includes("EXTREME CAUTION") && !verdictText.includes("NEGOTIATE") && !verdictText.includes("MODERATE");
+
+  if (hasDealBreakers && isPassedVerdict) {
+    verdictText = analysis.dealBreakers.length > 1
+      ? "PASSED WITH EXCEPTIONS: DEAL BREAKERS IDENTIFIED"
+      : "PASSED WITH EXCEPTIONS: DEAL BREAKER IDENTIFIED";
+  }
+
   const severityOrder: Record<RedFlag["severity"], number> = { critical: 0, high: 1, medium: 2, low: 3 };
   const sortedFlags = [...analysis.redFlags].sort(
     (a, b) => severityOrder[a.severity] - severityOrder[b.severity]
@@ -99,10 +108,10 @@ export function CopyFullReportButton({ analysis }: { analysis: AnalysisResult })
 VERA RISK ANALYSIS REPORT
 =========================
 Title: ${analysis.suggestedTitle}
-Risk Score: ${analysis.overallRiskScore}/100
+Risk Score: ${Math.round(analysis.overallRiskScore)}/100
 Verdict: ${verdictText}
 Lawyer Review: ${analysis.lawyerReview || "Not Assessed"}
-
+${hasDealBreakers && isPassedVerdict ? `Notice: Overall risk score passed, but ${analysis.dealBreakers.length} deal breaker(s) must be resolved.\n` : ""}
 EXECUTIVE SUMMARY
 -----------------
 ${analysis.summary}
@@ -113,7 +122,9 @@ Critical Risk Flags: ${analysis.scoreBreakdown?.criticalCount || 0}
 High Risk Flags: ${analysis.scoreBreakdown?.highCount || 0}
 Medium Risk Flags: ${analysis.scoreBreakdown?.mediumCount || 0}
 Low Risk Flags: ${analysis.scoreBreakdown?.lowCount || 0}
-One-Sidedness Multiplier: ${analysis.scoreBreakdown?.riskMultiplier || 1.0}x
+Weighted Risk Points: ${analysis.scoreBreakdown?.baseScore != null ? Number(analysis.scoreBreakdown.baseScore).toFixed(1) : "N/A"}
+One-Sidedness Multiplier: ${analysis.scoreBreakdown?.riskMultiplier != null ? `×${Number(analysis.scoreBreakdown.riskMultiplier).toFixed(1)}` : "1.0x"}
+Final Score: ${analysis.scoreBreakdown?.finalScore != null ? Math.round(analysis.scoreBreakdown.finalScore) : Math.round(score)}/100
 ${analysis.scoreExplanation ? `Context: ${analysis.scoreExplanation}` : ""}
 
 FINANCIAL EXPOSURE
@@ -135,6 +146,7 @@ WORST CASE SCENARIO
 -------------------
 ${analysis.worstCaseScenario}
 
+${hasDealBreakers ? `DEAL BREAKERS\n-------------\n${analysis.dealBreakers.join('\n')}\n` : ""}
 RED FLAGS IDENTIFIED
 --------------------
 ${sortedFlags.map(flag => `
@@ -155,28 +167,27 @@ ${(analysis.negotiationChecklist || []).join('\n')}
     setTimeout(() => setCopiedReport(false), 2000);
   };
 
-
   return (
-        <button
-          onClick={copyFullReport}
-          className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 rounded-lg hover:opacity-90 transition-opacity text-sm font-bold shadow-sm"
-        >
-          {copiedReport ? (
-            <>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              Copied to Clipboard!
-            </>
-          ) : (
-            <>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-              </svg>
-              Copy Full Report
-            </>
-          )}
-        </button>
+    <button
+      onClick={copyFullReport}
+      className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700 rounded-lg transition-colors text-sm font-bold shadow-sm"
+    >
+      {copiedReport ? (
+        <>
+          <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Copied to Clipboard!
+        </>
+      ) : (
+        <>
+          <svg className="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+          </svg>
+          Copy Full Report
+        </>
+      )}
+    </button>
   );
 }
 
@@ -210,64 +221,31 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
     else verdictText = "PASSED: GENERALLY ACCEPTABLE";
   }
 
-  if (verdictText.includes("DO NOT SIGN")) {
+  const hasDealBreakers = Boolean(analysis.dealBreakers && analysis.dealBreakers.length > 0);
+  const isPassedVerdict = !verdictText.includes("DO NOT SIGN") && !verdictText.includes("EXTREME CAUTION") && !verdictText.includes("NEGOTIATE") && !verdictText.includes("MODERATE");
+
+  let dealBreakerPassedExplanation = "";
+  if (hasDealBreakers && isPassedVerdict) {
+    verdictText = analysis.dealBreakers.length > 1
+      ? "PASSED WITH EXCEPTIONS: DEAL BREAKERS IDENTIFIED"
+      : "PASSED WITH EXCEPTIONS: DEAL BREAKER IDENTIFIED";
+    verdictClass = "bg-amber-600 border-amber-700 text-white dark:bg-amber-900/80 dark:border-amber-900/50 dark:text-white";
+    dealBreakerPassedExplanation = `Overall risk score is within acceptable limits, but ${
+      analysis.dealBreakers.length === 1 ? "1 deal breaker requires" : `${analysis.dealBreakers.length} deal breakers require`
+    } resolution before signing.`;
+  } else if (verdictText.includes("DO NOT SIGN") || verdictText.includes("EXTREME CAUTION")) {
     verdictClass = "bg-red-600 border-red-700 text-white dark:bg-red-900/80 dark:border-red-900/50 dark:text-white";
-  } else if (verdictText.includes("EXTREME CAUTION")) {
-    verdictClass = "bg-orange-600 border-orange-700 text-white dark:bg-orange-900/80 dark:border-orange-900/50 dark:text-white";
   } else if (verdictText.includes("NEGOTIATE") || verdictText.includes("MODERATE")) {
     verdictClass = "bg-amber-600 border-amber-700 text-white dark:bg-amber-900/80 dark:border-amber-900/50 dark:text-white";
   } else {
     verdictClass = "bg-emerald-600 border-emerald-700 text-white dark:bg-emerald-900/80 dark:border-emerald-900/50 dark:text-white";
   }
 
-
-  const getSeverityLevel = (severity: string | undefined, defaultScore: number) => {
-    if (!severity) {
-      if (defaultScore >= 80) return "bad";
-      if (defaultScore >= 45) return "moderate";
-      return "good";
-    }
-    return severity.toLowerCase();
-  };
-
-  const getSeverityClasses = (level: string) => {
-    if (level === "bad") {
-      return {
-        bg: "bg-red-50 dark:bg-red-950/20",
-        border: "border-red-200 dark:border-red-900/50",
-        text: "text-red-800 dark:text-red-400",
-        icon: "text-red-500",
-        borderLeft: "border-red-500/50",
-      };
-    }
-    if (level === "moderate") {
-      return {
-        bg: "bg-amber-50 dark:bg-amber-950/20",
-        border: "border-amber-200 dark:border-amber-900/50",
-        text: "text-amber-800 dark:text-amber-400",
-        icon: "text-amber-500",
-        borderLeft: "border-amber-500/50",
-      };
-    }
-    return {
-      bg: "bg-emerald-50 dark:bg-emerald-500/10",
-      border: "border-emerald-200 dark:border-emerald-900/50",
-      text: "text-emerald-800 dark:text-emerald-400",
-      icon: "text-emerald-500",
-      borderLeft: "border-emerald-500/50",
-    };
-  };
-
-  // Safe navigation with typing workaround for backwards compatibility
-  const finSeverity = analysis.financialExposure ? (analysis.financialExposure as any).severity : undefined;
-  const finExposureLevel = getSeverityLevel(finSeverity, score);
-  const finColors = getSeverityClasses(finExposureLevel);
-
-  const wcSeverity = (analysis as any).worstCaseScenarioSeverity;
-  const worstCaseLevel = getSeverityLevel(wcSeverity, score);
-  const worstCaseColors = getSeverityClasses(worstCaseLevel);
-
   const enforceabilityFlags = sortedFlags.filter(f => f.enforcementLikelihood || f.industryStandard || f.enforceabilityInsight);
+
+  const displayFinalScore = analysis.scoreBreakdown?.finalScore != null
+    ? Math.round(analysis.scoreBreakdown.finalScore)
+    : Math.round(analysis.overallRiskScore);
 
   return (
     <div className="w-full space-y-10 animate-in fade-in zoom-in duration-500 relative">
@@ -278,124 +256,25 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
         </div>
       )}
 
-      {/* 1. EXECUTIVE SUMMARY SECTION */}
+      {/* 1. EXECUTIVE SUMMARY SECTION & VERDICT */}
       
-      <div className="flex flex-col items-center justify-center py-6 gap-6">
+      <div className="flex flex-col items-center justify-center py-6 gap-4">
         <RiskMeter score={analysis.overallRiskScore} />
         <div className={`px-6 py-3 rounded-full border shadow-sm font-black tracking-widest uppercase text-sm ${verdictClass}`}>
           {verdictText}
         </div>
-      </div>
-
-      {/* Lawyer Review Recommendation */}
-      {analysis.lawyerReview && (
-        <div className={`p-4 rounded-xl border flex items-center justify-center gap-2 ${
-          analysis.lawyerReview === 'Essential' || analysis.lawyerReview === 'Strongly Recommended'
-            ? 'bg-red-50 text-red-800 dark:bg-red-950/20 dark:text-red-400 border-red-200 dark:border-red-900/50'
-            : analysis.lawyerReview === 'Recommended'
-            ? 'bg-amber-50 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 border-amber-200 dark:border-amber-900/50'
-            : 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50'
-        }`}>
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-          </svg>
-          <span className="font-bold text-sm tracking-wide">Lawyer Review: {analysis.lawyerReview}</span>
-        </div>
-      )}
-
-      {/* Risk Concentration Warning */}
-      {analysis.riskConcentration && (
-        <div className="p-5 rounded-xl border bg-amber-50 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 border-amber-200 dark:border-amber-900/50">
-          <div className="flex items-start gap-3">
-            <svg className="w-6 h-6 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <div>
-              <h3 className="font-bold uppercase tracking-widest text-xs mb-1">Risk Concentration Detected</h3>
-              <p className="text-sm font-medium">{analysis.riskConcentration.warning}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex flex-col justify-center">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-4">Executive Summary</h3>
-          <p className="text-zinc-900 dark:text-white leading-relaxed text-lg font-medium">{analysis.summary}</p>
-        </div>
-
-        {/* Score Breakdown */}
-        {analysis.scoreBreakdown && (
-          <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex flex-col justify-center">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-4">Score Breakdown</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Critical risk flags</span>
-                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.criticalCount}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">High risk flags</span>
-                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.highCount}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Medium risk flags</span>
-                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.mediumCount}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-zinc-600 dark:text-zinc-400">Low risk flags</span>
-                <span className="font-semibold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.lowCount}</span>
-              </div>
-              <div className="pt-3 mt-3 border-t border-zinc-200 dark:border-zinc-800">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-zinc-600 dark:text-zinc-400 font-bold">Base Score</span>
-                  <span className="font-bold text-zinc-900 dark:text-white">{analysis.scoreBreakdown.baseScore}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm mt-2">
-                  <span className="text-zinc-600 dark:text-zinc-400">One-Sidedness Multiplier</span>
-                  <span className="font-bold text-amber-600 dark:text-amber-400">× {analysis.scoreBreakdown.riskMultiplier}</span>
-                </div>
-                <div className="flex justify-between items-center text-base mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800">
-                  <span className="font-bold text-zinc-900 dark:text-white uppercase tracking-widest text-xs">Final Score</span>
-                  <span className="font-black text-primary">{analysis.scoreBreakdown.finalScore} / 100</span>
-                </div>
-              </div>
-            </div>
-            {analysis.scoreExplanation && (
-              <div className="mt-6 pt-5 border-t border-zinc-200 dark:border-white/10">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-500 mb-2">Score Context</h4>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 font-medium italic leading-relaxed">{analysis.scoreExplanation}</p>
-              </div>
-            )}
-          </div>
+        {dealBreakerPassedExplanation && (
+          <p className="text-xs sm:text-sm font-medium text-amber-800 dark:text-amber-400 text-center max-w-lg mt-1">
+            {dealBreakerPassedExplanation}
+          </p>
         )}
       </div>
 
-
-      {/* Key Dates & Deadlines */}
-      {analysis.keyDates && analysis.keyDates.length > 0 && (
-        <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-6 flex items-center gap-2">
-            <svg className="w-5 h-5 text-zinc-900 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Key Dates & Deadlines
-          </h3>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {analysis.keyDates.map((d: { label: string; date: string }, i: number) => (
-              <div key={i} className="flex flex-col p-4 rounded-xl bg-zinc-50 dark:bg-[#070709] border border-zinc-200 dark:border-white/10">
-                <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest mb-1">{d.label}</span>
-                <span className="font-semibold text-zinc-900 dark:text-white">{d.date}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Deal Breakers */}
-      {analysis.dealBreakers && analysis.dealBreakers.length > 0 && (
+      {/* Deal Breakers (Moved up, directly under the verdict, above Key Dates) */}
+      {hasDealBreakers && (
         <div className="p-8 rounded-2xl border bg-red-50 text-red-800 dark:bg-red-950/20 dark:text-red-400 border-red-200 dark:border-red-900/50">
           <h3 className="text-sm font-bold uppercase tracking-widest text-red-800 dark:text-red-400 mb-6 flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             Deal Breakers
@@ -413,12 +292,130 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* Lawyer Review Recommendation */}
+      {analysis.lawyerReview && (
+        <div className="p-4 rounded-xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex items-center justify-center gap-3">
+          <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+          </svg>
+          <span className="font-medium text-sm text-zinc-700 dark:text-zinc-300">Lawyer Review:</span>
+          <span className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
+            analysis.lawyerReview === 'Essential' || analysis.lawyerReview === 'Strongly Recommended'
+              ? 'bg-red-50 text-red-800 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-900/50'
+              : analysis.lawyerReview === 'Recommended'
+              ? 'bg-amber-50 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400 border-amber-200 dark:border-amber-900/50'
+              : 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50'
+          }`}>
+            <span className={`w-2 h-2 rounded-full ${
+              analysis.lawyerReview === 'Essential' || analysis.lawyerReview === 'Strongly Recommended'
+                ? 'bg-red-600'
+                : analysis.lawyerReview === 'Recommended'
+                ? 'bg-amber-500'
+                : 'bg-emerald-500'
+            }`} />
+            {analysis.lawyerReview}
+          </span>
+        </div>
+      )}
+
+      {/* Risk Concentration Warning (Carries a verdict: colored tint and border) */}
+      {analysis.riskConcentration && (
+        <div className="p-5 rounded-xl border bg-amber-50 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 border-amber-200 dark:border-amber-900/50">
+          <div className="flex items-start gap-3">
+            <svg className="w-6 h-6 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+              <h3 className="font-bold uppercase tracking-widest text-xs mb-1">Risk Concentration Detected</h3>
+              <p className="text-sm font-medium">{analysis.riskConcentration.warning}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Executive Summary & Score Breakdown */}
+      <div className="grid md:grid-cols-2 gap-6 items-start">
+        <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex flex-col justify-start">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-4">Executive Summary</h3>
+          <p className="text-zinc-900 dark:text-white leading-relaxed text-base font-medium">{analysis.summary}</p>
+          {analysis.scoreExplanation && (
+            <p className="mt-4 pt-4 border-t border-zinc-200 dark:border-white/10 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              {analysis.scoreExplanation}
+            </p>
+          )}
+        </div>
+
+        {/* Score Breakdown Card */}
+        {analysis.scoreBreakdown && (
+          <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex flex-col justify-start">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-3">Score Breakdown</h3>
+            
+            <div className="text-base font-semibold text-zinc-900 dark:text-white mb-2">
+              Risk score: {displayFinalScore}/100 <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">(lower is safer)</span>
+            </div>
+
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+              {analysis.scoreBreakdown.criticalCount} critical · {analysis.scoreBreakdown.highCount} high · {analysis.scoreBreakdown.mediumCount} medium · {analysis.scoreBreakdown.lowCount} low
+            </p>
+
+            <details className="group border-t border-zinc-200 dark:border-white/10 pt-3">
+              <summary className="flex items-center justify-between cursor-pointer text-xs font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white select-none">
+                <span>How this score is calculated</span>
+                <svg className="w-4 h-4 transition-transform duration-200 group-open:rotate-180 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="mt-3 space-y-2 pt-1 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-600 dark:text-zinc-400">Weighted risk points</span>
+                  <span className="font-semibold text-zinc-900 dark:text-white">
+                    {Number(analysis.scoreBreakdown.baseScore).toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-600 dark:text-zinc-400">One-sidedness multiplier</span>
+                  <span className="font-bold text-amber-600 dark:text-amber-400">
+                    ×{Number(analysis.scoreBreakdown.riskMultiplier).toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                  <span className="font-bold text-xs uppercase tracking-widest text-zinc-900 dark:text-white">Final Score</span>
+                  <span className="font-black text-primary">
+                    {displayFinalScore} / 100
+                  </span>
+                </div>
+              </div>
+            </details>
+          </div>
+        )}
+      </div>
+
+      {/* Key Dates & Deadlines */}
+      {analysis.keyDates && analysis.keyDates.length > 0 && (
+        <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
+            <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Key Dates & Deadlines
+          </h3>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {analysis.keyDates.map((d: { label: string; date: string }, i: number) => (
+              <div key={i} className="flex flex-col p-4 rounded-xl bg-zinc-50 dark:bg-[#070709] border border-zinc-200 dark:border-white/10">
+                <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest mb-1">{d.label}</span>
+                <span className="font-semibold text-zinc-900 dark:text-white">{d.date}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-6 items-start">
         {/* Financial Exposure Widget */}
         {analysis.financialExposure && (
           <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex flex-col">
             <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
-              <svg className={`w-5 h-5 ${finColors.icon}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Financial Exposure
@@ -433,13 +430,13 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
                 <p className="text-base font-semibold text-zinc-900 dark:text-white">{analysis.financialExposure.liquidatedDamages}</p>
               </div>
             </div>
-            <div className={`mt-4 p-5 rounded-xl border ${finColors.bg} ${finColors.text} ${finColors.border}`}>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${finColors.text}`}>Total Estimated Exposure</p>
-              <p className={`text-lg font-bold ${finColors.text}`}>{analysis.financialExposure.totalEstimatedExposure}</p>
+            <div className="mt-4 p-5 rounded-xl border bg-zinc-50 dark:bg-[#070709] border-zinc-200 dark:border-white/10">
+              <p className="text-xs font-bold uppercase tracking-widest mb-1 text-zinc-600 dark:text-zinc-400">Total Estimated Exposure</p>
+              <p className="text-lg font-bold text-zinc-900 dark:text-white">{analysis.financialExposure.totalEstimatedExposure}</p>
               {analysis.financialExposure.capIllusion?.isIllusory && (
-                <div className={`mt-4 pt-4 border-t ${finColors.borderLeft.replace('border-l-2', '').trim() || 'border-red-500/20'}`}>
-                  <div className="flex items-start gap-2">
-                    <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-900/50">
+                  <div className="flex items-start gap-2 text-amber-800 dark:text-amber-400">
+                    <svg className="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <div>
@@ -453,28 +450,28 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
           </div>
         )}
 
-        {/* Worst-Case Scenario */}
+        {/* Worst-Case Scenario (Normal body text with an amber left border, not italic amber) */}
         {analysis.worstCaseScenario && (
           <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex flex-col">
             <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
-              <svg className={`w-5 h-5 ${worstCaseColors.icon}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               Worst-Case Scenario
             </h3>
-            <div className="flex-grow flex items-center">
-              <p className={`font-medium leading-relaxed text-sm italic border-l-2 ${worstCaseColors.borderLeft} pl-4 py-2 rounded-r-xl ${worstCaseColors.bg} ${worstCaseColors.text}`}>
+            <div className="flex-grow flex items-start">
+              <p className="font-medium leading-relaxed text-sm border-l-2 border-amber-500 pl-4 py-2 text-zinc-900 dark:text-white">
                 {analysis.worstCaseScenario}
               </p>
             </div>
           </div>
         )}
 
-        {/* Mutuality Analysis */}
+        {/* Mutuality Analysis (Cyan removed entirely) */}
         {analysis.mutualityAnalysis && (
           <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10 flex flex-col md:col-span-2">
             <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
-              <svg className="w-5 h-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
               </svg>
               Mutuality & Balance
@@ -500,7 +497,7 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
             <div className={`p-4 rounded-xl border flex items-center justify-between ${
               analysis.mutualityAnalysis.riskMultiplier >= 1.5 
                 ? 'bg-amber-50 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 border-amber-200 dark:border-amber-900/50'
-                : 'bg-cyan-50 text-cyan-800 dark:bg-cyan-950/20 dark:text-cyan-400 border-cyan-200 dark:border-cyan-900/50'
+                : 'bg-zinc-50 text-zinc-900 border-zinc-200 dark:bg-[#070709] dark:text-white dark:border-white/10'
             }`}>
               <span className="font-bold uppercase tracking-widest text-xs">Overall Balance</span>
               <span className="font-bold text-sm">{analysis.mutualityAnalysis.overall} (Multiplier: {analysis.mutualityAnalysis.riskMultiplier}x)</span>
@@ -509,30 +506,30 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
         )}
       </div>
 
-      {/* Top 5 Negotiation Points */}
+      {/* Top 5 Negotiation Points (Cyan removed, neutral card with brand indigo accent) */}
       {analysis.negotiationChecklist && analysis.negotiationChecklist.length > 0 && (
-        <div className="p-8 rounded-2xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-900/50">
+        <div className="p-8 rounded-2xl border bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-cyan-800 dark:text-cyan-400 flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white flex items-center gap-2">
+              <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
               Top Negotiation Points
             </h3>
             <button 
               onClick={copyChecklist}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-cyan-100 hover:bg-cyan-200 dark:bg-cyan-500/20 dark:hover:bg-cyan-500/30 text-cyan-800 dark:text-cyan-400 rounded-lg border border-cyan-200 dark:border-cyan-900/50 transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-lg border border-zinc-200 dark:border-white/10 transition-colors flex items-center gap-2"
             >
               {copiedChecklist ? (
                 <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   Copied!
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                   Copy
@@ -540,26 +537,26 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
               )}
             </button>
           </div>
-          <div className="space-y-3 p-5 rounded-xl border shadow-sm bg-white text-zinc-900 border-zinc-200 dark:bg-[#121216] dark:text-white dark:border-white/10">
+          <div className="space-y-3 p-5 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-[#070709]">
             {analysis.negotiationChecklist.slice(0, 5).map((item, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className="mt-0.5 text-cyan-500 dark:text-cyan-400 shrink-0">
+                <div className="mt-0.5 text-primary shrink-0">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <span className="font-medium text-sm leading-relaxed">{item.replace(/^\d+\.\s*/, '')}</span>
+                <span className="font-medium text-sm leading-relaxed text-zinc-900 dark:text-white">{item.replace(/^\d+\.\s*/, '')}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Positive Findings */}
+      {/* Positive Findings (Carries a verdict: colored tint and border) */}
       {analysis.positiveFindings && analysis.positiveFindings.length > 0 && (
         <div className="p-8 rounded-2xl border bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50">
           <h3 className="text-sm font-bold uppercase tracking-widest text-emerald-800 dark:text-emerald-400 mb-6 flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Positive Findings
@@ -579,8 +576,6 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
           </ul>
         </div>
       )}
-
-
 
       <div className="pt-8 pb-4">
         <h2 className="text-2xl font-bold mb-2 text-zinc-900 dark:text-white">Advanced Analysis</h2>
@@ -609,11 +604,6 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
                 const isCritical = flag.severity === "critical";
                 const isHigh = flag.severity === "high";
                 const isMedium = flag.severity === "medium";
-                const severityBorderClass = isCritical || isHigh
-                  ? "border-red-300 dark:border-red-700/70"
-                  : isMedium
-                    ? "border-amber-300 dark:border-amber-700/70"
-                    : "border-emerald-300 dark:border-emerald-700/70";
                 const severityTextClass = isCritical || isHigh
                   ? "text-red-700 dark:text-red-400"
                   : isMedium
@@ -621,7 +611,7 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
                     : "text-emerald-700 dark:text-emerald-400";
                 
                 return (
-                  <div key={idx} className={`p-6 md:p-8 rounded-2xl border bg-white text-zinc-900 dark:bg-[#121216] dark:text-white shadow-sm ${severityBorderClass}`}>
+                  <div key={idx} className="p-6 md:p-8 rounded-2xl border border-zinc-200 dark:border-white/10 bg-white text-zinc-900 dark:bg-[#121216] dark:text-white shadow-sm">
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
                       <div>
                         <span className="inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 mb-3 border border-zinc-200 dark:border-white/10">
@@ -680,7 +670,7 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
           </div>
         </ExpandableDrawer>
 
-        {/* Drawer 2: Clause Conflicts & Risk Chains */}
+        {/* Drawer 2: Clause Conflicts & Compound Risk Chains */}
         <ExpandableDrawer 
           title="View Clause Conflicts & Risk Chains"
           isOpen={activeDrawer === 'conflicts'}
@@ -693,7 +683,7 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
         >
           <div className="space-y-8 mt-4">
             <div>
-              <h4 className="font-bold uppercase tracking-widest text-amber-500 text-sm mb-4">Critical Conflicts</h4>
+              <h4 className="font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 text-sm mb-4">Critical Conflicts</h4>
               {(!analysis.clauseConflicts || analysis.clauseConflicts.length === 0) ? (
                 <p className="text-zinc-600 dark:text-zinc-400 text-sm">No conflicts detected.</p>
               ) : (
@@ -716,7 +706,7 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
             </div>
 
             <div>
-              <h4 className="font-bold uppercase tracking-widest text-cyan-500 text-sm mb-4">Compound Risk Chains</h4>
+              <h4 className="font-bold uppercase tracking-widest text-zinc-900 dark:text-white text-sm mb-4">Compound Risk Chains</h4>
               {(!analysis.riskChains || analysis.riskChains.length === 0) ? (
                 <p className="text-zinc-600 dark:text-zinc-400 text-sm">No risk chains detected.</p>
               ) : (
@@ -726,14 +716,14 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
                       <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-4">
                         {chain.clauses.map((clause, j) => (
                           <div key={j} className="flex flex-col md:flex-row items-center gap-3 flex-1">
-                            <div className="w-full p-3 bg-cyan-50 dark:bg-cyan-950/20 rounded-lg text-xs font-bold text-cyan-800 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-900/50 text-center tracking-wider uppercase">
+                            <div className="w-full p-3 bg-zinc-50 dark:bg-[#070709] rounded-lg text-xs font-bold text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-white/10 text-center tracking-wider uppercase">
                               {clause}
                             </div>
                             {j < chain.clauses.length - 1 && <div className="text-zinc-600 dark:text-zinc-400 md:rotate-0 rotate-90 my-1 md:my-0">→</div>}
                           </div>
                         ))}
                       </div>
-                      <p className="text-sm text-zinc-900 dark:text-white leading-relaxed"><span className="text-cyan-700 dark:text-cyan-400 font-bold mr-2">Loophole Effect:</span>{chain.effect}</p>
+                      <p className="text-sm text-zinc-900 dark:text-white leading-relaxed"><span className="font-bold mr-2 text-zinc-900 dark:text-white">Loophole Effect:</span>{chain.effect}</p>
                     </div>
                   ))}
                 </div>
@@ -765,11 +755,7 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
                     {flag.enforcementLikelihood && (
                       <div>
                         <p className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest mb-2">Enforcement Likelihood</p>
-                        <span className={`inline-block px-3 py-1 rounded-lg text-sm font-bold border ${
-                          flag.enforcementLikelihood === 'High' ? "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-900/50" : 
-                          flag.enforcementLikelihood === 'Medium' ? "bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900/50" : 
-                          "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50"
-                        }`}>
+                        <span className="inline-block px-3 py-1 rounded-lg text-sm font-bold border border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300">
                           {flag.enforcementLikelihood}
                         </span>
                         {flag.enforceabilityInsight && (
@@ -802,8 +788,7 @@ export default function AnalysisReport({ analysis, showCopyAction = true }: Anal
           </div>
         </ExpandableDrawer>
 
-
-        {/* Drawer 5: Original Contract Clauses */}
+        {/* Drawer 4: Original Contract Clauses */}
         <ExpandableDrawer 
           title="View Original Contract Clauses"
           isOpen={activeDrawer === 'clauses'}
